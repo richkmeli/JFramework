@@ -20,7 +20,7 @@ public class RequestAsync extends Thread {
     Type type;
     RequestListener requestListener;
 
-    public RequestAsync(RequestListener requestListener,Type type, String url){
+    public RequestAsync(RequestListener requestListener, Type type, String url) {
         client = new OkHttpClient();
         this.url = url;
         this.type = type;
@@ -32,7 +32,6 @@ public class RequestAsync extends Thread {
                 .build();
 
     }
-
 
 
     @Override
@@ -76,11 +75,10 @@ public class RequestAsync extends Thread {
 
         //System.out.println("TEST_1: "+String.valueOf(s));
 
-        requestListener.onResult(gson.fromJson(String.valueOf(s),type));
+        requestListener.onResult(gson.fromJson(String.valueOf(s), type));
 
 
     }
-
 
 
 }

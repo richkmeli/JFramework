@@ -7,6 +7,14 @@
     <groupId>it.richkmeli.jframework</groupId>
     <artifactId>JFramework</artifactId>
     <version>1.0</version>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>
@@ -39,6 +47,13 @@
     </build>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.github.richkmeli</groupId>
+            <artifactId>JCrypto</artifactId>
+            <version>v1.0</version>
+        </dependency>
+
          <dependency>
              <groupId>com.squareup.okhttp3</groupId>
              <artifactId>okhttp</artifactId>

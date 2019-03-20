@@ -1,11 +1,15 @@
 package it.richkmeli.jframework.database;
 
-import com.sun.tools.internal.ws.processor.model.ModelException;
-
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public interface DatabaseModel {
-    public boolean createSchema() throws ModelException;
+    void init() throws DatabaseException;
 
-    public boolean createTables() throws ModelException;
+    Connection connect() throws DatabaseException;
+
+    void disconnect(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) throws DatabaseException;
+
+    boolean execute(String string) throws DatabaseException;
 }

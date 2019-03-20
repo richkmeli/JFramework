@@ -1,28 +1,27 @@
 package it.richkmeli.jframework.auth;
 
-import com.sun.tools.internal.ws.processor.model.ModelException;
 import it.richkmeli.jframework.auth.model.User;
-import it.richkmeli.jframework.database.DatabaseManager;
+import it.richkmeli.jframework.database.DatabaseException;
 import it.richkmeli.jframework.database.DatabaseModel;
 
 import java.util.List;
 
 public interface AuthModel extends DatabaseModel {
 
-    public List<User> refreshUser() throws ModelException;
+    List<User> refreshUser() throws DatabaseException;
 
-    public boolean addUser(User user) throws ModelException;
+    boolean addUser(User user) throws DatabaseException;
 
-    public boolean removeUser(String email) throws ModelException;
+    boolean removeUser(String email) throws DatabaseException;
 
-    public boolean isUserPresent(String email) throws ModelException;
+    boolean isUserPresent(String email) throws DatabaseException;
 
-    public boolean editPassword(String email, String pass) throws ModelException;
+    boolean editPassword(String email, String pass) throws DatabaseException;
 
-    public boolean editAdmin(String email, Boolean isAdmin) throws ModelException;
+    boolean editAdmin(String email, Boolean isAdmin) throws DatabaseException;
 
-    public boolean checkPassword(String email, String pass) throws ModelException;
+    boolean checkPassword(String email, String pass) throws DatabaseException;
 
-    public boolean isAdmin(String email) throws ModelException;
+    boolean isAdmin(String email) throws DatabaseException;
 
 }

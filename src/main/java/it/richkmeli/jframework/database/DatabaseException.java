@@ -1,9 +1,7 @@
 package it.richkmeli.jframework.database;
 
-import it.richkmeli.RMS.model.ModelException;
-
 @SuppressWarnings("serial")
-public class DatabaseException extends ModelException {
+public class DatabaseException extends Exception {
 
     public DatabaseException(Exception exception) {
         super(exception);
