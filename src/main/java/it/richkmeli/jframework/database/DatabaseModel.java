@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 public interface DatabaseModel {
     void init() throws DatabaseException;
 
+    void init(String database) throws DatabaseException;
+
     Connection connect() throws DatabaseException;
 
     void disconnect(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) throws DatabaseException;

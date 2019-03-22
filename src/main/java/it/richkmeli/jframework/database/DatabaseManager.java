@@ -33,11 +33,36 @@ public class DatabaseManager implements DatabaseModel {
         }
     }
 
+    @Override
+    public void init(String database) throws DatabaseException {
+
+        loadConfigurationProperties(database);
+        try {
+            //schemaDbName = "RichkwareMS";
+
+            createSchema(schemaName);
+            dbUrl += schemaName;
+
+            //tableDbName = schemaDbName + ".device";
+            //authTableDbName = schemaDbName + ".user";
+            createTables(tableName + table);
+        } catch (DatabaseException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
     private void loadConfigurationProperties() throws DatabaseException {
+        loadConfigurationProperties(null);
+    }
+
+    private void loadConfigurationProperties(String database) throws DatabaseException {
         ResourceBundle resource = ResourceBundle.getBundle("configuration");
         String dbClass = null;
 
-        String database = resource.getString("database");
+        if(database == null){
+            database = resource.getString("database");
+        }
+
         dbUsername = resource.getString("database." + database + ".username");
         dbPassword = resource.getString("database." + database + ".password");
         dbUrl = resource.getString("database." + database + ".url");
@@ -49,6 +74,16 @@ public class DatabaseManager implements DatabaseModel {
         }
     }
 
+    private void loadConfigurationProperties(String dbUsername, String dbPassword, String dbUrl, String dbClass) throws DatabaseException {
+        this.dbUsername = dbUsername;
+        this.dbPassword = dbPassword
+        this.dbUrl = dbUrl
+        try {
+            Class.forName(dbClass);
+        } catch (ClassNotFoundException e) {
+            throw new DatabaseException(e);
+        }
+    }
 
     @Override
     public Connection connect() throws DatabaseException {
@@ -108,10 +143,20 @@ public class DatabaseManager implements DatabaseModel {
         return true;
     }
 
+
     // TODO has to be tested
     public <T> boolean add(T type) throws DatabaseException {
+        return add(type,null);
+    }
+
+        // TODO has to be tested
+    public <T> boolean add(T type, DBManagerAction dbManagerAction) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+
+        if(dbManagerAction != null){
+            type = (T) dbManagerAction.action(type);
+        }
 
         try {
             connection = connect();
