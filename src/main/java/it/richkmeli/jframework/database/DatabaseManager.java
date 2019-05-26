@@ -59,7 +59,7 @@ public class DatabaseManager implements DatabaseModel {
         ResourceBundle resource = ResourceBundle.getBundle("configuration");
         String dbClass = null;
 
-        if(database == null){
+        if (database == null) {
             database = resource.getString("database");
         }
 
@@ -76,8 +76,8 @@ public class DatabaseManager implements DatabaseModel {
 
     private void loadConfigurationProperties(String dbUsername, String dbPassword, String dbUrl, String dbClass) throws DatabaseException {
         this.dbUsername = dbUsername;
-        this.dbPassword = dbPassword
-        this.dbUrl = dbUrl
+        this.dbPassword = dbPassword;
+        this.dbUrl = dbUrl;
         try {
             Class.forName(dbClass);
         } catch (ClassNotFoundException e) {
@@ -146,15 +146,15 @@ public class DatabaseManager implements DatabaseModel {
 
     // TODO has to be tested
     public <T> boolean add(T type) throws DatabaseException {
-        return add(type,null);
+        return add(type, null);
     }
 
-        // TODO has to be tested
+    // TODO has to be tested
     public <T> boolean add(T type, DBManagerAction dbManagerAction) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
-        if(dbManagerAction != null){
+        if (dbManagerAction != null) {
             type = (T) dbManagerAction.action(type);
         }
 

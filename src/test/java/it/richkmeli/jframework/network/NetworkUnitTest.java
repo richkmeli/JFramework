@@ -5,36 +5,35 @@ import org.junit.Test;
 public class NetworkUnitTest {
 
 
+    @Test
+    public void requestAsync() {
+        final Lock lock = new Lock();
 
-   @Test
-    public void requestAsync(){
-       final Lock lock = new Lock();
+        RequestListener<MeasurementsResponse> requestListener = new RequestListener<MeasurementsResponse>() {
+            @Override
+            public void onResult(MeasurementsResponse response) {
+                synchronized (lock) {
+                    lock.notify();
+                }
 
-       RequestListener<MeasurementsResponse> requestListener = new RequestListener<MeasurementsResponse>() {
-           @Override
-           public void onResult(MeasurementsResponse response) {
-               synchronized (lock){
-                   lock.notify();
-               }
+                System.out.println("TEST_1: " + response.getLocation());
+            }
+        };
 
-               System.out.println("TEST_1: "+response.getLocation());
-           }
-       };
+        RequestAsync requestAsync = new RequestAsync(requestListener, MeasurementsResponse.class, "https://api.openaq.org/v1/measurements?limit=1");
+        requestAsync.start();
 
-       RequestAsync requestAsync = new RequestAsync(requestListener, MeasurementsResponse.class, "https://api.openaq.org/v1/measurements?limit=1");
-       requestAsync.start();
-
-       synchronized (lock){
-           try {
-               lock.wait();
-           } catch (InterruptedException e) {
-               e.printStackTrace();
-           }
-       }
-   }
+        synchronized (lock) {
+            try {
+                lock.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
 
-class Lock extends Object{
+class Lock extends Object {
     String value;
 
     public String getValue() {
@@ -142,12 +141,12 @@ class MeasurementsResponse {
     }
 }
 
-class Date{
+class Date {
     String utc;
     String local;
 }
 
-class Coordinates{
+class Coordinates {
     double latitude;
     double longitude;
 }
