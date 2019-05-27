@@ -4,6 +4,7 @@ import it.richkmeli.jcrypto.Crypto;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.database.DatabaseException;
 import it.richkmeli.jframework.database.DatabaseManager;
+import it.richkmeli.jframework.util.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,9 +13,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AuthDatabase extends DatabaseManager implements AuthModel {
 
-    protected AuthDatabase() throws DatabaseException {
+public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
+
+    public AuthDatabaseManager() throws DatabaseException {
         schemaName = "AuthSchema";
         tableName = schemaName + "." + "auth";
         table = "(" +
@@ -95,7 +97,11 @@ public class AuthDatabase extends DatabaseManager implements AuthModel {
 
         } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
-            throw new DatabaseException(e);
+            if(e.getMessage().contains("Duplicate entry")){
+                Logger.e("AuthDatabaseManager, addUser", e);
+            }else{
+                throw new DatabaseException(e);
+            }
             //return false;
         }
         disconnect(connection, preparedStatement, null);

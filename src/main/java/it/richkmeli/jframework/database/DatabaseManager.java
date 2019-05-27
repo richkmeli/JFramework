@@ -52,8 +52,10 @@ public class DatabaseManager implements DatabaseModel {
     }
 
     private void loadConfigurationProperties() throws DatabaseException {
-        loadConfigurationProperties(null);
+        loadConfigurationProperties("mysql");
     }
+
+    // TODO fai gestione con altro file configurazione, se presente non guarda quello di default dentro jframework
 
     private void loadConfigurationProperties(String database) throws DatabaseException {
         ResourceBundle resource = ResourceBundle.getBundle("configuration");
@@ -115,14 +117,28 @@ public class DatabaseManager implements DatabaseModel {
 
     }
 
-    private boolean createSchema(String schema) throws DatabaseException {
-        String schemaSQL = "CREATE SCHEMA " + schema;
-        return execute(schemaSQL);
+    private boolean createSchema(String schema) {
+        //String schemaSQL = "CREATE SCHEMA " + schema;
+        String schemaSQL = "CREATE SCHEMA IF NOT EXISTS " + schema;
+        //TODO fai gestione quando gia presente
+        try {
+            execute(schemaSQL);
+        } catch (DatabaseException e) {
+            Logger.e("DatabaseManager, createSchema", e);
+        }
+        return true;
     }
 
     private boolean createTables(String table) throws DatabaseException {
-        String tableSQL = "CREATE TABLE " + table;
-        return execute(tableSQL);
+        //String tableSQL = "CREATE TABLE " + table;
+        String tableSQL = "CREATE TABLE IF NOT EXISTS " + table;
+       //TODO fai gestione quando gia presente
+        try {
+            execute(tableSQL);
+        } catch (DatabaseException e) {
+            Logger.e("DatabaseManager, createTables", e);
+        }
+        return true;
     }
 
     public boolean execute(String string) throws DatabaseException {
