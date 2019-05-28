@@ -6,7 +6,8 @@
 
     <groupId>it.richkmeli.jframework</groupId>
     <artifactId>JFramework</artifactId>
-    <version>1.0.1</version>
+    <!-- TODO RELEASE -->
+    <version>1.0.2</version>
 
     <repositories>
         <repository>
@@ -73,6 +74,11 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20160212</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.42</version>
         </dependency>
 
     </dependencies>

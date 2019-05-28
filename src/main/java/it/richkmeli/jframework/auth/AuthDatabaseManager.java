@@ -16,19 +16,24 @@ import java.util.List;
 
 public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
 
-    public AuthDatabaseManager() throws DatabaseException {
+    public AuthDatabaseManager(String database) throws DatabaseException {
         schemaName = "AuthSchema";
         tableName = schemaName + "." + "auth";
         table = "(" +
                 "email VARCHAR(50) NOT NULL PRIMARY KEY," +
-                "pass VARCHAR(64) NOT NULL," +
+                "password VARCHAR(64) NOT NULL," +
                 "isAdmin BOOLEAN NOT NULL DEFAULT 0" +
                 ")";
 
-        init();
+        init(database);
+    }
+
+    public AuthDatabaseManager() throws DatabaseException {
+        new AuthDatabaseManager(null);
     }
 
     public List<User> refreshUser() throws DatabaseException {
+        Logger.i("AuthDatabaseManager, refreshUser");
         List<User> userList = new ArrayList<User>();
 
         Connection connection = null;
@@ -43,7 +48,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
             while (resultSet.next()) {
                 User tmp = new User(
                         resultSet.getString("email"),
-                        resultSet.getString("pass"),
+                        resultSet.getString("password"),
                         resultSet.getBoolean("isAdmin"));
                 userList.add(tmp);
             }
@@ -73,14 +78,14 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
         return true;
     }
 
-    // TODO has to be tested
-    public boolean addUser2(User user) throws DatabaseException {
+    public boolean addUser(User user) throws DatabaseException {
+        //Logger.i("AuthDatabaseManager, addUser. User: " + user.email);
         String hash = Crypto.HashSHA256(user.getPassword());
         user.setPassword(hash);
         return add(user);
     }
 
-    public boolean addUser(User user) throws DatabaseException {
+    /*public boolean addUser(User user) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
@@ -89,7 +94,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
 
             String hash = Crypto.HashSHA256(user.getPassword());
 
-            preparedStatement = connection.prepareStatement("INSERT INTO " + tableName + " (email, pass, isAdmin) VALUES (?,?,?)");
+            preparedStatement = connection.prepareStatement("INSERT IGNORE INTO " + tableName + " (email, pass, isAdmin) VALUES (?,?,?)");
             preparedStatement.setString(1, user.getEmail());
             preparedStatement.setString(2, hash);
             preparedStatement.setBoolean(3, user.isAdmin());
@@ -97,9 +102,9 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
 
         } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
-            if(e.getMessage().contains("Duplicate entry")){
+            if (e.getMessage().contains("Duplicate entry")) {
                 Logger.e("AuthDatabaseManager, addUser", e);
-            }else{
+            } else {
                 throw new DatabaseException(e);
             }
             //return false;
@@ -107,7 +112,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
         disconnect(connection, preparedStatement, null);
         return true;
     }
-
+*/
     public boolean isUserPresent(String email) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -185,7 +190,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
             String hash = Crypto.HashSHA256(pass);
 
             if (resultSet.next()) {
-                if (resultSet.getString("pass").compareTo(hash) == 0) {
+                if (resultSet.getString("password").compareTo(hash) == 0) {
                     isPass = true;
                 }
 

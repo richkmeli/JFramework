@@ -1,5 +1,6 @@
 package it.richkmeli.jframework.database;
 
+import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.util.Logger;
 
 import java.lang.reflect.Field;
@@ -17,34 +18,18 @@ public class DatabaseManager implements DatabaseModel {
 
     @Override
     public void init() throws DatabaseException {
-
-        loadConfigurationProperties();
-        try {
-            //schemaDbName = "RichkwareMS";
-
-            createSchema(schemaName);
-            dbUrl += schemaName;
-
-            //tableDbName = schemaDbName + ".device";
-            //authTableDbName = schemaDbName + ".user";
-            createTables(tableName + table);
-        } catch (DatabaseException e) {
-            throw new DatabaseException(e);
-        }
+        init(null);
     }
 
     @Override
     public void init(String database) throws DatabaseException {
 
         loadConfigurationProperties(database);
-        try {
-            //schemaDbName = "RichkwareMS";
 
+        try {
             createSchema(schemaName);
             dbUrl += schemaName;
 
-            //tableDbName = schemaDbName + ".device";
-            //authTableDbName = schemaDbName + ".user";
             createTables(tableName + table);
         } catch (DatabaseException e) {
             throw new DatabaseException(e);
@@ -52,18 +37,21 @@ public class DatabaseManager implements DatabaseModel {
     }
 
     private void loadConfigurationProperties() throws DatabaseException {
-        loadConfigurationProperties("mysql");
+        loadConfigurationProperties(null);
     }
 
     // TODO fai gestione con altro file configurazione, se presente non guarda quello di default dentro jframework
 
-    private void loadConfigurationProperties(String database) throws DatabaseException {
+    private void loadConfigurationProperties(String databaseParam) throws DatabaseException {
         ResourceBundle resource = ResourceBundle.getBundle("configuration");
         String dbClass = null;
 
-        if (database == null) {
+        // default db
+        String database = "mysql";
+        if (databaseParam == null) {
             database = resource.getString("database");
         }
+        //Logger.i("DatabaseManager, loadConfigurationProperties, database: " + database);
 
         dbUsername = resource.getString("database." + database + ".username");
         dbPassword = resource.getString("database." + database + ".password");
@@ -89,6 +77,8 @@ public class DatabaseManager implements DatabaseModel {
 
     @Override
     public Connection connect() throws DatabaseException {
+        //Logger.i("DatabaseManager, connect. dbUrl: " + dbUrl);
+
         try {
             return DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
         } catch (SQLException e) {
@@ -132,7 +122,7 @@ public class DatabaseManager implements DatabaseModel {
     private boolean createTables(String table) throws DatabaseException {
         //String tableSQL = "CREATE TABLE " + table;
         String tableSQL = "CREATE TABLE IF NOT EXISTS " + table;
-       //TODO fai gestione quando gia presente
+        //TODO fai gestione quando gia presente
         try {
             execute(tableSQL);
         } catch (DatabaseException e) {
@@ -177,9 +167,8 @@ public class DatabaseManager implements DatabaseModel {
         try {
             connection = connect();
 
-
             // create SQL string
-            StringBuilder sql = new StringBuilder("INSERT INTO " + tableName + " (");
+            StringBuilder sql = new StringBuilder("INSERT IGNORE INTO " + tableName + " (");
             int i = 0;
             int numberOfFiels = type.getClass().getDeclaredFields().length;
             for (Field field : type.getClass().getDeclaredFields()) {
@@ -187,8 +176,8 @@ public class DatabaseManager implements DatabaseModel {
                 String fieldName = field.getName();
                 sql.append(fieldName + ((++i < numberOfFiels) ? ", " : ") VALUES ("));
             }
-            for (int i1 = 0; i1 <= numberOfFiels; i1++) {
-                sql.append("?,");
+            for (int i1 = 0; i1 < numberOfFiels; i1++) {
+                sql.append("?" + ((i1 < numberOfFiels - 1) ? "," : ""));
             }
             sql.append(")");
 
@@ -199,12 +188,14 @@ public class DatabaseManager implements DatabaseModel {
             for (Field field : type.getClass().getDeclaredFields()) {
                 Type fieldType = field.getGenericType();
                 String fieldName = field.getName();
+                //Logger.i("Type: " + fieldType + ", Name: " + fieldName + ", Value: " + field.get(type).toString());
                 switch (fieldType.getTypeName()) {
-                    case "String":
+                    case "java.lang.String":
                         preparedStatement.setString(parameterIndex, field.get(type).toString());
                         break;
-                    case "Boolean":
-                        preparedStatement.setBoolean(parameterIndex, field.getBoolean(type));
+                    case "java.lang.Boolean":
+                        //preparedStatement.setBoolean(parameterIndex, field.getBoolean(type));
+                        preparedStatement.setBoolean(parameterIndex, new Boolean(field.get(type).toString()));
                         break;
                     default:
                         Logger.e("DatabaseManager, REFLECTION, type not mapped, type: " + fieldType);
@@ -212,7 +203,7 @@ public class DatabaseManager implements DatabaseModel {
                 }
                 parameterIndex++;
             }
-
+            //Logger.i(preparedStatement.toString());
             preparedStatement.executeUpdate();
 
         } catch (SQLException | IllegalAccessException e) {

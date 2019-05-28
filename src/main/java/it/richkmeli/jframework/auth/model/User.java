@@ -1,9 +1,10 @@
 package it.richkmeli.jframework.auth.model;
 
 public class User {
-    private String email;
-    private String password;
-    private Boolean isAdmin;
+    // public for REFLECTION
+    public String email;
+    public String password;
+    public Boolean isAdmin;
 
     public User(String email, String password, Boolean isAdmin) {
         this.email = email;
