@@ -29,11 +29,10 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
     }
 
     public AuthDatabaseManager() throws DatabaseException {
-        new AuthDatabaseManager(null);
+        this(null);
     }
 
     public List<User> refreshUser() throws DatabaseException {
-        Logger.i("AuthDatabaseManager, refreshUser");
         List<User> userList = new ArrayList<User>();
 
         Connection connection = null;

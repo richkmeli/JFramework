@@ -1,6 +1,5 @@
 package it.richkmeli.jframework.database;
 
-import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.util.Logger;
 
 import java.lang.reflect.Field;
@@ -8,7 +7,7 @@ import java.lang.reflect.Type;
 import java.sql.*;
 import java.util.ResourceBundle;
 
-public class DatabaseManager implements DatabaseModel {
+public class DatabaseManager {
     private String dbUrl;
     private String dbUsername;
     private String dbPassword;
@@ -16,13 +15,11 @@ public class DatabaseManager implements DatabaseModel {
     protected String tableName;
     protected String table;
 
-    @Override
-    public void init() throws DatabaseException {
+    protected void init() throws DatabaseException {
         init(null);
     }
 
-    @Override
-    public void init(String database) throws DatabaseException {
+    protected void init(String database) throws DatabaseException {
 
         loadConfigurationProperties(database);
 
@@ -75,10 +72,8 @@ public class DatabaseManager implements DatabaseModel {
         }
     }
 
-    @Override
-    public Connection connect() throws DatabaseException {
+    protected Connection connect() throws DatabaseException {
         //Logger.i("DatabaseManager, connect. dbUrl: " + dbUrl);
-
         try {
             return DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
         } catch (SQLException e) {
@@ -86,8 +81,7 @@ public class DatabaseManager implements DatabaseModel {
         }
     }
 
-    @Override
-    public void disconnect(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) throws DatabaseException {
+    protected void disconnect(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) throws DatabaseException {
         try {
             resultSet.close();
         } catch (SQLException e) {
@@ -131,7 +125,7 @@ public class DatabaseManager implements DatabaseModel {
         return true;
     }
 
-    public boolean execute(String string) throws DatabaseException {
+    private boolean execute(String string) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
@@ -149,14 +143,11 @@ public class DatabaseManager implements DatabaseModel {
         return true;
     }
 
-
-    // TODO has to be tested
-    public <T> boolean add(T type) throws DatabaseException {
+    protected <T> boolean add(T type) throws DatabaseException {
         return add(type, null);
     }
 
-    // TODO has to be tested
-    public <T> boolean add(T type, DBManagerAction dbManagerAction) throws DatabaseException {
+    protected <T> boolean add(T type, DBManagerAction dbManagerAction) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
