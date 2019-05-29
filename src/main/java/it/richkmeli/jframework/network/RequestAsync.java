@@ -60,7 +60,7 @@ public class RequestAsync extends Thread {
             s = a.getJSONObject(0);
 
         } catch (JSONException e) {
-            Logger.e("RequestAsync: 4xx ", e);
+            Logger.error("RequestAsync: 4xx ", e);
 
             try {
                 // {"statusCode":404,"error":"Not Found"}
@@ -70,7 +70,7 @@ public class RequestAsync extends Thread {
                 e1.printStackTrace();
             }
 
-            //e.printStackTrace();
+            //error.printStackTrace();
         }
 
         //System.out.println("TEST_1: "+String.valueOf(s));

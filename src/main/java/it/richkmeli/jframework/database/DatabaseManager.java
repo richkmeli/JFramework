@@ -108,7 +108,7 @@ public class DatabaseManager {
         try {
             execute(schemaSQL);
         } catch (DatabaseException e) {
-            Logger.e("DatabaseManager, createSchema", e);
+           Logger.error("DatabaseManager, createSchema", e);
         }
         return true;
     }
@@ -120,7 +120,7 @@ public class DatabaseManager {
         try {
             execute(tableSQL);
         } catch (DatabaseException e) {
-            Logger.e("DatabaseManager, createTables", e);
+           Logger.error("DatabaseManager, createTables", e);
         }
         return true;
     }
@@ -136,7 +136,7 @@ public class DatabaseManager {
 
         } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
-            Logger.e("DatabaseManager, execute", e);
+            Logger.error("DatabaseManager, execute", e);
             return false;
         }
         disconnect(connection, preparedStatement, null);
@@ -189,7 +189,7 @@ public class DatabaseManager {
                         preparedStatement.setBoolean(parameterIndex, new Boolean(field.get(type).toString()));
                         break;
                     default:
-                        Logger.e("DatabaseManager, REFLECTION, type not mapped, type: " + fieldType);
+                        Logger.error("DatabaseManager, REFLECTION, type not mapped, type: " + fieldType);
                         break;
                 }
                 parameterIndex++;
