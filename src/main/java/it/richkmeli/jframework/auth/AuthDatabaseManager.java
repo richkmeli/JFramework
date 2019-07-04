@@ -79,7 +79,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
 
     public boolean addUser(User user) throws DatabaseException {
         //Logger.i("AuthDatabaseManager, addUser. User: " + user.email);
-        String hash = Crypto.HashSHA256(user.getPassword());
+        String hash = Crypto.hash(user.getPassword());
         user.setPassword(hash);
         return add(user);
     }
@@ -186,7 +186,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
             preparedStatement.setString(1, email);
             resultSet = preparedStatement.executeQuery();
 
-            String hash = Crypto.HashSHA256(pass);
+            String hash = Crypto.hash(pass);
 
             if (resultSet.next()) {
                 if (resultSet.getString("password").compareTo(hash) == 0) {
