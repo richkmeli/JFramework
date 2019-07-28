@@ -1,6 +1,7 @@
 package it.richkmeli.jframework.database;
 
 import it.richkmeli.jframework.util.Logger;
+import org.apache.derby.shared.common.error.DerbySQLIntegrityConstraintViolationException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -9,6 +10,7 @@ import java.util.ResourceBundle;
 
 public class DatabaseManager {
     private String dbUrl;
+    protected String dbtype;
     private String dbUsername;
     private String dbPassword;
     protected String schemaName;
@@ -24,7 +26,9 @@ public class DatabaseManager {
         loadConfigurationProperties(database);
 
         try {
-            createSchema(schemaName);
+            if ("mysql".equalsIgnoreCase(dbtype)) {
+                createSchema(schemaName);
+            }
             dbUrl += schemaName;
 
             createTables(tableName + table);
@@ -44,16 +48,18 @@ public class DatabaseManager {
         String dbClass = null;
 
         // default db
-        String database = "mysql";
-        if (databaseParam == null) {
-            database = resource.getString("database");
+        String database = resource.getString("database");//"mysql";
+        if (databaseParam != null) {
+            database = databaseParam;
         }
-        //Logger.i("DatabaseManager, loadConfigurationProperties, database: " + database);
+        //Logger.info("DatabaseManager, loadConfigurationProperties, database: " + database);
 
         dbUsername = resource.getString("database." + database + ".username");
         dbPassword = resource.getString("database." + database + ".password");
         dbUrl = resource.getString("database." + database + ".url");
+        dbtype = resource.getString("database." + database + ".dbtype");
         dbClass = resource.getString("database." + database + ".class");
+
         try {
             Class.forName(dbClass);
         } catch (ClassNotFoundException e) {
@@ -75,7 +81,11 @@ public class DatabaseManager {
     protected Connection connect() throws DatabaseException {
         //Logger.i("DatabaseManager, connect. dbUrl: " + dbUrl);
         try {
-            return DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+            if ("derby".equalsIgnoreCase(dbtype)) {
+                return DriverManager.getConnection(dbUrl + ";create=true", dbUsername, dbPassword);
+            } else {
+                return DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+            }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -83,18 +93,29 @@ public class DatabaseManager {
 
     protected void disconnect(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) throws DatabaseException {
         try {
-            resultSet.close();
+            if (resultSet != null) {
+                resultSet.close();
+            }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         } catch (Exception e1) {        // null value of ResultSet in addDevice, removeDevice...
         }
         try {
-            preparedStatement.close();
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
         } catch (Exception e) {
             throw new DatabaseException(e);
         }
         try {
-            connection.close();
+
+            /*if ("derby".equalsIgnoreCase(dbtype)) {
+                DriverManager.getConnection(dbUrl + ";shutdown=true");
+            } else {*/
+            if (connection != null) {
+                connection.close();
+            }
+            //}
         } catch (Exception e) {
             throw new DatabaseException(e);
         }
@@ -102,25 +123,39 @@ public class DatabaseManager {
     }
 
     private boolean createSchema(String schema) {
-        //String schemaSQL = "CREATE SCHEMA " + schema;
-        String schemaSQL = "CREATE SCHEMA IF NOT EXISTS " + schema;
+        String schemaSQL = "";//"CREATE SCHEMA " + schema;
+        if ("derby".equalsIgnoreCase(dbtype)) {
+            schemaSQL = "CREATE SCHEMA " + schema;
+        } else {
+            schemaSQL = "CREATE SCHEMA IF NOT EXISTS " + schema;
+        }
+
         //TODO fai gestione quando gia presente
         try {
             execute(schemaSQL);
         } catch (DatabaseException e) {
-           Logger.error("DatabaseManager, createSchema", e);
+            Logger.error("DatabaseManager, createSchema", e);
         }
         return true;
     }
 
     private boolean createTables(String table) throws DatabaseException {
-        //String tableSQL = "CREATE TABLE " + table;
-        String tableSQL = "CREATE TABLE IF NOT EXISTS " + table;
+        String tableSQL = "";//"CREATE TABLE " + table;
+        if ("derby".equalsIgnoreCase(dbtype)) {
+            tableSQL = "CREATE TABLE " + table;
+        } else {
+            tableSQL = "CREATE TABLE IF NOT EXISTS " + table;
+        }
+
         //TODO fai gestione quando gia presente
         try {
             execute(tableSQL);
         } catch (DatabaseException e) {
-           Logger.error("DatabaseManager, createTables", e);
+            // TODO gestione derby
+            if (e.getMessage().contains("already exists in Schema")) {
+            } else {
+                Logger.error("DatabaseManager, createTables", e);
+            }
         }
         return true;
     }
@@ -136,8 +171,9 @@ public class DatabaseManager {
 
         } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
-            Logger.error("DatabaseManager, execute", e);
-            return false;
+            throw new DatabaseException(e);
+            //Logger.error("DatabaseManager, execute", e);
+            //return false;
         }
         disconnect(connection, preparedStatement, null);
         return true;
@@ -159,7 +195,7 @@ public class DatabaseManager {
             connection = connect();
 
             // create SQL string
-            StringBuilder sql = new StringBuilder("INSERT IGNORE INTO " + tableName + " (");
+            StringBuilder sql = new StringBuilder("INSERT " + ("mysql".equalsIgnoreCase(dbtype) ? "IGNORE" : "") + " INTO " + tableName + " (");
             int i = 0;
             int numberOfFiels = type.getClass().getDeclaredFields().length;
             for (Field field : type.getClass().getDeclaredFields()) {
@@ -195,7 +231,14 @@ public class DatabaseManager {
                 parameterIndex++;
             }
             //Logger.i(preparedStatement.toString());
-            preparedStatement.executeUpdate();
+
+            try {
+                preparedStatement.executeUpdate();
+
+                // TODO gestione derby
+            } catch (DerbySQLIntegrityConstraintViolationException e) {
+                //Logger.info(e.getMessage());
+            }
 
         } catch (SQLException | IllegalAccessException e) {
             disconnect(connection, preparedStatement, null);

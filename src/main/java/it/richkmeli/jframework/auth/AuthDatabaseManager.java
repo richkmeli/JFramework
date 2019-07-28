@@ -4,7 +4,6 @@ import it.richkmeli.jcrypto.Crypto;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.database.DatabaseException;
 import it.richkmeli.jframework.database.DatabaseManager;
-import it.richkmeli.jframework.util.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,7 +21,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
         table = "(" +
                 "email VARCHAR(50) NOT NULL PRIMARY KEY," +
                 "password VARCHAR(64) NOT NULL," +
-                "isAdmin BOOLEAN NOT NULL DEFAULT 0" +
+                "isAdmin BOOLEAN NOT NULL " + ("mysql".equalsIgnoreCase(dbtype) ? "DEFAULT 0" : "") +
                 ")";
 
         init(database);
