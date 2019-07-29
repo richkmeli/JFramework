@@ -37,6 +37,7 @@ public class SecureDataManager {
         }
     }
 
+    // TODO prevedi salvataggio nel db embedded per evitare problemi di concorrenza
     public static boolean setServerSecureData(File secureDataFile, String key, ServerSecureData serverSecureData) {
         String serverSecureDataJSON = serverSecureData.getServerSecureDataJSON();
 
