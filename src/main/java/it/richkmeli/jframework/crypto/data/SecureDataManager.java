@@ -5,6 +5,7 @@ import it.richkmeli.jframework.crypto.exception.CryptoException;
 import it.richkmeli.jframework.crypto.model.ClientSecureData;
 import it.richkmeli.jframework.crypto.model.ServerSecureData;
 import it.richkmeli.jframework.util.Logger;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,6 +48,45 @@ public class SecureDataManager {
         } else {
             return setSecureData(secureDataFile, serverSecureDataJSON, key);
         }
+    }
+
+    public static void initClientSecureData(File secureData, String secretKey) {
+        ClientSecureData clientSecureData = new ClientSecureData(null, null, null, null);
+        setClientSecureData(secureData, secretKey, clientSecureData);
+    }
+
+    public static void initServerSecureData(File secureData, String secretKey) {
+        ServerSecureData serverSecureData = new ServerSecureData(null, null, null, null);
+        setServerSecureData(secureData, secretKey, serverSecureData);
+    }
+
+    public static void putData(File file, String secretKey, String key, String value) {
+        String data = SecureDataManager.getSecureData(file,secretKey);
+        JSONObject jsonObject;
+        if (data != null) {
+            jsonObject = new JSONObject(data);
+        }else {
+            jsonObject = new JSONObject();
+        }
+        jsonObject.put(key,value);
+        SecureDataManager.setSecureData(file,jsonObject.toString(),secretKey);
+    }
+
+    public static String getData(File file, String secretKey, String key) {
+        String data = SecureDataManager.getSecureData(file,secretKey);
+        JSONObject jsonObject;
+        String value = "";
+        if (data != null) {
+            jsonObject = new JSONObject(data);
+            if(jsonObject.has(key)){
+                value = jsonObject.getString(key);
+            }else {
+                Logger.error("Crypto, getData: jsonObject doesn't contain key: " + key);
+            }
+        }else {
+            Logger.error("Crypto, getData, file: "+file.getName()+" is empty");
+        }
+        return value;
     }
 
     private static String getSecureData(File secureDataFile, String secretKey) {
@@ -141,13 +181,5 @@ public class SecureDataManager {
         return false;
     }
 
-    public static void initClientSecureData(File secureData, String secretKey) {
-        ClientSecureData clientSecureData = new ClientSecureData(null, null, null, null);
-        setClientSecureData(secureData, secretKey, clientSecureData);
-    }
 
-    public static void initServerSecureData(File secureData, String secretKey) {
-        ServerSecureData serverSecureData = new ServerSecureData(null, null, null, null);
-        setServerSecureData(secureData, secretKey, serverSecureData);
-    }
 }

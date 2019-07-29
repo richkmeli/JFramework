@@ -8,29 +8,41 @@ import java.util.Base64;
 
 public class PasswordManager {
 
-    public static String hashPassword(String password) {
+    // salt is enabled only during login process, instead set it as false for saving passwords into DB
+    public static String hashPassword(String password, boolean saltEnabled) {
         // salt generation
         /*Random r = new SecureRandom();
         byte[] salt = new byte[9];
         r.nextBytes(salt);*/
-        String saltS = RandomStringGenerator.GenerateAlphanumericString(9);//new String(salt);
+        String saltS = "";
+        String hashedPassword = "";
+        if (saltEnabled) {
+            saltS = RandomStringGenerator.GenerateAlphanumericString(9);//new String(salt);
+            hashedPassword = SHA256.hash(SHA256.hash(password) + saltS);
+        } else {
+            saltS = "000000000";
+            hashedPassword = SHA256.hash(password);
+        }
 
-        String hashedPassword = SHA256.hash(SHA256.hash(password) + saltS);
 
         System.out.println("hashPassword, saltS: " + saltS + " " + saltS.length() + " | hashedPassword: " + hashedPassword + " " + hashedPassword.length());
         String out = saltS + hashedPassword;
         return Base64.getUrlEncoder().encodeToString(out.getBytes(Charset.defaultCharset()));
     }
 
-    public static boolean verifyPassword(String password, String hashedPassword) {
-        String decodedHashPassword = new String(Base64.getUrlDecoder().decode(hashedPassword));
-        String salt = decodedHashPassword.substring(0, 9);
-        String hash = decodedHashPassword.substring(9);
+    // hashedPassword = db password, hashedSaltPassword = login password
+    public static boolean verifyPassword(String hashedPassword, String hashedSaltPassword) {
+        String decodedHashedPassword = new String(Base64.getUrlDecoder().decode(hashedPassword));
+        String decodedHashedSaltPassword = new String(Base64.getUrlDecoder().decode(hashedSaltPassword));
+        String salt = decodedHashedSaltPassword.substring(0, 9);
+        String hashSP = decodedHashedSaltPassword.substring(9);
 
-        System.out.println("verifyPassword, saltS: " + salt + " " + salt.length() + " | hashedPassword: " + hash + " " + hash.length());
+        String hashP = decodedHashedPassword.substring(9);
 
-        String hp = SHA256.hash(SHA256.hash(password) + salt);
+        System.out.println("verifyPassword, saltS: " + salt + " " + salt.length() + " | hashedSaltPassword: " + hashSP + " " + hashSP.length());
 
-        return hash.equalsIgnoreCase(hp);
+        String hp = SHA256.hash(hashP + salt);
+
+        return hashSP.equalsIgnoreCase(hp);
     }
 }

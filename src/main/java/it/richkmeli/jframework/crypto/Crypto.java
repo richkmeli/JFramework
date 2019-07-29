@@ -5,6 +5,10 @@ import it.richkmeli.jframework.crypto.algorithm.SHA256;
 import it.richkmeli.jframework.crypto.controller.CryptoControllerClient;
 import it.richkmeli.jframework.crypto.controller.CryptoControllerServer;
 import it.richkmeli.jframework.crypto.controller.PasswordManager;
+import it.richkmeli.jframework.crypto.data.SecureDataManager;
+import it.richkmeli.jframework.util.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 
@@ -123,12 +127,22 @@ public class Crypto {
         return SHA256.hash(input);
     }
 
-    public static String hashPassword(String password) {
-        return PasswordManager.hashPassword(password);
+    // salt is enabled only during login process, instead set it as false for saving passwords into DB
+    public static String hashPassword(String password, boolean saltEnabled) {
+        return PasswordManager.hashPassword(password, saltEnabled);
     }
 
-    public static boolean verifyPassword(String password, String hashedPassword) {
-        return PasswordManager.verifyPassword(password, hashedPassword);
+    // hashedPassword = db password, hashedSaltPassword = login password
+    public static boolean verifyPassword(String hashedPassword, String hashedSaltPassword) {
+        return PasswordManager.verifyPassword(hashedPassword, hashedSaltPassword);
+    }
+
+    public static void putData(File file, String secretKey, String key, String value) {
+        SecureDataManager.putData(file,secretKey,key,value);
+    }
+
+    public static String getData(File file, String secretKey, String key) {
+        return SecureDataManager.getData(file,secretKey,key);
     }
 
 

@@ -18,7 +18,7 @@ public class CryptoTest {
     private Crypto.Client client;
     private Crypto.Server server;
 
-    private final static String[] cryptoStrings = {"01", "sdfs648df5", "-e.fe-w.f", "", "234pjojojojojojojojojojojojojojojojo234pi23pi4jpi234j2"};
+    private final static String[] cryptoStrings = {"01", "sdfs648df5", "-e.fe-w.f", "", "234pjojojojojojojojojojojojojojojojo234pi23pi4jpi234j2", "012345678", "{}+è\\/\\/\\/"};
 
     @Test
     public void crypto() {
@@ -211,9 +211,26 @@ public class CryptoTest {
     @Test
     public void passwordTest() {
         for (String s : cryptoStrings) {
-            String hashed = Crypto.hashPassword(s);
-            assertTrue(Crypto.verifyPassword(s, hashed));
+            // password for DB
+            String dbPW = Crypto.hashPassword(s,false);
+
+            // password for login
+            String loginPW = Crypto.hashPassword(s,true);
+
+            assertTrue(Crypto.verifyPassword(dbPW, loginPW));
         }
+    }
+
+    @Test
+    public void putAndGetData() {
+        File datafile = new File("datafile" + Math.random() + ".txt");
+        for (String s : cryptoStrings) {
+            Crypto.putData(datafile, "test", s, s);
+            String retrievedData = Crypto.getData(datafile, "test", s);
+            assertEquals(s, retrievedData);
+        }
+        datafile.delete();
+        datafile.deleteOnExit();
     }
 
 
