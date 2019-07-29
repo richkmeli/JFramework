@@ -79,7 +79,7 @@ public class DatabaseManager {
     }
 
     protected Connection connect() throws DatabaseException {
-        //Logger.i("DatabaseManager, connect. dbUrl: " + dbUrl);
+        Logger.info("DatabaseManager, connect. dbUrl: " + dbUrl);
         try {
             if ("derby".equalsIgnoreCase(dbtype)) {
                 return DriverManager.getConnection(dbUrl + ";create=true", dbUsername, dbPassword);
@@ -215,7 +215,7 @@ public class DatabaseManager {
             for (Field field : type.getClass().getDeclaredFields()) {
                 Type fieldType = field.getGenericType();
                 String fieldName = field.getName();
-                //Logger.i("Type: " + fieldType + ", Name: " + fieldName + ", Value: " + field.get(type).toString());
+                //Logger.info("Type: " + fieldType + ", Name: " + fieldName + ", Value: " + field.get(type).toString());
                 switch (fieldType.getTypeName()) {
                     case "java.lang.String":
                         preparedStatement.setString(parameterIndex, field.get(type).toString());
@@ -230,7 +230,7 @@ public class DatabaseManager {
                 }
                 parameterIndex++;
             }
-            //Logger.i(preparedStatement.toString());
+            //Logger.info(preparedStatement.toString());
 
             try {
                 preparedStatement.executeUpdate();

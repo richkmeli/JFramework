@@ -7,7 +7,7 @@
     <groupId>it.richkmeli.jframework</groupId>
     <artifactId>JFramework</artifactId>
     <!-- TODO RELEASE -->
-    <version>1.0.5</version>
+    <version>1.1.0</version>
 
     <repositories>
         <repository>
@@ -50,12 +50,6 @@
     <dependencies>
 
         <dependency>
-<!--            <groupId>it.richkmeli.jcrypto</groupId>-->
-            <groupId>com.github.richkmeli</groupId>
-            <artifactId>JCrypto</artifactId>
-            <version>1.1.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>3.11.0</version>
@@ -85,6 +79,11 @@
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <version>10.13.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.60</version>
         </dependency>
 
     </dependencies>

@@ -1,7 +1,7 @@
 package it.richkmeli.jframework.auth;
 
-import it.richkmeli.jcrypto.Crypto;
 import it.richkmeli.jframework.auth.model.User;
+import it.richkmeli.jframework.crypto.Crypto;
 import it.richkmeli.jframework.database.DatabaseException;
 import it.richkmeli.jframework.database.DatabaseManager;
 
@@ -77,7 +77,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
     }
 
     public boolean addUser(User user) throws DatabaseException {
-        //Logger.i("AuthDatabaseManager, addUser. User: " + user.email);
+        //Logger.info("AuthDatabaseManager, addUser. User: " + user.email);
         String hash = Crypto.hash(user.getPassword());
         user.setPassword(hash);
         return add(user);
@@ -101,7 +101,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
         } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
             if (e.getMessage().contains("Duplicate entry")) {
-                Logger.e("AuthDatabaseManager, addUser", e);
+                Logger.error("AuthDatabaseManager, addUser", e);
             } else {
                 throw new DatabaseException(e);
             }
