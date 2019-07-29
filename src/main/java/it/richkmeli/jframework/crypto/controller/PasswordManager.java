@@ -24,8 +24,7 @@ public class PasswordManager {
             hashedPassword = SHA256.hash(password);
         }
 
-
-        System.out.println("hashPassword, saltS: " + saltS + " " + saltS.length() + " | hashedPassword: " + hashedPassword + " " + hashedPassword.length());
+        //System.out.println("hashPassword, saltS: " + saltS + " " + saltS.length() + " | hashedPassword: " + hashedPassword + " " + hashedPassword.length());
         String out = saltS + hashedPassword;
         return Base64.getUrlEncoder().encodeToString(out.getBytes(Charset.defaultCharset()));
     }
@@ -36,11 +35,9 @@ public class PasswordManager {
         String decodedHashedSaltPassword = new String(Base64.getUrlDecoder().decode(hashedSaltPassword));
         String salt = decodedHashedSaltPassword.substring(0, 9);
         String hashSP = decodedHashedSaltPassword.substring(9);
-
         String hashP = decodedHashedPassword.substring(9);
 
-        System.out.println("verifyPassword, saltS: " + salt + " " + salt.length() + " | hashedSaltPassword: " + hashSP + " " + hashSP.length());
-
+        //System.out.println("verifyPassword, saltS: " + salt + " " + salt.length() + " | hashedSaltPassword: " + hashSP + " " + hashSP.length());
         String hp = SHA256.hash(hashP + salt);
 
         return hashSP.equalsIgnoreCase(hp);
