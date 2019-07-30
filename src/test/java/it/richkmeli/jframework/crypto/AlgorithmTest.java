@@ -241,7 +241,7 @@ public class AlgorithmTest {
     @Test
     public void SHA() {
         try {
-            String a = "dsvsfvsef";
+            String a = "00000000";
             String hash = SHA256.hash(a);
             System.out.println(a + " : " + hash);
 

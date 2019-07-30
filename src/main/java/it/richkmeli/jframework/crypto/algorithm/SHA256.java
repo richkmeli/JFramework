@@ -1,14 +1,16 @@
 package it.richkmeli.jframework.crypto.algorithm;
 
+import it.richkmeli.jframework.crypto.util.TypeConverter;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 
 public class SHA256 {
 
     public static final String ALGORITHM = "SHA-256";
 
+    // sha256: string to hex
     public static String hash(String input) {
         // encode input
         //input = DatatypeConverter.printBase64Binary(input.getBytes());
@@ -25,6 +27,8 @@ public class SHA256 {
         }
         // encode encrypted input
         //return DatatypeConverter.printBase64Binary(ciphertext);
-        return Base64.getUrlEncoder().encodeToString(hash);
+        //return Base64.getUrlEncoder().encodeToString(hash);
+        // to hex
+        return TypeConverter.bytesToHex(hash);
     }
 }
