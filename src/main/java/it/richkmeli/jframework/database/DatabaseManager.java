@@ -79,7 +79,7 @@ public class DatabaseManager {
     }
 
     protected Connection connect() throws DatabaseException {
-        Logger.info("DatabaseManager, connect. dbUrl: " + dbUrl);
+        //Logger.info("DatabaseManager, connect. dbUrl: " + dbUrl);
         try {
             if ("derby".equalsIgnoreCase(dbtype)) {
                 return DriverManager.getConnection(dbUrl + ";create=true", dbUsername, dbPassword);
