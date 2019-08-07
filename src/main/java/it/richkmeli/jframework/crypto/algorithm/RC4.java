@@ -62,13 +62,13 @@ public class RC4 {
 
         // encode encrypted input
         //return DatatypeConverter.printBase64Binary(ciphertext);
-        return Base64.getEncoder().encodeToString(ciphertext);
+        return Base64.getUrlEncoder().encodeToString(ciphertext);
     }
 
     public static String decrypt(String input, String key) {
         // decode encrypted input
         //byte[] decoded = DatatypeConverter.parseBase64Binary(input);
-        byte[] decoded = Base64.getDecoder().decode(input);
+        byte[] decoded = Base64.getUrlDecoder().decode(input);
 
         it.richkmeli.jframework.crypto.algorithm.RC4 rc4 = new it.richkmeli.jframework.crypto.algorithm.RC4(key.getBytes());
         byte[] plaintext = rc4.decrypt(decoded);

@@ -54,6 +54,10 @@ public class DatabaseUnitTest {
             assert authDatabaseManager.checkPassword("richk@i.it", Crypto.hashPassword("00000000", true));
             //assert authDatabaseManager.checkPassword("richk@i.it", "aWNRZ2pGdEFyMjhuS0paZjVzMTN5Zk56MldUa0FCOFl4Ql9jUWVRRmZiMnBxcjB0dmhfZz0=");
 
+
+            authDatabaseManager.removeUser("richk@i.it");
+            authDatabaseManager.removeUser("er@fv.it");
+
         } catch (DatabaseException e) {
             e.printStackTrace();
             assert false;
