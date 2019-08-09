@@ -1,6 +1,7 @@
 package it.richkmeli.jframework.crypto;
 
 
+import it.richkmeli.jframework.crypto.exception.CryptoException;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -59,23 +60,25 @@ public class CryptoTest {
         secureDataServer.deleteOnExit();
     }
 
-    @Test
-    public void encDecWithoutInit() {
-        String plaintext = "test1234";
+    private static void encrypDecryptTest(Crypto.Client client, Crypto.Server server) {
+        for (String plaintext : cryptoStrings) {
+            // ** CLIENT **
+            String encryptedPayloadClient = null;
+            try {
+                encryptedPayloadClient = client.encrypt(plaintext);
+                // ** SERVER **
+                String encryptedPayloadServer = server.encrypt(plaintext);
+                String decryptedTextClient = server.decrypt(encryptedPayloadClient);
+                assertEquals(plaintext, decryptedTextClient);
+                // ** CLIENT **
+                String decryptedTextServer = client.decrypt(encryptedPayloadServer);
+                assertEquals(plaintext, decryptedTextServer);
 
-        Crypto.Client client = new Crypto.Client();
-        // ** SERVER ** <-- clientResponse
-        Crypto.Server server = new Crypto.Server();
-
-        // ** CLIENT **
-        String encryptedPayloadClient = client.encrypt(plaintext);
-        // ** SERVER **
-        String encryptedPayloadServer = server.encrypt(plaintext);
-        String decryptedTextClient = server.decrypt(encryptedPayloadClient);
-        assertEquals(""/*default of encrypt and decrypt error*/, decryptedTextClient);
-        // ** CLIENT **
-        String decryptedTextServer = client.decrypt(encryptedPayloadServer);
-        assertEquals(""/*default of encrypt and decrypt error*/, decryptedTextServer);
+            } catch (CryptoException e) {
+                e.printStackTrace();
+                assert false;
+            }
+        }
     }
 
     @Test
@@ -158,18 +161,28 @@ public class CryptoTest {
         secureDataServer.deleteOnExit();
     }
 
+    @Test
+    public void encDecWithoutInit() {
+        String plaintext = "test1234";
 
-    private static void encrypDecryptTest(Crypto.Client client, Crypto.Server server) {
-        for (String plaintext : cryptoStrings) {
+        Crypto.Client client = new Crypto.Client();
+        // ** SERVER ** <-- clientResponse
+        Crypto.Server server = new Crypto.Server();
+
+        try {
             // ** CLIENT **
             String encryptedPayloadClient = client.encrypt(plaintext);
             // ** SERVER **
             String encryptedPayloadServer = server.encrypt(plaintext);
             String decryptedTextClient = server.decrypt(encryptedPayloadClient);
-            assertEquals(plaintext, decryptedTextClient);
+            assertEquals(""/*default of encrypt and decrypt error*/, decryptedTextClient);
             // ** CLIENT **
             String decryptedTextServer = client.decrypt(encryptedPayloadServer);
-            assertEquals(plaintext, decryptedTextServer);
+            assertEquals(""/*default of encrypt and decrypt error*/, decryptedTextServer);
+        } catch (CryptoException e) {
+            assertEquals("java.lang.Exception: encrypt, crypto not initialized, current stare: 0", e.getMessage());
+            //e.printStackTrace();
+            //assert false;
         }
     }
 
@@ -212,10 +225,10 @@ public class CryptoTest {
     public void passwordTest() {
         for (String s : cryptoStrings) {
             // password for DB
-            String dbPW = Crypto.hashPassword(s,false);
+            String dbPW = Crypto.hashPassword(s, false);
 
             // password for login
-            String loginPW = Crypto.hashPassword(s,true);
+            String loginPW = Crypto.hashPassword(s, true);
 
             assertTrue(Crypto.verifyPassword(dbPW, loginPW));
         }

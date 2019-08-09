@@ -6,9 +6,7 @@ import it.richkmeli.jframework.crypto.controller.CryptoControllerClient;
 import it.richkmeli.jframework.crypto.controller.CryptoControllerServer;
 import it.richkmeli.jframework.crypto.controller.PasswordManager;
 import it.richkmeli.jframework.crypto.data.SecureDataManager;
-import it.richkmeli.jframework.util.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import it.richkmeli.jframework.crypto.exception.CryptoException;
 
 import java.io.File;
 
@@ -45,11 +43,11 @@ public class Crypto {
             return init;
         }*/
 
-        public String encrypt(String message) {
+        public String encrypt(String message) throws CryptoException {
             return CryptoControllerClient.encrypt(message, secureData, secretKey);
         }
 
-        public String decrypt(String chipertext) {
+        public String decrypt(String chipertext) throws CryptoException {
             return CryptoControllerClient.decrypt(chipertext, secureData, secretKey);
         }
 
@@ -100,11 +98,11 @@ public class Crypto {
             return init;
         }
 */
-        public String encrypt(String payload) {
+        public String encrypt(String payload) throws CryptoException {
             return CryptoControllerServer.encrypt(payload, secureData, secretKey, clientID);
         }
 
-        public String decrypt(String payload) {
+        public String decrypt(String payload) throws CryptoException {
             return CryptoControllerServer.decrypt(payload, secureData, secretKey, clientID);
         }
 

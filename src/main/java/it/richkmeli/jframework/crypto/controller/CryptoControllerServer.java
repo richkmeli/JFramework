@@ -175,7 +175,7 @@ public class CryptoControllerServer extends CryptoController {
     }
 
 
-    public static String encrypt(String message, File secureData, String secretKey, String clientID) {
+    public static String encrypt(String message, File secureData, String secretKey, String clientID) throws CryptoException {
         int currentState = checkState(secureData, secretKey, clientID);
         if (currentState == SecureDataState.SECRET_KEY_EXCHANGED) {
             ServerSecureData serverSecureData = SecureDataManager.getServerSecureData(secureData, secretKey);
@@ -188,11 +188,11 @@ public class CryptoControllerServer extends CryptoController {
             return chipertext;
         } else {
             Logger.error("encrypt, crypto not initialized, current stare: " + currentState);
-            return "";
+            throw new CryptoException("encrypt, crypto not initialized, current stare: " + currentState);
         }
     }
 
-    public static String decrypt(String message, File secureData, String secretKey, String clientID) {
+    public static String decrypt(String message, File secureData, String secretKey, String clientID) throws CryptoException {
         int currentState = checkState(secureData, secretKey, clientID);
         if (currentState == SecureDataState.SECRET_KEY_EXCHANGED) {
 
@@ -205,8 +205,8 @@ public class CryptoControllerServer extends CryptoController {
             }
             return decrypted;
         } else {
-            Logger.error("encrypt, crypto not initialized, current stare: " + currentState);
-            return "";
+            Logger.error("decrypt, crypto not initialized, current stare: " + currentState);
+            throw new CryptoException("decrypt, crypto not initialized, current stare: " + currentState);
         }
     }
 

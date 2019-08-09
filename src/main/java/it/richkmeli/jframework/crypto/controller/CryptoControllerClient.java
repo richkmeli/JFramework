@@ -176,14 +176,14 @@ public class CryptoControllerClient extends CryptoController {
         return state;
     }
 
-    public static String send(String message, int timeout, File secureDataFile, String secretKey) {
+    public static String send(String message, int timeout, File secureDataFile, String secretKey) throws CryptoException {
         String encryptedPayload = encrypt(message, secureDataFile, secretKey);
 
         // TODO send payload
         return "{...response...}";
     }
 
-    public static String encrypt(String message, File secureData, String secretKey) {
+    public static String encrypt(String message, File secureData, String secretKey) throws CryptoException {
         int currentState = checkState(secureData, secretKey);
         if (currentState == SecureDataState.SECRET_KEY_EXCHANGED) {
             ClientSecureData clientSecureData = SecureDataManager.getClientSecureData(secureData, secretKey);
@@ -197,11 +197,11 @@ public class CryptoControllerClient extends CryptoController {
             return chipertext;
         } else {
             Logger.error("encrypt, crypto not initialized, current stare: " + currentState);
-            return "";
+            throw new CryptoException("encrypt, crypto not initialized, current stare: " + currentState);
         }
     }
 
-    public static String decrypt(String message, File secureData, String secretKey) {
+    public static String decrypt(String message, File secureData, String secretKey) throws CryptoException {
         int currentState = checkState(secureData, secretKey);
         if (currentState == SecureDataState.SECRET_KEY_EXCHANGED) {
             ClientSecureData clientSecureData = SecureDataManager.getClientSecureData(secureData, secretKey);
@@ -213,8 +213,8 @@ public class CryptoControllerClient extends CryptoController {
             }
             return decrypted;
         } else {
-            Logger.error("encrypt, crypto not initialized, current stare: " + currentState);
-            return "";
+            Logger.error("decrypt, crypto not initialized, current stare: " + currentState);
+            throw new CryptoException("decrypt, crypto not initialized, current stare: " + currentState);
         }
     }
 
