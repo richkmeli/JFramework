@@ -195,17 +195,24 @@ public class DatabaseManager {
             // create SQL string
             StringBuilder sql = new StringBuilder("INSERT " + ("mysql".equalsIgnoreCase(dbtype) ? "IGNORE" : "") + " INTO " + tableName + " (");
             int i = 0;
-            int numberOfFiels = type.getClass().getDeclaredFields().length;
+            // count transient fields
+            int numberOfFieldTransient = 0;
+            for (Field field : type.getClass().getDeclaredFields()) {
+                if (Modifier.isTransient(field.getModifiers())) {
+                    numberOfFieldTransient++;
+                }
+            }
+
+            int numberOfFiels = type.getClass().getDeclaredFields().length - numberOfFieldTransient;
             for (Field field : type.getClass().getDeclaredFields()) {
                 //Type fieldType = field.getGenericType();
                 String fieldName = field.getName();
                 // handle add of transient field by coverage tools
                 if (!Modifier.isTransient(field.getModifiers())) {
-                    sql.append(fieldName).append((++i < numberOfFiels) ? ", " : ") VALUES (");
-                } else {
-                    numberOfFiels--;
+                    sql.append(fieldName).append((++i < numberOfFiels) ? ", " : "");
                 }
             }
+            sql.append(") VALUES (");
             for (int i1 = 0; i1 < numberOfFiels; i1++) {
                 sql.append("?").append((i1 < numberOfFiels - 1) ? "," : "");
             }
