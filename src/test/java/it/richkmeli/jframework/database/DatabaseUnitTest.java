@@ -10,7 +10,7 @@ public class DatabaseUnitTest {
 
 
     @Test
-    public void AuthDBwithMysql() {
+    public void authDBwithMysql() {
         AuthDatabaseManager authDatabaseManager = null;
         try {
             authDatabaseManager = new AuthDatabaseManager("mysql");
@@ -19,8 +19,8 @@ public class DatabaseUnitTest {
             authDatabaseManager.addUser(new User("er@fv.it", "00000000", false));
 
             for (int i = 0; i < 100; i++) {
-                User u = new User(RandomStringGenerator.GenerateAlphanumericString(8) + "@" + RandomStringGenerator.GenerateAlphanumericString(8) + "." + RandomStringGenerator.GenerateAlphanumericString(2),
-                        RandomStringGenerator.GenerateAlphanumericString(10),
+                User u = new User(RandomStringGenerator.generateAlphanumericString(8) + "@" + RandomStringGenerator.generateAlphanumericString(8) + "." + RandomStringGenerator.generateAlphanumericString(2),
+                        RandomStringGenerator.generateAlphanumericString(10),
                         false);
                 authDatabaseManager.addUser(u);
             }
@@ -36,7 +36,7 @@ public class DatabaseUnitTest {
 
 
     @Test
-    public void AuthDBwithDerby() {
+    public void authDBwithDerby() {
         AuthDatabaseManager authDatabaseManager = null;
         try {
             authDatabaseManager = new AuthDatabaseManager("derby");
@@ -45,8 +45,8 @@ public class DatabaseUnitTest {
             authDatabaseManager.addUser(new User("er@fv.it", "00000000", false));
 
             for (int i = 0; i < 120; i++) {
-                User u = new User(RandomStringGenerator.GenerateAlphanumericString(8) + "@" + RandomStringGenerator.GenerateAlphanumericString(8) + "." + RandomStringGenerator.GenerateAlphanumericString(2),
-                        RandomStringGenerator.GenerateAlphanumericString(i),
+                User u = new User(RandomStringGenerator.generateAlphanumericString(8) + "@" + RandomStringGenerator.generateAlphanumericString(8) + "." + RandomStringGenerator.generateAlphanumericString(2),
+                        RandomStringGenerator.generateAlphanumericString(i),
                         false);
                 authDatabaseManager.addUser(u);
             }

@@ -11,11 +11,11 @@ import static org.junit.Assert.assertEquals;
 
 public class UtilTest {
     @Test
-    public void GenerateAlphanumericString() {
+    public void generateAlphanumericString() {
         int[] lenghts = {8, 10, 100};
 
         for (int i : lenghts) {
-            String randomString = RandomStringGenerator.GenerateAlphanumericString(i);
+            String randomString = RandomStringGenerator.generateAlphanumericString(i);
             assertEquals(i, randomString.length());
         }
 
@@ -34,11 +34,11 @@ public class UtilTest {
 */
 
     @Test
-    public void GenerateBoundedString() {
+    public void generateBoundedString() {
         int[] lenghts = {8, 10, 100};
 
         for (int i : lenghts) {
-            String randomString = RandomStringGenerator.GenerateBoundedString(i, 0, 255);
+            String randomString = RandomStringGenerator.generateBoundedString(i, 0, 255);
             assertEquals(i, randomString.length());
         }
 
@@ -51,7 +51,7 @@ public class UtilTest {
         int[] lenghts = {8, 10, 100};
 
         for (int i : lenghts) {
-            String randomString = RandomStringGenerator.GenerateBoundedString(i, 0, 255);
+            String randomString = RandomStringGenerator.generateBoundedString(i, 0, 255);
             String hex = TypeConverter.bytesToHex(randomString.getBytes());
             //String hex2 = TypeConverter.bytesToHex2(randomString.getBytes());
             //System.out.println(hex);

@@ -7,7 +7,7 @@ import it.richkmeli.jframework.crypto.data.SecureDataState;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
 import it.richkmeli.jframework.crypto.model.ClientSecureData;
 import it.richkmeli.jframework.crypto.model.DiffieHellmanPayload;
-import it.richkmeli.jframework.crypto.util.JSONmanager;
+import it.richkmeli.jframework.crypto.util.JSONhalper;
 import it.richkmeli.jframework.util.Logger;
 import org.json.JSONObject;
 
@@ -33,15 +33,15 @@ public class CryptoControllerClient extends CryptoController {
             case SecureDataState.NOT_INITIALIZED:
                 SecureDataManager.initClientSecureData(secureData, secretKey);
                 try {
-                    List<BigInteger> pg = DiffieHellman.DH_0_A();
-                    KeyPair keys_A = DiffieHellman.DH_1(pg);
-                    DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.DH_2_A(pg, keys_A.getPublic());
+                    List<BigInteger> pg = DiffieHellman.dh_0_A();
+                    KeyPair keys_A = DiffieHellman.dh_1(pg);
+                    DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh_2_A(pg, keys_A.getPublic());
                     ClientSecureData clientSecureData = new ClientSecureData(keys_A, diffieHellmanPayload, null, null);
 
                     SecureDataManager.setClientSecureData(secureData, secretKey, clientSecureData);
 
                     stateS = SecureDataState.PUBLIC_KEY_GENERATED;
-                    payload = JSONmanager.DHPayloadToJSON(diffieHellmanPayload).toString();
+                    payload = JSONhalper.dhPayloadToJSON(diffieHellmanPayload).toString();
                     Logger.info("init, public key generated");
                 } catch (Exception e) {
                     Logger.error("init, error generating public key", e);
@@ -61,13 +61,13 @@ public class CryptoControllerClient extends CryptoController {
                         JSONObject publicKey = decodedPayload.equalsIgnoreCase("") ? new JSONObject() : new JSONObject(decodedPayload);
 
                         ClientSecureData clientSecureData = SecureDataManager.getClientSecureData(secureData, secretKey);
-                        clientSecureData.setPublicKeyServer(JSONmanager.DHPublicKeyFromJSON(publicKey));
+                        clientSecureData.setPublicKeyServer(JSONhalper.dhPublicKeyFromJSON(publicKey));
                         SecureDataManager.setClientSecureData(secureData, secretKey, clientSecureData);
 
                         Logger.info("init, public keys exchanged");
 
                         clientSecureData = SecureDataManager.getClientSecureData(secureData, secretKey);
-                        SecretKey secretKey_A = DiffieHellman.DH_3(clientSecureData.getKeyPairClient().getPrivate(),
+                        SecretKey secretKey_A = DiffieHellman.dh_3(clientSecureData.getKeyPairClient().getPrivate(),
                                 clientSecureData.getPublicKeyServer(),
                                 AES.ALGORITHM);
                         clientSecureData.setSecretKey(secretKey_A);
@@ -97,7 +97,7 @@ public class CryptoControllerClient extends CryptoController {
                 break;
         }
 
-        return JSONmanager.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
+        return JSONhalper.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
     }
 
 

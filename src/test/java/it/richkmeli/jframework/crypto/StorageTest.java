@@ -61,10 +61,10 @@ public class StorageTest {
 
     private ClientSecureData fillRandomlyClientSecureData() {
         try {
-            List<BigInteger> pg = DiffieHellman.DH_0_A();
-            KeyPair keys_A = DiffieHellman.DH_1(pg);
-            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.DH_2_A(pg, keys_A.getPublic());
-            SecretKey secretKey_A = DiffieHellman.DH_3(keys_A.getPrivate(), keys_A.getPublic(), AES.ALGORITHM);
+            List<BigInteger> pg = DiffieHellman.dh_0_A();
+            KeyPair keys_A = DiffieHellman.dh_1(pg);
+            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh_2_A(pg, keys_A.getPublic());
+            SecretKey secretKey_A = DiffieHellman.dh_3(keys_A.getPrivate(), keys_A.getPublic(), AES.ALGORITHM);
             return new ClientSecureData(keys_A, diffieHellmanPayload, keys_A.getPublic(), secretKey_A);
         } catch (InvalidAlgorithmParameterException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException e) {
             e.printStackTrace();
@@ -74,17 +74,17 @@ public class StorageTest {
 
     private ServerSecureData fillRandomlyServerSecureData() {
         try {
-            List<BigInteger> pg = DiffieHellman.DH_0_A();
-            KeyPair keys_A = DiffieHellman.DH_1(pg);
-            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.DH_2_A(pg, keys_A.getPublic());
+            List<BigInteger> pg = DiffieHellman.dh_0_A();
+            KeyPair keys_A = DiffieHellman.dh_1(pg);
+            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh_2_A(pg, keys_A.getPublic());
 
-            KeyPair keys_B = DiffieHellman.DH_1(diffieHellmanPayload.getPQ());
+            KeyPair keys_B = DiffieHellman.dh_1(diffieHellmanPayload.getPQ());
 
             PublicKey publicKey = keys_B.getPublic();
             ServerSecureData serverSecureData = new ServerSecureData(pg, keys_B);
             serverSecureData.addDiffieHellmanPayload("ID", diffieHellmanPayload);
 
-            SecretKey secretKey_B = DiffieHellman.DH_3(serverSecureData.getKeyPairServer().getPrivate(),
+            SecretKey secretKey_B = DiffieHellman.dh_3(serverSecureData.getKeyPairServer().getPrivate(),
                     serverSecureData.getDiffieHellmanPayload("ID").getA(),
                     AES.ALGORITHM);
             serverSecureData.addSecretKey("ID", secretKey_B);

@@ -24,7 +24,7 @@ public class FolderDeleteThread extends Thread{
         }
     }
 
-    void delete(File f) throws IOException {
+    private void delete(File f) throws IOException {
         if (f.isDirectory()) {
             for (File c : f.listFiles())
                 delete(c);

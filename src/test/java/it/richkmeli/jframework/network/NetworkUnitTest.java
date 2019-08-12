@@ -33,8 +33,9 @@ public class NetworkUnitTest {
     }
 }
 
-class Lock extends Object {
-    String value;
+// extends Object
+class Lock {
+    private String value;
 
     public String getValue() {
         return value;
@@ -46,15 +47,15 @@ class Lock extends Object {
 }
 
 class MeasurementsResponse {
-    Date date;
-    String parameter;
-    double value;
-    String unit;
-    String location;
-    String country;
-    String city;
-    Coordinates coordinates;
-    String sourceName;
+    private Date date;
+    private String parameter;
+    private double value;
+    private String unit;
+    private String location;
+    private String country;
+    private String city;
+    private Coordinates coordinates;
+    private String sourceName;
 
     public MeasurementsResponse(Date date, String parameter, double value, String unit, String location, String country, String city, Coordinates coordinates, String sourceName) {
         this.date = date;

@@ -23,7 +23,7 @@ public class DiffieHellman {
     //private static BigInteger g512 = new BigInteger("1234567890", 16);
     //private static BigInteger p512 = new BigInteger("1234567890", 16);
 
-    public static List<BigInteger> DH_0_A() {
+    public static List<BigInteger> dh_0_A() {
         ProviderManager.init(new BouncyCastleProvider());
 
         int bitLength = 512; // 512 bits
@@ -39,7 +39,7 @@ public class DiffieHellman {
     }
 
     // Common phase
-    public static KeyPair DH_1(List<BigInteger> list) throws InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchAlgorithmException {
+    public static KeyPair dh_1(List<BigInteger> list) throws InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchAlgorithmException {
         BigInteger p = list.get(0);
         BigInteger g = list.get(1);
 
@@ -51,13 +51,13 @@ public class DiffieHellman {
     }
 
 
-    public static DiffieHellmanPayload DH_2_A(List<BigInteger> pg, PublicKey publicKey) {
+    public static DiffieHellmanPayload dh_2_A(List<BigInteger> pg, PublicKey publicKey) {
         return new DiffieHellmanPayload(pg, publicKey);
     }
 
 
     // Common phase
-    public static String DH_3(PrivateKey privateKey_A, PublicKey publicKey_B) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException {
+    public static String dh_3(PrivateKey privateKey_A, PublicKey publicKey_B) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException {
         KeyAgreement aKeyAgree = KeyAgreement.getInstance(ALGORITHM, PROVIDER);
         MessageDigest hash = MessageDigest.getInstance(SIGN_ALGORITHM, PROVIDER);
 
@@ -69,7 +69,7 @@ public class DiffieHellman {
 
 
     // Common phase
-    public static SecretKey DH_3(PrivateKey privateKey_A, PublicKey publicKey_B, String algorithm) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException {
+    public static SecretKey dh_3(PrivateKey privateKey_A, PublicKey publicKey_B, String algorithm) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException {
         KeyAgreement aKeyAgree = KeyAgreement.getInstance(ALGORITHM, PROVIDER);
 
         aKeyAgree.init(privateKey_A);

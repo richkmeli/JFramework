@@ -25,15 +25,15 @@ import static org.junit.Assert.assertEquals;
 
 public class AlgorithmTest {
     @Test
-    public void RC4() {
+    public void rc4() {
         int[] plainTextLenghts = {8, 10, 100, 1000};
         int[] keyLenghts = {8, 10, 12};
 
         for (int i : plainTextLenghts) {
             for (int i2 : keyLenghts) {
 
-                String plain = RandomStringGenerator.GenerateAlphanumericString(i);
-                String key = RandomStringGenerator.GenerateAlphanumericString(i2);
+                String plain = RandomStringGenerator.generateAlphanumericString(i);
+                String key = RandomStringGenerator.generateAlphanumericString(i2);
 
 
                 String encrypted = Crypto.encryptRC4(plain, key);
@@ -46,12 +46,12 @@ public class AlgorithmTest {
     }
 
     @Test
-    public void AES() {
+    public void aes() {
         int[] plainTextLenghts = {8, 10, 100, 1000};
 
         for (int i : plainTextLenghts) {
 
-            String plain = RandomStringGenerator.GenerateAlphanumericString(i);
+            String plain = RandomStringGenerator.generateAlphanumericString(i);
 
             SecretKey AESsecretKey = null;
             try {
@@ -73,14 +73,14 @@ public class AlgorithmTest {
     }
 
     @Test
-    public void AES_String() {
+    public void aesString() {
         int[] plainTextLenghts = {8, 10, 100, 1000};
         String[] keyList = new String[]{"ciao", "crypto2", "1234597890p56789098", "12345978fdgfdgdfgfdgdf90p5678909845646464564"};
 
         for (String key : keyList) {
             for (int i : plainTextLenghts) {
 
-                String plain = RandomStringGenerator.GenerateAlphanumericString(i);
+                String plain = RandomStringGenerator.generateAlphanumericString(i);
 
                 String decrypted = null;
                 try {
@@ -96,7 +96,7 @@ public class AlgorithmTest {
     }
 
     @Test
-    public void RSA_EncryptDecrypt() {
+    public void rsaEncryptdecrypt() {
         try {
             KeyPair keyPair = RSA.generateKeyPair();
 
@@ -107,7 +107,7 @@ public class AlgorithmTest {
 
             for (int i : plainTextLenghts) {
 
-                byte[] plain = RandomStringGenerator.GenerateAlphanumericString(i).getBytes();
+                byte[] plain = RandomStringGenerator.generateAlphanumericString(i).getBytes();
 
                 byte[] decrypted = null;
                 try {
@@ -134,19 +134,19 @@ public class AlgorithmTest {
             // A and B are the parts of the communication example
 
             // ** A
-            List<BigInteger> pg = DiffieHellman.DH_0_A();
-            KeyPair keys_A = DiffieHellman.DH_1(pg);
-            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.DH_2_A(pg, keys_A.getPublic());
+            List<BigInteger> pg = DiffieHellman.dh_0_A();
+            KeyPair keys_A = DiffieHellman.dh_1(pg);
+            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh_2_A(pg, keys_A.getPublic());
             // A sends --diffieHellmanPayload-- to B
             // ** B
-            KeyPair keys_B = DiffieHellman.DH_1(diffieHellmanPayload.getPQ());
+            KeyPair keys_B = DiffieHellman.dh_1(diffieHellmanPayload.getPQ());
             PublicKey publicKey_B = keys_B.getPublic();
             // B sends --publicKey_B-- to A
 
             // **A
-            String secretKey_A = DiffieHellman.DH_3(keys_A.getPrivate(), publicKey_B);
+            String secretKey_A = DiffieHellman.dh_3(keys_A.getPrivate(), publicKey_B);
             // **B
-            String secretKey_B = DiffieHellman.DH_3(keys_B.getPrivate(), diffieHellmanPayload.getA());
+            String secretKey_B = DiffieHellman.dh_3(keys_B.getPrivate(), diffieHellmanPayload.getA());
 
             //System.out.println("DH_test, secretKey_A: "+secretKey_A+"  secretKey_B: "+ secretKey_B);
             assertEquals(secretKey_A, secretKey_B);
@@ -158,9 +158,9 @@ public class AlgorithmTest {
     @Test
     public void diffieHellmanKey() {
         try {
-            List<BigInteger> pg = DiffieHellman.DH_0_A();
+            List<BigInteger> pg = DiffieHellman.dh_0_A();
             KeyPair keys_A = null;
-            keys_A = DiffieHellman.DH_1(pg);
+            keys_A = DiffieHellman.dh_1(pg);
 
 
             String priv = DiffieHellman.savePrivateKey(keys_A.getPrivate(), pg.get(0), pg.get(1));
@@ -182,13 +182,13 @@ public class AlgorithmTest {
             // A(client) and B(server) are the parts of the communication example
 
             // ** A
-            List<BigInteger> pg = DiffieHellman.DH_0_A();
-            KeyPair keys_A = DiffieHellman.DH_1(pg);
-            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.DH_2_A(pg, keys_A.getPublic());
+            List<BigInteger> pg = DiffieHellman.dh_0_A();
+            KeyPair keys_A = DiffieHellman.dh_1(pg);
+            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh_2_A(pg, keys_A.getPublic());
             ClientSecureData clientSecureData = new ClientSecureData(keys_A, diffieHellmanPayload, null, null);
             // A sends --diffieHellmanPayload-- to B
             // ** B
-            KeyPair keys_B = DiffieHellman.DH_1(diffieHellmanPayload.getPQ());
+            KeyPair keys_B = DiffieHellman.dh_1(diffieHellmanPayload.getPQ());
             PublicKey publicKey_B = keys_B.getPublic();
             ServerSecureData serverSecureData = new ServerSecureData(diffieHellmanPayload.getPQ(), keys_B);
             serverSecureData.addDiffieHellmanPayload("ID", diffieHellmanPayload);
@@ -196,12 +196,12 @@ public class AlgorithmTest {
 
             // **A
             clientSecureData.setPublicKeyServer(publicKey_B);
-            SecretKey secretKey_A = DiffieHellman.DH_3(clientSecureData.getKeyPairClient().getPrivate(),
+            SecretKey secretKey_A = DiffieHellman.dh_3(clientSecureData.getKeyPairClient().getPrivate(),
                     clientSecureData.getPublicKeyServer(),
                     AES.ALGORITHM);
             clientSecureData.setSecretKey(secretKey_A);
             // **B
-            SecretKey secretKey_B = DiffieHellman.DH_3(serverSecureData.getKeyPairServer().getPrivate(),
+            SecretKey secretKey_B = DiffieHellman.dh_3(serverSecureData.getKeyPairServer().getPrivate(),
                     serverSecureData.getDiffieHellmanPayload("ID").getA(),
                     AES.ALGORITHM);
             serverSecureData.addSecretKey("ID", secretKey_B);
@@ -220,7 +220,7 @@ public class AlgorithmTest {
     }
 
     @Test
-    public void RSA_Key() {
+    public void rsaKey() {
         try {
             KeyPair keyPair = RSA.generateKeyPair();
 
@@ -239,7 +239,7 @@ public class AlgorithmTest {
     }
 
     @Test
-    public void SHA() {
+    public void sha() {
         try {
             String a = "00000000";
             String hash = SHA256.hash(a);

@@ -7,7 +7,7 @@ import it.richkmeli.jframework.crypto.data.SecureDataState;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
 import it.richkmeli.jframework.crypto.model.DiffieHellmanPayload;
 import it.richkmeli.jframework.crypto.model.ServerSecureData;
-import it.richkmeli.jframework.crypto.util.JSONmanager;
+import it.richkmeli.jframework.crypto.util.JSONhalper;
 import it.richkmeli.jframework.util.Logger;
 import org.json.JSONObject;
 
@@ -43,9 +43,9 @@ public class CryptoControllerServer extends CryptoController {
 
                     // check if the other part is in a different state (not sync)
                     if (!decodedPayload.equalsIgnoreCase("")) {
-                        DiffieHellmanPayload diffieHellmanPayload = JSONmanager.DHPayloadFromJSON(new JSONObject(decodedPayload));
+                        DiffieHellmanPayload diffieHellmanPayload = JSONhalper.dhPayloadFromJSON(new JSONObject(decodedPayload));
 
-                        KeyPair keys_B = DiffieHellman.DH_1(diffieHellmanPayload.getPQ());
+                        KeyPair keys_B = DiffieHellman.dh_1(diffieHellmanPayload.getPQ());
 
                         PublicKey publicKey_B = keys_B.getPublic();
                         ServerSecureData serverSecureData = new ServerSecureData(diffieHellmanPayload.getPQ(), keys_B);
@@ -58,7 +58,7 @@ public class CryptoControllerServer extends CryptoController {
                         serverSecureData = SecureDataManager.getServerSecureData(secureData, secretKey);
 
                         SecretKey secretKey_B = null;
-                        secretKey_B = DiffieHellman.DH_3(serverSecureData.getKeyPairServer().getPrivate(),
+                        secretKey_B = DiffieHellman.dh_3(serverSecureData.getKeyPairServer().getPrivate(),
                                 serverSecureData.getDiffieHellmanPayload(clientID).getA(),
                                 AES.ALGORITHM);
                         serverSecureData.addSecretKey(clientID, secretKey_B);
@@ -67,7 +67,7 @@ public class CryptoControllerServer extends CryptoController {
                         Logger.info("init, private key generated");
 
                         stateS = SecureDataState.SECRET_KEY_EXCHANGED;
-                        payload = (JSONmanager.DHPublicKeyToJSON(publicKey_B, diffieHellmanPayload.getPQ())).toString();
+                        payload = (JSONhalper.dhPublicKeyToJSON(publicKey_B, diffieHellmanPayload.getPQ())).toString();
                     } else {
                         Logger.error("init, server secure data has been removed or client is in a wrong state");
 
@@ -89,7 +89,7 @@ public class CryptoControllerServer extends CryptoController {
                 break;
         }
 
-        return JSONmanager.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
+        return JSONhalper.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
     }
 
     // Active, servlet received data from client, not directly from a payload

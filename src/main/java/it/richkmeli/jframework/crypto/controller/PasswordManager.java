@@ -17,7 +17,7 @@ public class PasswordManager {
         String saltS = "";
         String hashedPassword = "";
         if (saltEnabled) {
-            saltS = RandomStringGenerator.GenerateAlphanumericString(9);//new String(salt);
+            saltS = RandomStringGenerator.generateAlphanumericString(9);//new String(salt);
             hashedPassword = SHA256.hash(SHA256.hash(password) + saltS);
         } else {
             saltS = "000000000";

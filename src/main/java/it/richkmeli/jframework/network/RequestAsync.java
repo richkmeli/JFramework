@@ -13,12 +13,12 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 public class RequestAsync extends Thread {
-    OkHttpClient client;
-    String url;
-    Request request;
-    Response response;
-    Type type;
-    RequestListener requestListener;
+    private OkHttpClient client;
+    private String url;
+    private Request request;
+    private Response response;
+    private Type type;
+    private RequestListener requestListener;
 
     public RequestAsync(RequestListener requestListener, Type type, String url) {
         client = new OkHttpClient();

@@ -1,6 +1,6 @@
 package it.richkmeli.jframework.crypto.model;
 
-import it.richkmeli.jframework.crypto.util.JSONmanager;
+import it.richkmeli.jframework.crypto.util.JSONhalper;
 import it.richkmeli.jframework.util.Logger;
 import org.json.JSONObject;
 
@@ -39,14 +39,14 @@ public class ServerSecureData {
     public String getServerSecureDataJSON() {
         JSONObject serverSecureDataJSON = new JSONObject();
 
-        JSONObject pgJSON = (this.pg != null) ? JSONmanager.pgToJSON(this.pg) : new JSONObject();
-        JSONObject keyPair_ServerJSON = (this.pg != null) ? JSONmanager.DHkeyPairToJSON(this.keyPairServer, this.pg) : new JSONObject();
+        JSONObject pgJSON = (this.pg != null) ? JSONhalper.pgToJSON(this.pg) : new JSONObject();
+        JSONObject keyPair_ServerJSON = (this.pg != null) ? JSONhalper.dhKeyPairToJSON(this.keyPairServer, this.pg) : new JSONObject();
 
         JSONObject diffieHellmanPayloadMapJSON = new JSONObject();
         if (this.diffieHellmanPayloadMap != null) {
             for (String s : this.diffieHellmanPayloadMap.keySet()) {
                 DiffieHellmanPayload diffieHellmanPayload = this.diffieHellmanPayloadMap.get(s);
-                diffieHellmanPayloadMapJSON.put(s, JSONmanager.DHPayloadToJSON(diffieHellmanPayload));
+                diffieHellmanPayloadMapJSON.put(s, JSONhalper.dhPayloadToJSON(diffieHellmanPayload));
             }
         }
 
@@ -54,7 +54,7 @@ public class ServerSecureData {
         if (this.secretKeyClientMap != null) {
             for (String s : this.secretKeyClientMap.keySet()) {
                 SecretKey secretKey = this.secretKeyClientMap.get(s);
-                secretKey_ClientMapJSON.put(s, JSONmanager.AESsecretKeyToJSON(secretKey));
+                secretKey_ClientMapJSON.put(s, JSONhalper.aesSecretKeyToJSON(secretKey));
             }
         }
 
@@ -82,19 +82,19 @@ public class ServerSecureData {
                     JSONObject diffieHellmanPayloadMapJSON = serverSecureDataJSON.has("diffieHellmanPayloadMap") ? serverSecureDataJSON.getJSONObject("diffieHellmanPayloadMap") : new JSONObject();
                     JSONObject secretKey_ClientMapJSON = serverSecureDataJSON.has("secretKeyClientMap") ? serverSecureDataJSON.getJSONObject("secretKeyClientMap") : new JSONObject();
 
-                    this.pg = (!pgJSON.toString().equalsIgnoreCase("{}")) ? JSONmanager.pgFromJSON(pgJSON) : null;
-                    this.keyPairServer = (!keyPair_ServerJSON.toString().equalsIgnoreCase("{}")) ? JSONmanager.DHkeyPairFromJSON(keyPair_ServerJSON) : null;
+                    this.pg = (!pgJSON.toString().equalsIgnoreCase("{}")) ? JSONhalper.pgFromJSON(pgJSON) : null;
+                    this.keyPairServer = (!keyPair_ServerJSON.toString().equalsIgnoreCase("{}")) ? JSONhalper.dhKeyPairFromJSON(keyPair_ServerJSON) : null;
 
                     Map<String, DiffieHellmanPayload> diffieHellmanPayloadMap = new HashMap<>();
                     for (String s : diffieHellmanPayloadMapJSON.keySet()) {
                         JSONObject diffieHellmanPayloadJSON = diffieHellmanPayloadMapJSON.getJSONObject(s);
-                        diffieHellmanPayloadMap.put(s, JSONmanager.DHPayloadFromJSON(diffieHellmanPayloadJSON));
+                        diffieHellmanPayloadMap.put(s, JSONhalper.dhPayloadFromJSON(diffieHellmanPayloadJSON));
                     }
 
                     Map<String, SecretKey> secretKey_ClientMap = new HashMap<>();
                     for (String s : secretKey_ClientMapJSON.keySet()) {
                         JSONObject secretKey_ClientJSON = secretKey_ClientMapJSON.getJSONObject(s);
-                        secretKey_ClientMap.put(s, JSONmanager.AESsecretKeyFromJSON(secretKey_ClientJSON));
+                        secretKey_ClientMap.put(s, JSONhalper.aesSecretKeyFromJSON(secretKey_ClientJSON));
                     }
 
                     this.diffieHellmanPayloadMap = diffieHellmanPayloadMap;

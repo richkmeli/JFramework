@@ -3,7 +3,7 @@ package it.richkmeli.jframework.crypto.util;
 import java.util.Random;
 
 public class RandomStringGenerator {
-    public static String GenerateAlphanumericString(int lenght) {
+    public static String generateAlphanumericString(int lenght) {
         String alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         int alphabetLength = alphabet.length();
 
@@ -25,7 +25,7 @@ public class RandomStringGenerator {
     }
 */
 
-    public static String GenerateBoundedString(int targetStringLength, int leftLimit, int rightLimit) {
+    public static String generateBoundedString(int targetStringLength, int leftLimit, int rightLimit) {
         //int leftLimit = 97; // letter 'a'
         //int rightLimit = 122; // letter 'z'
         //int targetStringLength = 10;

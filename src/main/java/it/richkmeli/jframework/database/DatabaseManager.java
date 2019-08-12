@@ -122,7 +122,7 @@ public class DatabaseManager {
 
     }
 
-    private boolean createSchema(String schema) {
+    private void createSchema(String schema) {
         String schemaSQL = "";//"CREATE SCHEMA " + schema;
         if ("derby".equalsIgnoreCase(dbtype)) {
             schemaSQL = "CREATE SCHEMA " + schema;
@@ -136,10 +136,9 @@ public class DatabaseManager {
         } catch (DatabaseException e) {
             Logger.error("DatabaseManager, createSchema", e);
         }
-        return true;
     }
 
-    private boolean createTables(String table) throws DatabaseException {
+    private void createTables(String table) throws DatabaseException {
         String tableSQL = "";//"CREATE TABLE " + table;
         if ("derby".equalsIgnoreCase(dbtype)) {
             tableSQL = "CREATE TABLE " + table;
@@ -157,10 +156,9 @@ public class DatabaseManager {
                 Logger.error("DatabaseManager, createTables", e);
             }
         }
-        return true;
     }
 
-    private boolean execute(String string) throws DatabaseException {
+    private void execute(String string) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
@@ -176,7 +174,6 @@ public class DatabaseManager {
             //return false;
         }
         disconnect(connection, preparedStatement, null);
-        return true;
     }
 
     protected <T> boolean add(T type) throws DatabaseException {
@@ -199,12 +196,12 @@ public class DatabaseManager {
             int i = 0;
             int numberOfFiels = type.getClass().getDeclaredFields().length;
             for (Field field : type.getClass().getDeclaredFields()) {
-                Type fieldType = field.getGenericType();
+                //Type fieldType = field.getGenericType();
                 String fieldName = field.getName();
-                sql.append(fieldName + ((++i < numberOfFiels) ? ", " : ") VALUES ("));
+                sql.append(fieldName).append((++i < numberOfFiels) ? ", " : ") VALUES (");
             }
             for (int i1 = 0; i1 < numberOfFiels; i1++) {
-                sql.append("?" + ((i1 < numberOfFiels - 1) ? "," : ""));
+                sql.append("?").append((i1 < numberOfFiels - 1) ? "," : "");
             }
             sql.append(")");
 
@@ -214,7 +211,7 @@ public class DatabaseManager {
             int parameterIndex = 1;
             for (Field field : type.getClass().getDeclaredFields()) {
                 Type fieldType = field.getGenericType();
-                String fieldName = field.getName();
+                //String fieldName = field.getName();
                 //Logger.info("Type: " + fieldType + ", Name: " + fieldName + ", Value: " + field.get(type).toString());
                 switch (fieldType.getTypeName()) {
                     case "java.lang.String":
@@ -222,7 +219,7 @@ public class DatabaseManager {
                         break;
                     case "java.lang.Boolean":
                         //preparedStatement.setBoolean(parameterIndex, field.getBoolean(type));
-                        preparedStatement.setBoolean(parameterIndex, new Boolean(field.get(type).toString()));
+                        preparedStatement.setBoolean(parameterIndex, Boolean.parseBoolean(field.get(type).toString()));
                         break;
                     default:
                         Logger.error("DatabaseManager, REFLECTION, type not mapped, type: " + fieldType);
