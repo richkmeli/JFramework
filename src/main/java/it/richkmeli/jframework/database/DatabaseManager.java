@@ -4,6 +4,7 @@ import it.richkmeli.jframework.util.Logger;
 import org.apache.derby.shared.common.error.DerbySQLIntegrityConstraintViolationException;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.sql.*;
 import java.util.ResourceBundle;
@@ -198,34 +199,44 @@ public class DatabaseManager {
             for (Field field : type.getClass().getDeclaredFields()) {
                 //Type fieldType = field.getGenericType();
                 String fieldName = field.getName();
-                sql.append(fieldName).append((++i < numberOfFiels) ? ", " : ") VALUES (");
+                // handle add of transient field by coverage tools
+                if (!Modifier.isTransient(field.getModifiers())) {
+                    sql.append(fieldName).append((++i < numberOfFiels) ? ", " : ") VALUES (");
+                } else {
+                    numberOfFiels--;
+                }
             }
             for (int i1 = 0; i1 < numberOfFiels; i1++) {
                 sql.append("?").append((i1 < numberOfFiels - 1) ? "," : "");
             }
             sql.append(")");
 
+            System.out.println("----" + sql.toString());
             preparedStatement = connection.prepareStatement(sql.toString());
 
             // insert values in preparedStatement
             int parameterIndex = 1;
             for (Field field : type.getClass().getDeclaredFields()) {
-                Type fieldType = field.getGenericType();
-                //String fieldName = field.getName();
-                //Logger.info("Type: " + fieldType + ", Name: " + fieldName + ", Value: " + field.get(type).toString());
-                switch (fieldType.getTypeName()) {
-                    case "java.lang.String":
-                        preparedStatement.setString(parameterIndex, field.get(type).toString());
-                        break;
-                    case "java.lang.Boolean":
-                        //preparedStatement.setBoolean(parameterIndex, field.getBoolean(type));
-                        preparedStatement.setBoolean(parameterIndex, Boolean.parseBoolean(field.get(type).toString()));
-                        break;
-                    default:
-                        Logger.error("DatabaseManager, REFLECTION, type not mapped, type: " + fieldType);
-                        break;
+                // handle add of transient field by coverage tools
+                if (!Modifier.isTransient(field.getModifiers())) {
+
+                    Type fieldType = field.getGenericType();
+                    //String fieldName = field.getName();
+                    //Logger.info("Type: " + fieldType + ", Name: " + fieldName + ", Value: " + field.get(type).toString());
+                    switch (fieldType.getTypeName()) {
+                        case "java.lang.String":
+                            preparedStatement.setString(parameterIndex, field.get(type).toString());
+                            break;
+                        case "java.lang.Boolean":
+                            //preparedStatement.setBoolean(parameterIndex, field.getBoolean(type));
+                            preparedStatement.setBoolean(parameterIndex, Boolean.parseBoolean(field.get(type).toString()));
+                            break;
+                        default:
+                            Logger.error("DatabaseManager, REFLECTION, type not mapped, type: " + fieldType);
+                            break;
+                    }
+                    parameterIndex++;
                 }
-                parameterIndex++;
             }
             //Logger.info(preparedStatement.toString());
 

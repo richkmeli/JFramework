@@ -8,6 +8,8 @@
     <artifactId>JFramework</artifactId>
     <!-- TODO RELEASE -->
     <version>1.1.1</version>
+    <packaging>jar</packaging>
+
 
     <repositories>
         <repository>
@@ -17,6 +19,20 @@
     </repositories>
 
     <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/main/resources</directory>
+            </testResource>
+        </testResources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
