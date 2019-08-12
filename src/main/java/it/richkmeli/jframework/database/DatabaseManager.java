@@ -211,7 +211,6 @@ public class DatabaseManager {
             }
             sql.append(")");
 
-            System.out.println("----" + sql.toString());
             preparedStatement = connection.prepareStatement(sql.toString());
 
             // insert values in preparedStatement
