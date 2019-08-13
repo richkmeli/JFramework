@@ -66,6 +66,7 @@ public class AlgorithmTest {
                 decrypted = AES.decrypt(encrypted, AESsecretKey);
             } catch (CryptoException e) {
                 e.printStackTrace();
+                assert false;
             }
 
             assertEquals(plain, decrypted);
@@ -88,6 +89,7 @@ public class AlgorithmTest {
                     decrypted = AES.decrypt(encrypted, key);
                 } catch (CryptoException e) {
                     e.printStackTrace();
+                    assert false;
                 }
 
                 assertEquals(plain, decrypted);
@@ -124,6 +126,7 @@ public class AlgorithmTest {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            assert false;
         }
     }
 
@@ -134,33 +137,34 @@ public class AlgorithmTest {
             // A and B are the parts of the communication example
 
             // ** A
-            List<BigInteger> pg = DiffieHellman.dh_0_A();
-            KeyPair keys_A = DiffieHellman.dh_1(pg);
-            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh_2_A(pg, keys_A.getPublic());
+            List<BigInteger> pg = DiffieHellman.dh0A();
+            KeyPair keys_A = DiffieHellman.dh1(pg);
+            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh2A(pg, keys_A.getPublic());
             // A sends --diffieHellmanPayload-- to B
             // ** B
-            KeyPair keys_B = DiffieHellman.dh_1(diffieHellmanPayload.getPQ());
+            KeyPair keys_B = DiffieHellman.dh1(diffieHellmanPayload.getPQ());
             PublicKey publicKey_B = keys_B.getPublic();
             // B sends --publicKey_B-- to A
 
             // **A
-            String secretKey_A = DiffieHellman.dh_3(keys_A.getPrivate(), publicKey_B);
+            String secretKey_A = DiffieHellman.dh3(keys_A.getPrivate(), publicKey_B);
             // **B
-            String secretKey_B = DiffieHellman.dh_3(keys_B.getPrivate(), diffieHellmanPayload.getA());
+            String secretKey_B = DiffieHellman.dh3(keys_B.getPrivate(), diffieHellmanPayload.getA());
 
             //System.out.println("DH_test, secretKey_A: "+secretKey_A+"  secretKey_B: "+ secretKey_B);
             assertEquals(secretKey_A, secretKey_B);
         } catch (Exception e) {
             e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
     public void diffieHellmanKey() {
         try {
-            List<BigInteger> pg = DiffieHellman.dh_0_A();
+            List<BigInteger> pg = DiffieHellman.dh0A();
             KeyPair keys_A = null;
-            keys_A = DiffieHellman.dh_1(pg);
+            keys_A = DiffieHellman.dh1(pg);
 
 
             String priv = DiffieHellman.savePrivateKey(keys_A.getPrivate(), pg.get(0), pg.get(1));
@@ -173,6 +177,7 @@ public class AlgorithmTest {
             assertEquals(keys_A.getPrivate(), privateKey);
         } catch (Exception e) {
             e.printStackTrace();
+            assert false;
         }
     }
 
@@ -182,13 +187,13 @@ public class AlgorithmTest {
             // A(client) and B(server) are the parts of the communication example
 
             // ** A
-            List<BigInteger> pg = DiffieHellman.dh_0_A();
-            KeyPair keys_A = DiffieHellman.dh_1(pg);
-            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh_2_A(pg, keys_A.getPublic());
+            List<BigInteger> pg = DiffieHellman.dh0A();
+            KeyPair keys_A = DiffieHellman.dh1(pg);
+            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh2A(pg, keys_A.getPublic());
             ClientSecureData clientSecureData = new ClientSecureData(keys_A, diffieHellmanPayload, null, null);
             // A sends --diffieHellmanPayload-- to B
             // ** B
-            KeyPair keys_B = DiffieHellman.dh_1(diffieHellmanPayload.getPQ());
+            KeyPair keys_B = DiffieHellman.dh1(diffieHellmanPayload.getPQ());
             PublicKey publicKey_B = keys_B.getPublic();
             ServerSecureData serverSecureData = new ServerSecureData(diffieHellmanPayload.getPQ(), keys_B);
             serverSecureData.addDiffieHellmanPayload("ID", diffieHellmanPayload);
@@ -196,12 +201,12 @@ public class AlgorithmTest {
 
             // **A
             clientSecureData.setPublicKeyServer(publicKey_B);
-            SecretKey secretKey_A = DiffieHellman.dh_3(clientSecureData.getKeyPairClient().getPrivate(),
+            SecretKey secretKey_A = DiffieHellman.dh3(clientSecureData.getKeyPairClient().getPrivate(),
                     clientSecureData.getPublicKeyServer(),
                     AES.ALGORITHM);
             clientSecureData.setSecretKey(secretKey_A);
             // **B
-            SecretKey secretKey_B = DiffieHellman.dh_3(serverSecureData.getKeyPairServer().getPrivate(),
+            SecretKey secretKey_B = DiffieHellman.dh3(serverSecureData.getKeyPairServer().getPrivate(),
                     serverSecureData.getDiffieHellmanPayload("ID").getA(),
                     AES.ALGORITHM);
             serverSecureData.addSecretKey("ID", secretKey_B);
@@ -216,6 +221,7 @@ public class AlgorithmTest {
             assertEquals(secretKey_A, secretKey_B);
         } catch (Exception e) {
             e.printStackTrace();
+            assert false;
         }
     }
 
@@ -235,6 +241,7 @@ public class AlgorithmTest {
 
         } catch (Exception e) {
             e.printStackTrace();
+            assert false;
         }
     }
 
@@ -250,6 +257,7 @@ public class AlgorithmTest {
 */
         } catch (Exception e) {
             e.printStackTrace();
+            assert false;
         }
     }
 

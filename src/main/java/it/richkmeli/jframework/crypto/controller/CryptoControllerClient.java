@@ -33,9 +33,9 @@ public class CryptoControllerClient extends CryptoController {
             case SecureDataState.NOT_INITIALIZED:
                 SecureDataManager.initClientSecureData(secureData, secretKey);
                 try {
-                    List<BigInteger> pg = DiffieHellman.dh_0_A();
-                    KeyPair keys_A = DiffieHellman.dh_1(pg);
-                    DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh_2_A(pg, keys_A.getPublic());
+                    List<BigInteger> pg = DiffieHellman.dh0A();
+                    KeyPair keys_A = DiffieHellman.dh1(pg);
+                    DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh2A(pg, keys_A.getPublic());
                     ClientSecureData clientSecureData = new ClientSecureData(keys_A, diffieHellmanPayload, null, null);
 
                     SecureDataManager.setClientSecureData(secureData, secretKey, clientSecureData);
@@ -67,7 +67,7 @@ public class CryptoControllerClient extends CryptoController {
                         Logger.info("init, public keys exchanged");
 
                         clientSecureData = SecureDataManager.getClientSecureData(secureData, secretKey);
-                        SecretKey secretKey_A = DiffieHellman.dh_3(clientSecureData.getKeyPairClient().getPrivate(),
+                        SecretKey secretKey_A = DiffieHellman.dh3(clientSecureData.getKeyPairClient().getPrivate(),
                                 clientSecureData.getPublicKeyServer(),
                                 AES.ALGORITHM);
                         clientSecureData.setSecretKey(secretKey_A);

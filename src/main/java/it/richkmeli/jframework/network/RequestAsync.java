@@ -5,6 +5,7 @@ import it.richkmeli.jframework.util.Logger;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,7 +43,10 @@ public class RequestAsync extends Thread {
 
         try {
             response = client.newCall(request).execute();
-            result = response.body().string();
+            ResponseBody responseBody = response.body();
+            if (responseBody != null) {
+                result = responseBody.string();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

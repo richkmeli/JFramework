@@ -1,5 +1,6 @@
 package it.richkmeli.jframework.network;
 
-public interface RequestListener<MODEL> {
-    void onResult(MODEL response);
+// M is the generic model
+public interface RequestListener<M> {
+    void onResult(M response);
 }

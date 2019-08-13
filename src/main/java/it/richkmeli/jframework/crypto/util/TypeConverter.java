@@ -1,7 +1,7 @@
 package it.richkmeli.jframework.crypto.util;
 
 public class TypeConverter {
-    final private static char[] hexArray = "0123456789abcdef".toCharArray();
+    //final private static char[] hexArray = "0123456789abcdef".toCharArray();
 
     /*public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];

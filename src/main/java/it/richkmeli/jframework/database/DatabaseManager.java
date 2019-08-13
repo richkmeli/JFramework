@@ -153,6 +153,7 @@ public class DatabaseManager {
         } catch (DatabaseException e) {
             // TODO gestione derby
             if (e.getMessage().contains("already exists in Schema")) {
+                // skipping
             } else {
                 Logger.error("DatabaseManager, createTables", e);
             }

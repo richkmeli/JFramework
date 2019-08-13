@@ -41,7 +41,7 @@ public class StorageTest {
     @Test
     public void serverSecureDataJSON() {
         File sdsFile = new File("serverSecureData.txt");
-        String clientID = "USER-001";
+        //String clientID = "USER-001";
         String serverKey = "testkeyServer";
 
         System.out.println("serverSecureData delete: " + sdsFile.delete());
@@ -61,43 +61,39 @@ public class StorageTest {
 
     private ClientSecureData fillRandomlyClientSecureData() {
         try {
-            List<BigInteger> pg = DiffieHellman.dh_0_A();
-            KeyPair keys_A = DiffieHellman.dh_1(pg);
-            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh_2_A(pg, keys_A.getPublic());
-            SecretKey secretKey_A = DiffieHellman.dh_3(keys_A.getPrivate(), keys_A.getPublic(), AES.ALGORITHM);
+            List<BigInteger> pg = DiffieHellman.dh0A();
+            KeyPair keys_A = DiffieHellman.dh1(pg);
+            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh2A(pg, keys_A.getPublic());
+            SecretKey secretKey_A = DiffieHellman.dh3(keys_A.getPrivate(), keys_A.getPublic(), AES.ALGORITHM);
             return new ClientSecureData(keys_A, diffieHellmanPayload, keys_A.getPublic(), secretKey_A);
         } catch (InvalidAlgorithmParameterException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException e) {
             e.printStackTrace();
+            assert false;
         }
         return null;
     }
 
     private ServerSecureData fillRandomlyServerSecureData() {
         try {
-            List<BigInteger> pg = DiffieHellman.dh_0_A();
-            KeyPair keys_A = DiffieHellman.dh_1(pg);
-            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh_2_A(pg, keys_A.getPublic());
+            List<BigInteger> pg = DiffieHellman.dh0A();
+            KeyPair keys_A = DiffieHellman.dh1(pg);
+            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh2A(pg, keys_A.getPublic());
 
-            KeyPair keys_B = DiffieHellman.dh_1(diffieHellmanPayload.getPQ());
+            KeyPair keys_B = DiffieHellman.dh1(diffieHellmanPayload.getPQ());
 
             PublicKey publicKey = keys_B.getPublic();
             ServerSecureData serverSecureData = new ServerSecureData(pg, keys_B);
             serverSecureData.addDiffieHellmanPayload("ID", diffieHellmanPayload);
 
-            SecretKey secretKey_B = DiffieHellman.dh_3(serverSecureData.getKeyPairServer().getPrivate(),
+            SecretKey secretKey_B = DiffieHellman.dh3(serverSecureData.getKeyPairServer().getPrivate(),
                     serverSecureData.getDiffieHellmanPayload("ID").getA(),
                     AES.ALGORITHM);
             serverSecureData.addSecretKey("ID", secretKey_B);
 
             return serverSecureData;
-        } catch (InvalidAlgorithmParameterException e) {
+        } catch (InvalidAlgorithmParameterException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException e) {
             e.printStackTrace();
-        } catch (NoSuchProviderException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
+            assert false;
         }
         return null;
     }
