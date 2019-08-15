@@ -13,13 +13,13 @@ import java.io.File;
 public class Crypto {
 
     public static class Client {
-        private String serverURL;
+        //private String serverURL;
         private File secureData;
         private String secretKey;
 
         // Passive, payloads as parametes ant it return lib status
         public String init(File secureData, String secretKey, String serverPayload) {
-            this.serverURL = serverURL;
+            //this.serverURL = serverURL;
             this.secureData = secureData;
             this.secretKey = secretKey;
 

@@ -40,7 +40,7 @@ public class ServerSecureData {
         JSONObject serverSecureDataJSON = new JSONObject();
 
         JSONObject pgJSON = (this.pg != null) ? JSONhalper.pgToJSON(this.pg) : new JSONObject();
-        JSONObject keyPair_ServerJSON = (this.pg != null) ? JSONhalper.dhKeyPairToJSON(this.keyPairServer, this.pg) : new JSONObject();
+        JSONObject keyPair_ServerJSON = (this.keyPairServer != null && this.pg != null) ? JSONhalper.dhKeyPairToJSON(this.keyPairServer, this.pg) : new JSONObject();
 
         JSONObject diffieHellmanPayloadMapJSON = new JSONObject();
         if (this.diffieHellmanPayloadMap != null) {

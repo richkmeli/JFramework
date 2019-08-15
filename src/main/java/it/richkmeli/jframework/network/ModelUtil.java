@@ -13,7 +13,7 @@ public class ModelUtil {
         for (Field field : model.getClass().getFields()) {
             if (field != null) {
                 oneFieldinitialized = true;
-                stringBuilder.append(field == null ? "" : field.toString());
+                stringBuilder.append(field.toString());
             }
         }
 

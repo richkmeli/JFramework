@@ -28,9 +28,9 @@ public class ClientSecureData {
     public String getClientSecureDataJSON() {
         JSONObject clientSecureDataJSON = new JSONObject();
 
-        JSONObject keyPair_ClientJSON = (this.keyPairClient != null) ? JSONhalper.dhKeyPairToJSON(this.keyPairClient, diffieHellmanPayload.getPQ()) : new JSONObject();
+        JSONObject keyPair_ClientJSON = (this.keyPairClient != null && this.diffieHellmanPayload != null) ? JSONhalper.dhKeyPairToJSON(this.keyPairClient, diffieHellmanPayload.getPQ()) : new JSONObject();
         JSONObject diffieHellmanPayloadJSON = (this.diffieHellmanPayload != null) ? JSONhalper.dhPayloadToJSON(this.diffieHellmanPayload) : new JSONObject();
-        JSONObject publicKey_ServerJSON = (this.publicKeyServer != null) ? JSONhalper.dhPublicKeyToJSON(this.publicKeyServer, diffieHellmanPayload.getPQ()) : new JSONObject();
+        JSONObject publicKey_ServerJSON = (this.publicKeyServer != null && this.diffieHellmanPayload != null) ? JSONhalper.dhPublicKeyToJSON(this.publicKeyServer, diffieHellmanPayload.getPQ()) : new JSONObject();
         JSONObject secretKeyJSON = (this.secretKey != null) ? JSONhalper.aesSecretKeyToJSON(this.secretKey) : new JSONObject();
 
 
