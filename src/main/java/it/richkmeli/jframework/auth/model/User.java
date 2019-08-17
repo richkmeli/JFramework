@@ -1,7 +1,11 @@
 package it.richkmeli.jframework.auth.model;
 
+
+import it.richkmeli.jframework.orm.annotation.Id;
+
 public class User {
     // public for REFLECTION
+    @Id
     public String email;
     public String password;
     public Boolean isAdmin;
@@ -10,6 +14,16 @@ public class User {
         this.email = email;
         this.password = password;
         this.isAdmin = isAdmin;
+    }
+
+    public Boolean getAdmin() {
+        return isAdmin;
+    }
+
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
+        this.isAdmin = false;
     }
 
     public String getEmail() {

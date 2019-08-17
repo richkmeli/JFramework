@@ -1,13 +1,13 @@
 package it.richkmeli.jframework.auth;
 
 import it.richkmeli.jframework.auth.model.User;
-import it.richkmeli.jframework.database.DatabaseException;
+import it.richkmeli.jframework.orm.DatabaseException;
 
 import java.util.List;
 
 public interface AuthModel {
 
-    List<User> refreshUser() throws DatabaseException;
+    List<User> getAllUsers() throws DatabaseException;
 
     boolean addUser(User user) throws DatabaseException;
 
