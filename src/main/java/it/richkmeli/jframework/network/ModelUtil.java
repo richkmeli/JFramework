@@ -10,7 +10,7 @@ public class ModelUtil {
         StringBuilder stringBuilder = new StringBuilder();
         boolean oneFieldinitialized = false;
         //for (Field field : this.getClass().getFields()) {
-        for (Field field : model.getClass().getFields()) {
+        for (Field field : model.getClass().getDeclaredFields()) {
             if (field != null) {
                 oneFieldinitialized = true;
                 stringBuilder.append(field.toString());

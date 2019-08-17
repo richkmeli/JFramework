@@ -143,11 +143,43 @@ class MeasurementsResponse {
 }
 
 class Date {
-    String utc;
-    String local;
+    private String utc;
+    private String local;
+
+    public String getUtc() {
+        return utc;
+    }
+
+    public void setUtc(String utc) {
+        this.utc = utc;
+    }
+
+    public String getLocal() {
+        return local;
+    }
+
+    public void setLocal(String local) {
+        this.local = local;
+    }
 }
 
 class Coordinates {
-    double latitude;
-    double longitude;
+    private double latitude;
+    private double longitude;
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
 }

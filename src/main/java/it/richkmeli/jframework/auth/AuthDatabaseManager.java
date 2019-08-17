@@ -19,7 +19,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
         table = "(" +
                 "email VARCHAR(50) NOT NULL PRIMARY KEY," +
                 "password VARCHAR(100) NOT NULL," +
-                "isAdmin BOOLEAN NOT NULL " + ("mysql".equalsIgnoreCase(dbtype) ? "DEFAULT 0" : "") +
+                "admin BOOLEAN NOT NULL " + ("mysql".equalsIgnoreCase(dbtype) ? "DEFAULT 0" : "") +
                 ")";
 
         init(database);
@@ -41,7 +41,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
     public boolean addUser(User user) throws DatabaseException {
         //Logger.info("AuthDatabaseManager, addUser. User: " + user.email);
         //String hash = Crypto.hash(user.getPassword());
-        String password = Crypto.hashPassword(user.password, false);
+        String password = Crypto.hashPassword(user.getPassword(), false);
         user.setPassword(password);
         return create(user);
     }
@@ -96,7 +96,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
     public boolean checkPassword(String email, String pass) throws DatabaseException {
         User user = getUser(email);
         if (user != null) {
-            return Crypto.verifyPassword(getUser(email).getPassword(), pass);
+            return Crypto.verifyPassword(user.getPassword(), pass);
         } else {
             return false;
         }
@@ -105,7 +105,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
     public boolean isAdmin(String email) throws DatabaseException {
         User user = getUser(email);
         if (user != null) {
-            return getUser(email).isAdmin();
+            return user.getAdmin();
         } else {
             return false;
         }

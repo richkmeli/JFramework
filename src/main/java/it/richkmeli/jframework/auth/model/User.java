@@ -6,24 +6,20 @@ import it.richkmeli.jframework.orm.annotation.Id;
 public class User {
     // public for REFLECTION
     @Id
-    public String email;
-    public String password;
-    public Boolean isAdmin;
+    private String email;
+    private String password;
+    private Boolean admin;
 
-    public User(String email, String password, Boolean isAdmin) {
+    public User(String email, String password, Boolean admin) {
         this.email = email;
         this.password = password;
-        this.isAdmin = isAdmin;
-    }
-
-    public Boolean getAdmin() {
-        return isAdmin;
+        this.admin = admin;
     }
 
     public User(String email, String password) {
         this.email = email;
         this.password = password;
-        this.isAdmin = false;
+        this.admin = false;
     }
 
     public String getEmail() {
@@ -42,11 +38,11 @@ public class User {
         this.password = password;
     }
 
-    public Boolean isAdmin() {
-        return isAdmin;
+    public Boolean getAdmin() {
+        return admin;
     }
 
     public void setAdmin(Boolean admin) {
-        isAdmin = admin;
+        this.admin = admin;
     }
 }

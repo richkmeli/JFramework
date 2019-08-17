@@ -209,11 +209,11 @@ public class DatabaseManager {
             field = getPrimaryKey(type);
             if (field != null) {
 
-                sql.append(field.getName()).append(" = 'er@fv.it'");//?");
+                sql.append(field.getName()).append(" = ?");
                 preparedStatement = connection.prepareStatement(sql.toString());
 
-                //  preparedStatement = addAttributeToPreparedStatement(preparedStatement,
-                //          1, type, field);
+                preparedStatement = addAttributeToPreparedStatement(preparedStatement,
+                        1, type, field);
 
                 resultSet = preparedStatement.executeQuery();
                 List<T> list = getListFromResultSet(type.getClass(), resultSet);
@@ -226,7 +226,7 @@ public class DatabaseManager {
                 }
             } else {
                 disconnect(connection, preparedStatement, null);
-                throw new DatabaseException("PrimaryKey not found");
+                throw new DatabaseException("ORM, Reflection: PrimaryKey not found");
                 //return false;
             }
         } catch (SQLException e) {
@@ -260,46 +260,64 @@ public class DatabaseManager {
     private <T> List<T> getListFromResultSet(Class clazz, ResultSet resultSet) throws DatabaseException, SQLException {
         List<T> list = new ArrayList<T>();
         try {
-
             // search class types
-            Class<?>[] cc = new Class[clazz.getDeclaredFields().length];
-            int fieldN = 0;
+            //Class<?>[] cc = new Class[clazz.getFields().length];
+            List<Class<?>> cc = new ArrayList<>();
+            //int fieldN = 0;
             for (Field f : clazz.getDeclaredFields()) {
-                //cc.add(f.getType());
-                cc[fieldN++] = f.getType();
+                if (!f.isSynthetic()) {
+                    cc.add(f.getType());
+                    //cc[fieldN++] = f.getType();
+                }
             }
-            Constructor<T> constructor = clazz.getConstructor(cc);
-            if (constructor != null) {
+            // convert to an array of Class
+            Class<?>[] classArray = new Class<?>[cc.size()];
+            int i = 0;
+            for (Class c : cc) {
+                classArray[i++] = c;
+            }
 
-                while (resultSet.next()) {
-                    List<Object> objList = new ArrayList<>();
-                    for (Field field : clazz.getDeclaredFields()) {
-                        // handle add of transient field by coverage tools
-                        if (!Modifier.isTransient(field.getModifiers())) {
+            // search constructor
+            Constructor<T> constructor = null;
+            try {
+                constructor = clazz.getConstructor(classArray);
+            } catch (NoSuchMethodException e) {
+                disconnect(null, null, resultSet);
+                throw new DatabaseException("ORM, Reflection: constructor not found. Fields found (" + cc.size() + "): " + cc.toString());
+            }
+            if (constructor == null) {
+                disconnect(null, null, resultSet);
+                throw new DatabaseException("ORM, Reflection: constructor is null");
+            }
 
-                            Type fieldType = field.getGenericType();
-                            switch (fieldType.getTypeName()) {
-                                case "java.lang.String":
-                                    String values = resultSet.getString(field.getName());
-                                    objList.add(values);
-                                    break;
-                                case "java.lang.Boolean":
-                                    Boolean valueb = resultSet.getBoolean(field.getName());
-                                    objList.add(valueb);
-                                    break;
-                                default:
-                                    Logger.error("DatabaseManager, REFLECTION, type not mapped, type: " + fieldType);
-                                    break;
-                            }
+            // create a new instance of generic object
+            while (resultSet.next()) {
+                List<Object> objList = new ArrayList<>();
+                for (Field field : clazz.getDeclaredFields()) {
+                    // handle add of transient field by coverage tools
+                    if (!Modifier.isTransient(field.getModifiers())) {
+
+                        Type fieldType = field.getGenericType();
+                        switch (fieldType.getTypeName()) {
+                            case "java.lang.String":
+                                String values = resultSet.getString(field.getName());
+                                objList.add(values);
+                                break;
+                            case "java.lang.Boolean":
+                                Boolean valueb = resultSet.getBoolean(field.getName());
+                                objList.add(valueb);
+                                break;
+                            default:
+                                Logger.error("ORM, Reflection: type not mapped, type: " + fieldType);
+                                break;
                         }
                     }
-                    T obj = constructor.newInstance(objList.toArray());
-                    list.add(obj);
                 }
-            } else {
-                throw new DatabaseException("constructor is null");
+                T obj = constructor.newInstance(objList.toArray());
+                list.add(obj);
             }
-        } catch (IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
+
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             disconnect(null, null, resultSet);
             throw new DatabaseException(e);
         }
@@ -349,11 +367,10 @@ public class DatabaseManager {
 
             } else {
                 disconnect(connection, preparedStatement, null);
-                throw new DatabaseException("PrimaryKey not found");
+                throw new DatabaseException("ORM, Reflection: PrimaryKey not found");
                 //return false;
             }
-        } catch (SQLException |
-                IllegalAccessException e) {
+        } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
             throw new DatabaseException(e);
             //return false;
@@ -436,7 +453,7 @@ public class DatabaseManager {
                 //Logger.info(e.getMessage());
             }
 
-        } catch (SQLException | IllegalAccessException e) {
+        } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
             throw new DatabaseException(e);
             //return false;
@@ -448,24 +465,43 @@ public class DatabaseManager {
     private <T> PreparedStatement addAttributeToPreparedStatement(PreparedStatement preparedStatement,
                                                                   int parameterIndex,
                                                                   T type,
-                                                                  Field field) throws SQLException, IllegalAccessException {
+                                                                  Field field) throws SQLException, DatabaseException {
         PreparedStatement ps = preparedStatement;
         Type fieldType = field.getGenericType();
-        //String fieldName = field.getName();
-        //Logger.info("Type: " + fieldType + ", Name: " + fieldName + ", Value: " + field.get(type).toString());
-        switch (fieldType.getTypeName()) {
-            case "java.lang.String":
-                ps.setString(parameterIndex, field.get(type).toString());
-                break;
-            case "java.lang.Boolean":
-                //preparedStatement.setBoolean(parameterIndex, field.getBoolean(type));
-                ps.setBoolean(parameterIndex, Boolean.parseBoolean(field.get(type).toString()));
-                break;
-            default:
-                Logger.error("DatabaseManager, REFLECTION, type not mapped, type: " + fieldType);
-                break;
+        Class clazz = type.getClass();
+
+        //search getter
+        Method getter = null;
+        for (Method method : clazz.getMethods()) {
+            if (method.getName().startsWith("get") &&
+                    method.getName().toUpperCase().contains(field.getName().toUpperCase())) {
+                getter = method;
+            }
+        }
+        if (getter == null) {
+            throw new DatabaseException("ORM, Reflection: getter for '" + field.getName() + "' not found in class '" + type.getClass() + "'");
+        }
+
+        try {
+            //String fieldName = field.getName();
+            //Logger.info("Type: " + fieldType + ", Name: " + fieldName + ", Value: " + field.get(type).toString());
+            switch (fieldType.getTypeName()) {
+                case "java.lang.String":
+                    //ps.setString(parameterIndex, field.get(type).toString());
+                    ps.setString(parameterIndex, (String) getter.invoke(type));
+                    break;
+                case "java.lang.Boolean":
+                    //preparedStatement.setBoolean(parameterIndex, field.getBoolean(type));
+                    //ps.setBoolean(parameterIndex, Boolean.parseBoolean(field.get(type).toString()));
+                    ps.setBoolean(parameterIndex, (Boolean) getter.invoke(type));
+                    break;
+                default:
+                    Logger.error("ORM, Reflection: type not mapped, type: " + fieldType);
+                    break;
+            }
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new DatabaseException("ORM, Reflection: error invoking getter", e);
         }
         return ps;
     }
-
 }
