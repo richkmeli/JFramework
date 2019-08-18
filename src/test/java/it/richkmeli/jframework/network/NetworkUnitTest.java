@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 
 public class NetworkUnitTest {
 
-
     @Test
     public void requestAsync() {
         final Lock lock = new Lock();
