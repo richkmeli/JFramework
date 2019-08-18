@@ -8,6 +8,8 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.junit.Assert.*;
+
 public class DatabaseUnitTest {
 
 
@@ -54,18 +56,18 @@ public class DatabaseUnitTest {
             }
 
             // check add
-            assert authDatabaseManager.checkPassword("richk@i.it", Crypto.hashPassword("00000000", true));
+            assertTrue(authDatabaseManager.checkPassword("richk@i.it", Crypto.hashPassword("00000000", true)));
             //assert authDatabaseManager.checkPassword("richk@i.it", "aWNRZ2pGdEFyMjhuS0paZjVzMTN5Zk56MldUa0FCOFl4Ql9jUWVRRmZiMnBxcjB0dmhfZz0=");
 
             // remove user
             authDatabaseManager.removeUser("richk@i.it");
             authDatabaseManager.removeUser("er@fv.it");
             // failed due it is on a deleted user
-            assert !authDatabaseManager.checkPassword("richk@i.it", Crypto.hashPassword("00000000", true));
+            assertFalse(authDatabaseManager.checkPassword("richk@i.it", Crypto.hashPassword("00000000", true)));
 
             authDatabaseManager.removeUser("richk@i.it");
             // failed due it is on a deleted user
-            assert !authDatabaseManager.checkPassword("richk@i.it", Crypto.hashPassword("00000000", true));
+            assertFalse(authDatabaseManager.checkPassword("richk@i.it", Crypto.hashPassword("00000000", true)));
 
             //List<User> users = authDatabaseManager.getAllUsersCompat();
             //System.out.println(users.size());
@@ -73,12 +75,12 @@ public class DatabaseUnitTest {
 
             List<User> users2 = authDatabaseManager.getAllUsers();
             //System.out.println(users2.size());
-            assert users2.size() % 120 == 0 && users2.size() != 0;
+            assertTrue(users2.size() % 120 == 0 && users2.size() != 0);
 
 
-            assert authDatabaseManager.getUser("er@fv.it") == null;
+            assertNull(authDatabaseManager.getUser("er@fv.it"));
             authDatabaseManager.addUser(new User("er@fv.it", "00000000", true));
-            assert authDatabaseManager.getUser("er@fv.it") != null;
+            assertNotNull(authDatabaseManager.getUser("er@fv.it"));
 
         } catch (DatabaseException e) {
             e.printStackTrace();

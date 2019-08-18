@@ -2,6 +2,8 @@ package it.richkmeli.jframework.network;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotNull;
+
 public class NetworkUnitTest {
 
 
@@ -31,6 +33,17 @@ public class NetworkUnitTest {
             }
         }
     }
+
+    @Test
+    public void getURLWithParameters() {
+        String result = ModelUtil.getURLWithParameters("https://api.openaq.org/v1/measurements", RequestObject.class);
+        assertNotNull(result);
+    }
+}
+
+class RequestObject {
+    private int limit;
+
 }
 
 // extends Object
@@ -45,6 +58,7 @@ class Lock {
         this.value = value;
     }
 }
+
 
 class MeasurementsResponse {
     private Date date;

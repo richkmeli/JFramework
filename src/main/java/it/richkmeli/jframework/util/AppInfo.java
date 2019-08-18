@@ -15,7 +15,7 @@ public class AppInfo {
             InputStream is = /*getClass()*/clazz.getResourceAsStream("META-INF/maven/${groupId}/${artifactId}/pom.properties");
             if (is != null) {
                 p.load(is);
-                version = p.getProperty("version", "");
+                version = p.getProperty("version", null);
             }
         } catch (Exception e) {
             // ignore
@@ -32,10 +32,10 @@ public class AppInfo {
             }
         }
 
-        if (version == null) {
+        /*if (version == null) {
             // we could not compute the version so use a blank
             version = "";
-        }
+        }*/
 
         return version;
     }

@@ -32,6 +32,8 @@ public class CryptoTest {
 
         System.out.println("secureDataClient delete: " + secureDataClient.delete());
         System.out.println("secureDataServer delete: " + secureDataServer.delete());
+        secureDataClient.deleteOnExit();
+        secureDataServer.deleteOnExit();
 
         payloadExchange(secureDataClient, secureDataServer, clientKey, serverKey, clientID);
 
@@ -89,6 +91,8 @@ public class CryptoTest {
 
         System.out.println("secureDataClient delete: " + secureDataClient.delete());
         System.out.println("secureDataServer delete: " + secureDataServer.delete());
+        secureDataClient.deleteOnExit();
+        secureDataServer.deleteOnExit();
 
         payloadExchange(secureDataClient, secureDataServer, clientKey, serverKey, clientID);
         encrypDecryptTest(client, server);
@@ -135,6 +139,8 @@ public class CryptoTest {
 
         System.out.println("secureDataClient delete: " + secureDataClient.delete());
         System.out.println("secureDataServer delete: " + secureDataServer.delete());
+        secureDataClient.deleteOnExit();
+        secureDataServer.deleteOnExit();
 
         payloadExchange(secureDataClient, secureDataServer, clientKey, serverKey, clientID);
         encrypDecryptTest(client, server);

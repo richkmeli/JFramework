@@ -6,14 +6,13 @@ public class ModelUtil {
 
     public static <MODEL> String getURLWithParameters(String service, MODEL model) {
 
-        //TODO da testare
         StringBuilder stringBuilder = new StringBuilder();
         boolean oneFieldinitialized = false;
         //for (Field field : this.getClass().getFields()) {
         for (Field field : model.getClass().getDeclaredFields()) {
             if (field != null) {
                 oneFieldinitialized = true;
-                stringBuilder.append(field.toString());
+                stringBuilder.append(field.toString()); // todo aggiungi aggiunta valori presenti nell'istanza che si passa limit = 1
             }
         }
 
