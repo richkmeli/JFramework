@@ -25,7 +25,6 @@ public class DatabaseManager {
     }
 
     protected void init(String database) throws DatabaseException {
-
         loadConfigurationProperties(database);
 
         try {
@@ -205,37 +204,55 @@ public class DatabaseManager {
             StringBuilder sql = new StringBuilder("SELECT * FROM " + tableName + " WHERE ");
 
             // search primary key
-            Field field = null;
-            field = getPrimaryKey(type);
-            if (field != null) {
+            preparedStatement = createPreparedStatementWithPrimaryKey(connection, sql, type);
 
-                sql.append(field.getName()).append(" = ?");
-                preparedStatement = connection.prepareStatement(sql.toString());
-
-                preparedStatement = addAttributeToPreparedStatement(preparedStatement,
-                        1, type, field);
-
-                resultSet = preparedStatement.executeQuery();
-                List<T> list = getListFromResultSet(type.getClass(), resultSet);
-                if (!list.isEmpty()) {
-                    elem = (T) list.get(0);
-                } else {
-                    disconnect(connection, preparedStatement, resultSet);
-                    Logger.error("No " + type.getClass().getName() + " found with this " + field.getName() + " (PrimaryKey)");
-                    //throw new DatabaseException("No " + type.getClass().getName() + " found with this " + field.getName() + " (PrimaryKey)");
-                }
+            resultSet = preparedStatement.executeQuery();
+            List<T> list = getListFromResultSet(type.getClass(), resultSet);
+            if (!list.isEmpty()) {
+                elem = (T) list.get(0);
             } else {
-                disconnect(connection, preparedStatement, null);
-                throw new DatabaseException("ORM, Reflection: PrimaryKey not found");
-                //return false;
+                disconnect(connection, preparedStatement, resultSet);
+                Logger.error("No " + type.getClass().getName() + " found with this (PrimaryKey)");
+                //throw new DatabaseException("No " + type.getClass().getName() + " found with this " + field.getName() + " (PrimaryKey)");
             }
-        } catch (SQLException e) {
+
+        } catch (
+                SQLException e) {
             disconnect(connection, preparedStatement, null);
             throw new DatabaseException(e);
             //return false;
         }
+
         disconnect(connection, preparedStatement, resultSet);
         return elem;
+    }
+
+    private <T> PreparedStatement createPreparedStatementWithPrimaryKey(Connection connection,
+                                                                        StringBuilder sql, T type) throws SQLException, DatabaseException {
+        PreparedStatement preparedStatement = null;
+        List<Field> primaryKey = getPrimaryKey(type);
+        if (!primaryKey.isEmpty()) {
+            int i = 1;
+            for (Field field : primaryKey) {
+                sql.append(field.getName()).append(" = ?");
+                if (i++ < primaryKey.size()) {
+                    sql.append(" AND ");
+                }
+            }
+
+            preparedStatement = connection.prepareStatement(sql.toString());
+
+            i = 1;
+            for (Field field : primaryKey) {
+                preparedStatement = addAttributeToPreparedStatement(preparedStatement,
+                        i++, type, field);
+            }
+        } else {
+            disconnect(connection, preparedStatement, null);
+            throw new DatabaseException("ORM, Reflection: PrimaryKey not found");
+            //return false;
+        }
+        return preparedStatement;
     }
 
     protected <T> List<T> readAll(Class clazz) throws DatabaseException {
@@ -257,7 +274,8 @@ public class DatabaseManager {
         return list;
     }
 
-    private <T> List<T> getListFromResultSet(Class clazz, ResultSet resultSet) throws DatabaseException, SQLException {
+    private <T> List<T> getListFromResultSet(Class clazz, ResultSet resultSet) throws
+            DatabaseException, SQLException {
         List<T> list = new ArrayList<T>();
         try {
             // search class types
@@ -325,9 +343,43 @@ public class DatabaseManager {
         return list;
     }
 
-   /*   protected <T> boolean update(T type) throws DatabaseException {
-          return update(type, null);
-      }*/
+    protected <T> boolean update(T type) throws DatabaseException {
+        return update(type, null);
+    }
+
+    protected <T> boolean update(T type, DBManagerAction dbManagerAction) throws DatabaseException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        if (dbManagerAction != null) {
+            type = (T) dbManagerAction.action(type);
+        }
+
+        try {
+            connection = connect();
+
+            // create SQL string
+            StringBuilder sql = new StringBuilder("UPDATE " + tableName + " SET pass = ? WHERE ");
+
+            // search primary key
+            preparedStatement = createPreparedStatementWithPrimaryKey(connection, sql, type);
+
+            try {
+                preparedStatement.executeUpdate();
+                // TODO gestione derby
+            } catch (DerbySQLIntegrityConstraintViolationException e) {
+                //Logger.info(e.getMessage());
+            }
+
+        } catch (SQLException e) {
+            disconnect(connection, preparedStatement, null);
+            throw new DatabaseException(e);
+            //return false;
+        }
+
+        disconnect(connection, preparedStatement, null);
+        return true;
+    }
 
     protected <T> boolean delete(T type) throws DatabaseException {
         return delete(type, null);
@@ -348,28 +400,15 @@ public class DatabaseManager {
             StringBuilder sql = new StringBuilder("DELETE FROM " + tableName + " WHERE ");
 
             // search primary key
-            Field field = null;
-            field = getPrimaryKey(type);
-            if (field != null) {
+            preparedStatement = createPreparedStatementWithPrimaryKey(connection, sql, type);
 
-                sql.append(field.getName()).append(" = ?");
-                preparedStatement = connection.prepareStatement(sql.toString());
-
-                preparedStatement = addAttributeToPreparedStatement(preparedStatement,
-                        1, type, field);
-
-                try {
-                    preparedStatement.executeUpdate();
-                    // TODO gestione derby
-                } catch (DerbySQLIntegrityConstraintViolationException e) {
-                    //Logger.info(e.getMessage());
-                }
-
-            } else {
-                disconnect(connection, preparedStatement, null);
-                throw new DatabaseException("ORM, Reflection: PrimaryKey not found");
-                //return false;
+            try {
+                preparedStatement.executeUpdate();
+                // TODO gestione derby
+            } catch (DerbySQLIntegrityConstraintViolationException e) {
+                //Logger.info(e.getMessage());
             }
+
         } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
             throw new DatabaseException(e);
@@ -380,15 +419,15 @@ public class DatabaseManager {
         return true;
     }
 
-    private <T> Field getPrimaryKey(T type) {
-        Field field = null;
+    private <T> List<Field> getPrimaryKey(T type) {
+        List<Field> primaryKey = new ArrayList<>();
         for (Field field2 : type.getClass().getDeclaredFields()) {
             Annotation annotation = field2.getAnnotation(Id.class);
             if (annotation != null) {
-                field = field2;
+                primaryKey.add(field2);
             }
         }
-        return field;
+        return primaryKey;
     }
 
 

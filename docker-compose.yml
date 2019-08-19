@@ -1,0 +1,21 @@
+version: '2'
+services:
+  web:
+    image: tomcat:8
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "db"
+    volumes:
+      # TODO RELEASE: update version
+      - ./target/JFramework.war:/usr/local/tomcat/webapps/JFramework.war:z
+
+    #restart: always
+    #restart: on-failure
+
+  db:
+    image: mysql:5.5
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: richk

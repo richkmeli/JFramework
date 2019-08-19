@@ -13,12 +13,12 @@ Framework for Java
 JFramework is a Java framework containing several features, with the aim of simplifying application development. 
 It provides the following functionalities:
 
-- **Authentication**
-- **Cryptography**: the entry point class is Crypto. Its protocol is based on server-client model.
-- **Network**
-- **ORM**: supported database: MySQL (Network Server) and Derby (Embedded Server)
-- **System**
-- **Utility**
+-   **Authentication**
+-   **Cryptography**: the entry point class is Crypto. Its protocol is based on server-client model.
+-   **Network**
+-   **ORM**: supported database: MySQL (Network Server) and Derby (Embedded Server)
+-   **System**
+-   **Utility**
 
 ## Get Started
 
