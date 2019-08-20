@@ -238,17 +238,19 @@ public class DatabaseManager {
         // search valorized fields in "type" passed as parameter, which they aren't part of the primaryKey
         if (update) {
             for (Field field2 : type.getClass().getDeclaredFields()) {
-                Annotation annotation = field2.getAnnotation(Id.class);
-                if (annotation == null) {
-                    Method getter = searchFieldGetter(type, field2);
-                    try {
-                        Object o = getter.invoke(type);
-                        if (o != null && !Modifier.isTransient(field2.getModifiers())) {
-                            valorizedFields.add(field2);
+                if (!field2.isSynthetic() && !Modifier.isTransient(field2.getModifiers())) {
+                    Annotation annotation = field2.getAnnotation(Id.class);
+                    if (annotation == null) {
+                        Method getter = searchFieldGetter(type, field2);
+                        try {
+                            Object o = getter.invoke(type);
+                            if (o != null) {
+                                valorizedFields.add(field2);
+                            }
+                        } catch (IllegalAccessException | InvocationTargetException e) {
+                            disconnect(connection, null, null);
+                            throw new DatabaseException("ORM, Reflection: error invoking getter of " + field2.getName());
                         }
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        disconnect(connection, null, null);
-                        throw new DatabaseException("ORM, Reflection: error invoking getter of " + field2.getName());
                     }
                 }
             }
