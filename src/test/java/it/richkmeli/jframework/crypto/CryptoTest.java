@@ -107,27 +107,30 @@ public class CryptoTest {
             secureDataClient = new File("TEST2secureDataClient_" + Math.random() + ".txt");
         }
 
-        expectedClientServerStates(secureDataClient, secureDataServer, clientID, serverKey, clientKey, -1, 3);
+        expectedClientServerStates(secureDataClient, secureDataServer, clientID, serverKey, clientKey, "", "", -1, 3);
 
         // reset server and client (to ensure there is not other session information) state
         server.deleteClientData();
         client.reset();
 
         // check if server is now able to establish a secure connection
-        expectedClientServerStates(secureDataClient, secureDataServer, clientID, serverKey, clientKey, 3, 3);
+        expectedClientServerStates(secureDataClient, secureDataServer, clientID, serverKey, clientKey, "", "", 3, 3);
+
+        // server not aligned. TEST = VEVTVA==
+        expectedClientServerStates(secureDataClient, secureDataServer, clientID, serverKey, clientKey, "VEVTVA==", "", -1, 3);
 
         secureDataClient.deleteOnExit();
         secureDataServer.deleteOnExit();
     }
 
-    private void expectedClientServerStates(File secureDataClient, File secureDataServer, String clientID, String serverKey, String clientKey, int expectedClientState, int expectedServerState) {
+    private void expectedClientServerStates(File secureDataClient, File secureDataServer, String clientID, String serverKey, String clientKey, String serverPayload, String clientPayload, int expectedClientState, int expectedServerState) {
         payloadExchange(secureDataClient, secureDataServer, clientKey, serverKey, clientID);
 
-        String clientResponse = client.init(secureDataClient, clientKey, "");
+        String clientResponse = client.init(secureDataClient, clientKey, serverPayload);
         int clientState = new JSONObject(clientResponse).getInt("state");
         assertEquals(expectedClientState, clientState);
 
-        String serverResponse = server.init(secureDataServer, serverKey, clientID, "");
+        String serverResponse = server.init(secureDataServer, serverKey, clientID, clientPayload);
         int serverState = new JSONObject(serverResponse).getInt("state");
         assertEquals(expectedServerState, serverState);
     }
@@ -155,13 +158,16 @@ public class CryptoTest {
             secureDataServer = new File("TEST2secureDataServer_" + Math.random() + ".txt");
         }
 
-        expectedClientServerStates(secureDataClient, secureDataServer, clientID, serverKey, clientKey, 3, -1);
+        expectedClientServerStates(secureDataClient, secureDataServer, clientID, serverKey, clientKey, "", "", 3, -1);
 
         // reset Client state
         client.reset();
 
         // check if server is now able to establish a secure connection
-        expectedClientServerStates(secureDataClient, secureDataServer, clientID, serverKey, clientKey, 3, 3);
+        expectedClientServerStates(secureDataClient, secureDataServer, clientID, serverKey, clientKey, "", "", 3, 3);
+
+        // server not aligned. TEST = VEVTVA==
+        expectedClientServerStates(secureDataClient, secureDataServer, clientID, serverKey, clientKey, "VEVTVA==", "", -1, 3);
 
         secureDataClient.deleteOnExit();
         secureDataServer.deleteOnExit();

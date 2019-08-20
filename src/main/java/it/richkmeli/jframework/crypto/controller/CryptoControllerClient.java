@@ -20,7 +20,7 @@ import java.util.List;
 
 public class CryptoControllerClient extends CryptoController {
 
-    // Passive, payload as paramete ant it return lib status
+    // Passive, payload as parameter ant it return lib status
     public static String init(File secureData, String secretKey, String serverPayload) {
         int state = checkState(secureData, secretKey);
         Logger.info("Client state: " + state);
@@ -88,9 +88,19 @@ public class CryptoControllerClient extends CryptoController {
                 }
                 break;
             case SecureDataState.SECRET_KEY_EXCHANGED:
-                Logger.info("init, completed");
-                stateS = SecureDataState.SECRET_KEY_EXCHANGED;
-                payload = "";
+                String decodedPayload = new String(Base64.getUrlDecoder().decode(serverPayload));
+                // check if the other part is in a different state (not sync)
+                if (decodedPayload.equalsIgnoreCase("")) {
+                    Logger.info("init, completed");
+                    stateS = SecureDataState.SECRET_KEY_EXCHANGED;
+                    payload = "";
+                } else {
+                    Logger.error("init, server secure data has been removed. Server is trying to renegotiate keys");
+
+                    stateS = SecureDataState.ERROR;
+                    payload = "server secure data has been removed. Server is trying to renegotiate keys, reset!";
+                }
+
                 break;
             default:
                 Logger.info("init, default case");
