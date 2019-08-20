@@ -3,6 +3,7 @@ package it.richkmeli.jframework.orm;
 import it.richkmeli.jframework.auth.AuthDatabaseManager;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.crypto.Crypto;
+import it.richkmeli.jframework.crypto.controller.PasswordManager;
 import it.richkmeli.jframework.crypto.util.RandomStringGenerator;
 import org.junit.After;
 import org.junit.Before;
@@ -42,9 +43,9 @@ public abstract class DatabaseManagerTest {
                         false);
                 authDatabaseManager.addUser(u);
                 assertTrue(authDatabaseManager.checkPassword(email, Crypto.hashPassword(password, true)));
+                assertFalse(authDatabaseManager.isAdmin(email));
             }
             assertTrue(authDatabaseManager.checkPassword("richk@i.it", Crypto.hashPassword("00000000", true)));
-            //assert authDatabaseManager.checkPassword("richk@i.it", "aWNRZ2pGdEFyMjhuS0paZjVzMTN5Zk56MldUa0FCOFl4Ql9jUWVRRmZiMnBxcjB0dmhfZz0=");
         } catch (DatabaseException e) {
             e.printStackTrace();
             assert false;
@@ -90,7 +91,8 @@ public abstract class DatabaseManagerTest {
             create();
             // test read all
             List<User> users = authDatabaseManager.getAllUsers();
-            System.out.println(users.size());
+            //System.out.println(users.size());
+
             assertNotEquals(0, users.size());
         } catch (DatabaseException e) {
             e.printStackTrace();
@@ -101,6 +103,22 @@ public abstract class DatabaseManagerTest {
 
     @Test
     public void update() {
+        try {
+            String email = "update@fv.it";
+            authDatabaseManager.addUser(new User(email, "00000000", true));
+            assertTrue(authDatabaseManager.checkPassword(email, PasswordManager.hashPassword("00000000", true)));
+            assertTrue(authDatabaseManager.isAdmin(email));
+
+            authDatabaseManager.editPassword(email, "00000001");
+            assertTrue(authDatabaseManager.checkPassword(email, PasswordManager.hashPassword("00000001", true)));
+
+            authDatabaseManager.editAdmin(email, false);
+            assertFalse(authDatabaseManager.isAdmin(email));
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+            assert false;
+        }
+        assert true;
     }
 
     @Test

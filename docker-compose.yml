@@ -9,7 +9,6 @@ services:
     volumes:
       # TODO RELEASE: update version
       - ./target/JFramework.war:/usr/local/tomcat/webapps/JFramework.war:z
-
     #restart: always
     #restart: on-failure
 

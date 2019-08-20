@@ -4,10 +4,8 @@ import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.crypto.Crypto;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.orm.DatabaseManager;
+import it.richkmeli.jframework.util.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 
@@ -56,6 +54,37 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
     }
 
     public boolean editPassword(String email, String pass) throws DatabaseException {
+        String password = Crypto.hashPassword(pass, false);
+        return update(new User(email, password, null));
+    }
+
+    public boolean editAdmin(String email, Boolean isAdmin) throws DatabaseException {
+        return update(new User(email, null, isAdmin));
+    }
+
+    public boolean checkPassword(String email, String pass) throws DatabaseException {
+        User user = getUser(email);
+        if (user != null) {
+            return Crypto.verifyPassword(user.getPassword(), pass);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isAdmin(String email) throws DatabaseException {
+        User user = getUser(email);
+        if (user != null) {
+            return user.getAdmin();
+        } else {
+            Logger.error("isAdmin, admin null");
+            return false;
+
+        }
+    }
+}
+/*
+
+ public boolean editPassword(String email, String pass) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
@@ -93,25 +122,6 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
         return true;
     }
 
-    public boolean checkPassword(String email, String pass) throws DatabaseException {
-        User user = getUser(email);
-        if (user != null) {
-            return Crypto.verifyPassword(user.getPassword(), pass);
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isAdmin(String email) throws DatabaseException {
-        User user = getUser(email);
-        if (user != null) {
-            return user.getAdmin();
-        } else {
-            return false;
-        }
-    }
-}
-/*
     public boolean checkPassword(String email, String pass) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;

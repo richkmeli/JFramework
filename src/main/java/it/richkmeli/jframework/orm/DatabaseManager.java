@@ -132,7 +132,6 @@ public class DatabaseManager {
             schemaSQL = "CREATE SCHEMA IF NOT EXISTS " + schema;
         }
 
-        //TODO fai gestione quando gia presente
         try {
             execute(schemaSQL);
         } catch (DatabaseException e) {
@@ -148,11 +147,10 @@ public class DatabaseManager {
             tableSQL = "CREATE TABLE IF NOT EXISTS " + table;
         }
 
-        //TODO fai gestione quando gia presente
         try {
             execute(tableSQL);
         } catch (DatabaseException e) {
-            // TODO gestione derby
+            // for Derby DB
             if (e.getMessage().contains("already exists in Schema")) {
                 // skipping
             } else {
@@ -201,7 +199,7 @@ public class DatabaseManager {
             connection = connect();
 
             // create SQL string
-            StringBuilder sql = new StringBuilder("SELECT * FROM " + tableName + " WHERE ");
+            StringBuilder sql = new StringBuilder("SELECT * FROM " + tableName);
 
             // search primary key
             preparedStatement = createPreparedStatementWithPrimaryKey(connection, sql, type);
@@ -230,6 +228,38 @@ public class DatabaseManager {
     private <T> PreparedStatement createPreparedStatementWithPrimaryKey(Connection connection,
                                                                         StringBuilder sql, T type) throws SQLException, DatabaseException {
         PreparedStatement preparedStatement = null;
+
+        List<Field> valorizedFields = new ArrayList<>();
+        boolean update = false;
+        if (sql.toString().contains("#SET#")) {
+            update = true;
+            sql.replace(sql.indexOf("#SET#"), sql.indexOf("#SET#") + 5, "SET");
+        }
+        // search valorized fields in "type" passed as parameter, which they aren't part of the primaryKey
+        if (update) {
+            for (Field field2 : type.getClass().getDeclaredFields()) {
+                Annotation annotation = field2.getAnnotation(Id.class);
+                if (annotation == null) {
+                    Method getter = searchFieldGetter(type, field2);
+                    try {
+                        Object o = getter.invoke(type);
+                        if (o != null && !Modifier.isTransient(field2.getModifiers())) {
+                            valorizedFields.add(field2);
+                        }
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        disconnect(connection, null, null);
+                        throw new DatabaseException("ORM, Reflection: error invoking getter of " + field2.getName());
+                    }
+                }
+            }
+            // add to sql string the fields to be updated
+            int i = 0;
+            for (Field field : valorizedFields) {
+                sql.append(field.getName()).append(" = ?").append((++i < valorizedFields.size()) ? ", " : "");
+            }
+        }
+
+        sql.append(" WHERE ");
         List<Field> primaryKey = getPrimaryKey(type);
         if (!primaryKey.isEmpty()) {
             int i = 1;
@@ -243,6 +273,13 @@ public class DatabaseManager {
             preparedStatement = connection.prepareStatement(sql.toString());
 
             i = 1;
+            if (update) {
+                for (Field field : valorizedFields) {
+                    preparedStatement = addAttributeToPreparedStatement(preparedStatement,
+                            i++, type, field);
+                }
+            }
+
             for (Field field : primaryKey) {
                 preparedStatement = addAttributeToPreparedStatement(preparedStatement,
                         i++, type, field);
@@ -318,12 +355,12 @@ public class DatabaseManager {
                         Type fieldType = field.getGenericType();
                         switch (fieldType.getTypeName()) {
                             case "java.lang.String":
-                                String values = resultSet.getString(field.getName());
-                                objList.add(values);
+                                String valueS = resultSet.getString(field.getName());
+                                objList.add(valueS);
                                 break;
                             case "java.lang.Boolean":
-                                Boolean valueb = resultSet.getBoolean(field.getName());
-                                objList.add(valueb);
+                                Boolean valueB = resultSet.getBoolean(field.getName());
+                                objList.add(valueB);
                                 break;
                             default:
                                 Logger.error("ORM, Reflection: type not mapped, type: " + fieldType);
@@ -357,20 +394,17 @@ public class DatabaseManager {
 
         try {
             connection = connect();
-
             // create SQL string
-            StringBuilder sql = new StringBuilder("UPDATE " + tableName + " SET pass = ? WHERE ");
-
+            StringBuilder sql = new StringBuilder("UPDATE " + tableName + " #SET# ");
             // search primary key
             preparedStatement = createPreparedStatementWithPrimaryKey(connection, sql, type);
 
             try {
                 preparedStatement.executeUpdate();
-                // TODO gestione derby
+                // for Derby DB
             } catch (DerbySQLIntegrityConstraintViolationException e) {
                 //Logger.info(e.getMessage());
             }
-
         } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
             throw new DatabaseException(e);
@@ -397,14 +431,14 @@ public class DatabaseManager {
             connection = connect();
 
             // create SQL string
-            StringBuilder sql = new StringBuilder("DELETE FROM " + tableName + " WHERE ");
+            StringBuilder sql = new StringBuilder("DELETE FROM " + tableName);
 
             // search primary key
             preparedStatement = createPreparedStatementWithPrimaryKey(connection, sql, type);
 
             try {
                 preparedStatement.executeUpdate();
-                // TODO gestione derby
+                // for Derby DB
             } catch (DerbySQLIntegrityConstraintViolationException e) {
                 //Logger.info(e.getMessage());
             }
@@ -487,7 +521,7 @@ public class DatabaseManager {
             try {
                 preparedStatement.executeUpdate();
 
-                // TODO gestione derby
+                // for Derby DB
             } catch (DerbySQLIntegrityConstraintViolationException e) {
                 //Logger.info(e.getMessage());
             }
@@ -507,19 +541,7 @@ public class DatabaseManager {
                                                                   Field field) throws SQLException, DatabaseException {
         PreparedStatement ps = preparedStatement;
         Type fieldType = field.getGenericType();
-        Class clazz = type.getClass();
-
-        //search getter
-        Method getter = null;
-        for (Method method : clazz.getMethods()) {
-            if (method.getName().startsWith("get") &&
-                    method.getName().toUpperCase().contains(field.getName().toUpperCase())) {
-                getter = method;
-            }
-        }
-        if (getter == null) {
-            throw new DatabaseException("ORM, Reflection: getter for '" + field.getName() + "' not found in class '" + type.getClass() + "'");
-        }
+        Method getter = searchFieldGetter(type, field);
 
         try {
             //String fieldName = field.getName();
@@ -542,5 +564,35 @@ public class DatabaseManager {
             throw new DatabaseException("ORM, Reflection: error invoking getter", e);
         }
         return ps;
+    }
+
+    private <T> Method searchFieldGetter(T type, Field field) throws DatabaseException {
+        //search getter
+        Method getter = null;
+        for (Method method : type.getClass().getMethods()) {
+            if (method.getName().startsWith("get") &&
+                    method.getName().toUpperCase().contains(field.getName().toUpperCase())) {
+                getter = method;
+            }
+        }
+        if (getter == null) {
+            throw new DatabaseException("ORM, Reflection: getter for '" + field.getName() + "' not found in class '" + type.getClass() + "'");
+        }
+        return getter;
+    }
+
+    private <T> Method searchFieldSetter(T type, Field field) throws DatabaseException {
+        //search getter
+        Method setter = null;
+        for (Method method : type.getClass().getMethods()) {
+            if (method.getName().startsWith("set") &&
+                    method.getName().toUpperCase().contains(field.getName().toUpperCase())) {
+                setter = method;
+            }
+        }
+        if (setter == null) {
+            throw new DatabaseException("ORM, Reflection: setter for '" + field.getName() + "' not found in class '" + type.getClass() + "'");
+        }
+        return setter;
     }
 }
