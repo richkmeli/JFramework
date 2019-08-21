@@ -9,17 +9,17 @@ public class Device {
     private String serverPort;
     private String lastConnection;
     private String encryptionKey;
-    private String userAssociated;
+    private String associatedUser;
     private String commands;
     private String commandsOutput;
 
-    public Device(String name, String ip, String serverPort, String lastConnection, String encryptionKey, String userAssociated, String commands, String commandsOutput) {
+    public Device(String name, String ip, String serverPort, String lastConnection, String encryptionKey, String associatedUser, String commands, String commandsOutput) {
         this.name = name;
         this.ip = ip;
         this.serverPort = serverPort;
         this.lastConnection = lastConnection;
         this.encryptionKey = encryptionKey;
-        this.userAssociated = userAssociated;
+        this.associatedUser = associatedUser;
         this.commands = commands;
         this.commandsOutput = commandsOutput;
     }
@@ -64,12 +64,12 @@ public class Device {
         this.encryptionKey = encryptionKey;
     }
 
-    public String getUserAssociated() {
-        return userAssociated;
+    public String getAssociatedUser() {
+        return associatedUser;
     }
 
-    public void setUserAssociated(String userAssociated) {
-        this.userAssociated = userAssociated;
+    public void setAssociatedUser(String associatedUser) {
+        this.associatedUser = associatedUser;
     }
 
     public String getCommands() {
@@ -96,7 +96,7 @@ public class Device {
                 + getServerPort() + ", "
                 + getLastConnection() + ", "
                 + getEncryptionKey() + ", "
-                + getUserAssociated() + ", "
+                + getAssociatedUser() + ", "
                 + getCommands() + ", "
                 + getCommandsOutput()
                 + "}";

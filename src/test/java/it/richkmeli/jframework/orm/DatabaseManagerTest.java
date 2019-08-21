@@ -7,6 +7,8 @@ import it.richkmeli.jframework.crypto.controller.PasswordManager;
 import it.richkmeli.jframework.crypto.util.RandomStringGenerator;
 import it.richkmeli.jframework.orm.dataexample.device.DeviceDatabaseManager;
 import it.richkmeli.jframework.orm.dataexample.device.model.Device;
+import it.richkmeli.jframework.orm.dataexample.rmc.RMCDatabaseManager;
+import it.richkmeli.jframework.orm.dataexample.rmc.model.RMC;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +20,7 @@ import static org.junit.Assert.*;
 public abstract class DatabaseManagerTest {
     protected AuthDatabaseManager authDatabaseManager;
     protected DeviceDatabaseManager deviceDatabaseManager;
+    protected RMCDatabaseManager rmcDatabaseManager;
 
     @Before
     public abstract void setUp();
@@ -36,7 +39,9 @@ public abstract class DatabaseManagerTest {
     @Test
     public void create() {
         try {
-            create_authdb();
+            createAuthdb();
+            createDevicedb();
+            createRMCdb();
         } catch (DatabaseException e) {
             e.printStackTrace();
             assert false;
@@ -44,7 +49,7 @@ public abstract class DatabaseManagerTest {
         assert true;
     }
 
-    private void create_authdb() throws DatabaseException {
+    private void createAuthdb() throws DatabaseException {
         authDatabaseManager.addUser(new User("richk@i.it", "00000000", true));
         authDatabaseManager.addUser(new User("er@fv.it", "00000000", false));
         for (int i = 0; i < 120; i++) {
@@ -60,10 +65,51 @@ public abstract class DatabaseManagerTest {
         assertTrue(authDatabaseManager.checkPassword("richk@i.it", Crypto.hashPassword("00000000", true)));
     }
 
+    private void createDevicedb() throws DatabaseException {
+        String email = "richk@i.it";
+        authDatabaseManager.addUser(new User(email, PasswordManager.hashPassword("00000000", false), false));
+        deviceDatabaseManager.addDevice(new Device("device1", "192.168.0.100", "9000", "20-10-2018",
+                "testencryptionkey", email, "start##start##start", ""));
+
+        for (int i = 0; i < 120; i++) {
+            String device = "device" + RandomStringGenerator.generateAlphanumericString(8) + "_" + i;
+            email = RandomStringGenerator.generateAlphanumericString(8) + "@" + RandomStringGenerator.generateAlphanumericString(8) + "." + RandomStringGenerator.generateAlphanumericString(2);
+            authDatabaseManager.addUser(new User(email, PasswordManager.hashPassword("00000000", false), false));
+            String encryptionKey = RandomStringGenerator.generateAlphanumericString(32);
+            String commands = RandomStringGenerator.generateAlphanumericString(50);
+            String commandsOutput = RandomStringGenerator.generateAlphanumericString(100);
+
+            deviceDatabaseManager.addDevice(new Device(device,
+                    "192.168.0.100", "9000", "20-10-2018", encryptionKey,
+                    email, commands, commandsOutput));
+
+            assertEquals(encryptionKey, deviceDatabaseManager.getEncryptionKey(device));
+            assertEquals(commands, deviceDatabaseManager.getCommands(device));
+            assertEquals(commandsOutput, deviceDatabaseManager.getCommandsOutput(device));
+        }
+    }
+
+    private void createRMCdb() throws DatabaseException {
+        String email = "richk@i.it";
+        authDatabaseManager.addUser(new User(email, PasswordManager.hashPassword("00000000", false), false));
+        rmcDatabaseManager.addRMC(new RMC(email, "ClientID_1"));
+
+        for (int i = 0; i < 120; i++) {
+            email = RandomStringGenerator.generateAlphanumericString(8) + "@" + RandomStringGenerator.generateAlphanumericString(8) + "." + RandomStringGenerator.generateAlphanumericString(2);
+            String clientID = RandomStringGenerator.generateAlphanumericString(32);
+            authDatabaseManager.addUser(new User(email, PasswordManager.hashPassword("00000000", false), false));
+
+            rmcDatabaseManager.addRMC(new RMC(email, clientID));
+            assertFalse(rmcDatabaseManager.getAllRMCs().isEmpty());
+        }
+    }
+
     @Test
     public void read() {
         try {
-            read_autdb();
+            readAuthdb();
+            readDevicedb();
+            readRMCdb();
         } catch (DatabaseException e) {
             e.printStackTrace();
             assert false;
@@ -71,20 +117,49 @@ public abstract class DatabaseManagerTest {
         assert true;
     }
 
-    private void read_autdb() throws DatabaseException {
+    private void readAuthdb() throws DatabaseException {
         // test read
         authDatabaseManager.addUser(new User("er@fv.it", "00000000", true));
+
         assertNotNull(authDatabaseManager.getUser("er@fv.it"));
 
         // test read after delete
         // failed due it is on a deleted user
-        readAfterDelete_authdb();
+        readAfterDeleteAuthdb();
+    }
+
+    private void readDevicedb() throws DatabaseException {
+        // test read
+        String device = "deviceread";
+        authDatabaseManager.addUser(new User("richk@i.it", PasswordManager.hashPassword("00000000", false), false));
+        deviceDatabaseManager.addDevice(new Device(device, "192.168.0.100", "9000", "20-10-2018",
+                "testencryptionkey", "richk@i.it", "start##start##start", ""));
+
+        assertNotNull(deviceDatabaseManager.getDevice(device));
+        // test read after delete
+        // failed due it is on a deleted user
+        readAfterDeleteDevicedb();
+    }
+
+    private void readRMCdb() throws DatabaseException {
+        // test read
+        String email = "richk@i.it";
+        String clientID = "clientIDread";
+        authDatabaseManager.addUser(new User(email, PasswordManager.hashPassword("00000000", false), false));
+
+        rmcDatabaseManager.addRMC(new RMC(email, clientID));
+        assertNotNull(rmcDatabaseManager.getRMCs(email));
+        // test read after delete
+        // failed due it is on a deleted user
+        readAfterDeleteRMCdb();
     }
 
     @Test
     public void readAfterDelete() {
         try {
-            readAfterDelete_authdb();
+            readAfterDeleteAuthdb();
+            readAfterDeleteDevicedb();
+            readAfterDeleteRMCdb();
         } catch (DatabaseException e) {
             e.printStackTrace();
             assert false;
@@ -92,17 +167,39 @@ public abstract class DatabaseManagerTest {
         assert true;
     }
 
-    private void readAfterDelete_authdb() throws DatabaseException {
+    private void readAfterDeleteAuthdb() throws DatabaseException {
         // test read after delete
         // failed due it is on a deleted user
         authDatabaseManager.removeUser("richk@i.it");
-        assertFalse(authDatabaseManager.checkPassword("richk@i.it", Crypto.hashPassword("00000000", true)));
+        assertNull(authDatabaseManager.getUser("richk@i.it"));
+    }
+
+    private void readAfterDeleteDevicedb() throws DatabaseException {
+        // test read after delete
+        String device = "deviceread";
+        deviceDatabaseManager.removeDevice(device);
+        assertNull(deviceDatabaseManager.getDevice(device));
+    }
+
+    private void readAfterDeleteRMCdb() throws DatabaseException {
+        // test read after delete
+        String email = "richk@i.it";
+        String clientID = "clientIDread";
+
+        List<RMC> rmcs = rmcDatabaseManager.getRMCs(email);
+        for (RMC rmc : rmcs) {
+            rmcDatabaseManager.removeRMC(rmc);
+        }
+        rmcs = rmcDatabaseManager.getRMCs(email);
+        assertTrue(rmcs.isEmpty());
     }
 
     @Test
     public void readAll() {
         try {
-            readAll_authdb();
+            readAllAuthdb();
+            readAllDevicedb();
+            readAllRMCdb();
         } catch (DatabaseException e) {
             e.printStackTrace();
             assert false;
@@ -110,8 +207,8 @@ public abstract class DatabaseManagerTest {
         assert true;
     }
 
-    private void readAll_authdb() throws DatabaseException {
-        create();
+    private void readAllAuthdb() throws DatabaseException {
+        createAuthdb();
         // test read all
         List<User> users = authDatabaseManager.getAllUsers();
         //System.out.println(users.size());
@@ -119,10 +216,30 @@ public abstract class DatabaseManagerTest {
         assertNotEquals(0, users.size());
     }
 
+    private void readAllDevicedb() throws DatabaseException {
+        createDevicedb();
+        // test read all
+        List<Device> devices = deviceDatabaseManager.getAllDevices();
+        //System.out.println(users.size());
+
+        assertNotEquals(0, devices.size());
+    }
+
+    private void readAllRMCdb() throws DatabaseException {
+        createRMCdb();
+        // test read all
+        List<RMC> rmcs = rmcDatabaseManager.getAllRMCs();
+        //System.out.println(users.size());
+
+        assertFalse(rmcs.isEmpty());
+    }
+
     @Test
     public void update() {
         try {
-            update_authdb();
+            updateAuthdb();
+            updateDevicedb();
+            //updateRMCdb();
         } catch (DatabaseException e) {
             e.printStackTrace();
             assert false;
@@ -130,8 +247,12 @@ public abstract class DatabaseManagerTest {
         assert true;
     }
 
-    private void update_authdb() throws DatabaseException {
+
+    private void updateAuthdb() throws DatabaseException {
         String email = "update@fv.it";
+        deviceDatabaseManager.addDevice(new Device("deviceupdate", "192.168.0.100", "9000", "20-10-2018",
+                "testencryptionkey", "richk@i.it", "start##start##start", ""));
+
         authDatabaseManager.addUser(new User(email, "00000000", true));
         assertTrue(authDatabaseManager.checkPassword(email, PasswordManager.hashPassword("00000000", true)));
         assertTrue(authDatabaseManager.isAdmin(email));
@@ -143,10 +264,45 @@ public abstract class DatabaseManagerTest {
         assertFalse(authDatabaseManager.isAdmin(email));
     }
 
+    private void updateDevicedb() throws DatabaseException {
+        String device = "deviceread";
+        deviceDatabaseManager.addDevice(new Device(device, "192.168.0.100", "9000", "20-10-2018",
+                "testencryptionkey", "richk@i.it", "start##start##start", ""));
+
+        deviceDatabaseManager.editDevice(new Device(device, null, null, null, "newpassword", null, null, null));
+        assertEquals("newpassword", deviceDatabaseManager.getEncryptionKey(device));
+
+        deviceDatabaseManager.editDevice(new Device(device, null, null, null, null, null, "newcommands", "newcommandsoutput"));
+
+        assertEquals("newcommands", deviceDatabaseManager.getCommands(device));
+        assertEquals("newcommandsoutput", deviceDatabaseManager.getCommandsOutput(device));
+
+        deviceDatabaseManager.editCommands(device, "newcommands2");
+        assertEquals("newcommands2", deviceDatabaseManager.getCommands(device));
+    }
+
+
+   /* private void updateRMCdb() throws DatabaseException {
+        String email ="richk@i.it";
+        String clientID = "clientIDupdate";
+        rmcDatabaseManager.addRMC(new RMC(email,clientID));
+        rmcDatabaseManager.editRMC(new RMC(email,"clientIDupdate2"));
+
+        List<RMC> rmcs = rmcDatabaseManager.getRMCs(email);
+        for (RMC rmc : rmcs){
+            if("clientIDupdate2".equalsIgnoreCase(rmc.getRmcId())){
+                assert true;
+            }
+        }
+        assert false;
+    }*/
+
     @Test
     public void delete() {
         try {
-            delete_authdb();
+            deleteAuthdb();
+            deleteDevicedb();
+            deleteRMCdb();
         } catch (DatabaseException e) {
             e.printStackTrace();
             assert false;
@@ -154,19 +310,47 @@ public abstract class DatabaseManagerTest {
         assert true;
     }
 
-    private void delete_authdb() throws DatabaseException {
-        authDatabaseManager.removeUser("er@fv.it");
-        assertNull(authDatabaseManager.getUser("er@fv.it"));
-        authDatabaseManager.addUser(new User("er@fv.it", "00000000", true));
-        assertNotNull(authDatabaseManager.getUser("er@fv.it"));
+    private void deleteAuthdb() throws DatabaseException {
+        String user = "usertestdelete@user.it";
+        authDatabaseManager.removeUser(user);
+        assertNull(authDatabaseManager.getUser(user));
+        authDatabaseManager.addUser(new User(user, "00000000", true));
+        assertNotNull(authDatabaseManager.getUser(user));
+    }
+
+    private void deleteDevicedb() throws DatabaseException {
+        String device = "deviceRemoveTest";
+        deviceDatabaseManager.removeDevice(device);
+        assertNull(deviceDatabaseManager.getDevice(device));
+
+        deviceDatabaseManager.addDevice(new Device(device, "192.168.0.100", "9000", "20-10-2018",
+                "testencryptionkey", "richk@i.it", "start##start##start", ""));
+        assertNotNull(deviceDatabaseManager.getDevice(device));
+
+    }
+
+    private void deleteRMCdb() throws DatabaseException {
+        String email = "richk@i.it";
+
+        for (RMC rmc : rmcDatabaseManager.getRMCs(email)) {
+            rmcDatabaseManager.removeRMC(rmc);
+        }
+        assertTrue(rmcDatabaseManager.getRMCs(email).isEmpty());
+
+        for (RMC rmc : rmcDatabaseManager.getRMCs(email)) {
+            rmcDatabaseManager.removeRMC(rmc.getRmcId());
+        }
+        assertTrue(rmcDatabaseManager.getRMCs(email).isEmpty());
     }
 
 
     @Test
     public void deleteAll() {
         try {
-            deleteAll_authdb();
-            //deleteAll_devicedb();
+            // delete before the schemas in which are contained foreign keys or specify in the foreign key ON DELETE <SET NULL>/<DELETE>
+            deleteAllDevicedb();
+            deleteAllAuthdb();
+            deleteAllRMCdb();
         } catch (DatabaseException e) {
             e.printStackTrace();
             assert false;
@@ -174,7 +358,7 @@ public abstract class DatabaseManagerTest {
         assert true;
     }
 
-    private void deleteAll_authdb() throws DatabaseException {
+    private void deleteAllAuthdb() throws DatabaseException {
         List<User> users = authDatabaseManager.getAllUsers();
         for (User user : users) {
             authDatabaseManager.removeUser(user.getEmail());
@@ -183,12 +367,22 @@ public abstract class DatabaseManagerTest {
         assertEquals(0, users.size());
     }
 
-    private void deleteAll_devicedb() throws DatabaseException {
-        List<Device> devices = deviceDatabaseManager.refreshDevice();
+    private void deleteAllDevicedb() throws DatabaseException {
+        List<Device> devices = deviceDatabaseManager.getAllDevices();
         for (Device device : devices) {
             deviceDatabaseManager.removeDevice(device.getName());
         }
-        devices = deviceDatabaseManager.refreshDevice();
+        devices = deviceDatabaseManager.getAllDevices();
         assertEquals(0, devices.size());
+    }
+
+    private void deleteAllRMCdb() throws DatabaseException {
+        List<RMC> rmcs = rmcDatabaseManager.getAllRMCs();
+
+        for (RMC rmc : rmcs) {
+            rmcDatabaseManager.removeRMC(rmc);
+        }
+        rmcs = rmcDatabaseManager.getAllRMCs();
+        assertTrue(rmcs.isEmpty());
     }
 }

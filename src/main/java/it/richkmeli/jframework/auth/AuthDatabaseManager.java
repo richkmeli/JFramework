@@ -15,9 +15,10 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
         schemaName = "AuthSchema";
         tableName = schemaName + "." + "auth";
         table = "(" +
-                "email VARCHAR(50) NOT NULL PRIMARY KEY," +
+                "email VARCHAR(50) NOT NULL," +
                 "password VARCHAR(100) NOT NULL," +
-                "admin BOOLEAN NOT NULL " + ("mysql".equalsIgnoreCase(dbtype) ? "DEFAULT 0" : "") +
+                "admin BOOLEAN NOT NULL " + ("mysql".equalsIgnoreCase(dbtype) ? "DEFAULT 0" : "") + "," +
+                "PRIMARY KEY (email)" +
                 ")";
 
         init(database);

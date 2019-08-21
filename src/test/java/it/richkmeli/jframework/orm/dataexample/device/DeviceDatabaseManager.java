@@ -19,36 +19,40 @@ public class DeviceDatabaseManager extends DatabaseManager implements DeviceMode
                 "serverPort VARCHAR(10)," +
                 "lastConnection VARCHAR(25)," +
                 "encryptionKey VARCHAR(32)," +
-                "userAssociated VARCHAR(50) REFERENCES auth(email)," +
-                "commands TEXT," +
-                "commandsOutput TEXT," +
-                "PRIMARY KEY (name)" +
-                ");";
+                "associatedUser VARCHAR(50)," +
+                "commands " + ("mysql".equalsIgnoreCase(dbtype) ? "TEXT" : "VARCHAR(1000)") + "," +
+                "commandsOutput " + ("mysql".equalsIgnoreCase(dbtype) ? "TEXT" : "VARCHAR(1000)") + "," +
+                "PRIMARY KEY (name)," +
+                "FOREIGN KEY (associatedUser) REFERENCES AuthSchema.auth(email) ON DELETE SET NULL" +
+                ")";
 
         init(database);
 
     }
 
 
-    public List<Device> refreshDevice() throws DatabaseException {
-        List<Device> deviceList = new ArrayList<Device>();
-        deviceList = refreshDevice("");
-        return deviceList;
+    public List<Device> getAllDevices() throws DatabaseException {
+        return getUserDevices(null);
     }
 
 
     // TODO ORM aggiungi foreign keys
-    public List<Device> refreshDevice(String user) throws DatabaseException {
+    public List<Device> getUserDevices(String user) throws DatabaseException {
         List<Device> devices = readAll(Device.class);
         if (devices != null) {
-            // filter user devices
-            List<Device> userDevices = new ArrayList<>();
-            for (Device device : devices) {
-                if (device.getUserAssociated().equalsIgnoreCase(user)) {
-                    userDevices.add(device);
+            if (user != null) {
+                // filter user devices
+                List<Device> userDevices = new ArrayList<>();
+                for (Device device : devices) {
+                    if (device.getAssociatedUser().equalsIgnoreCase(user)) {
+                        userDevices.add(device);
+                    }
                 }
+                return userDevices;
+            } else {
+                // return all devices
+                return devices;
             }
-            return userDevices;
         } else {
             return null;
         }

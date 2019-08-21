@@ -170,6 +170,7 @@ public class DatabaseManager {
 
         } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
+            //e.printStackTrace();
             throw new DatabaseException(e);
             //Logger.error("DatabaseManager, execute", e);
             //return false;
@@ -211,7 +212,7 @@ public class DatabaseManager {
             } else {
                 disconnect(connection, preparedStatement, resultSet);
                 Logger.error("No " + type.getClass().getName() + " found with this (PrimaryKey)");
-                //throw new DatabaseException("No " + type.getClass().getName() + " found with this " + field.getName() + " (PrimaryKey)");
+                //throw new DatabaseException("No " + type.getClass().getName() + " found with this (PrimaryKey)");
             }
 
         } catch (
@@ -573,7 +574,7 @@ public class DatabaseManager {
         Method getter = null;
         for (Method method : type.getClass().getMethods()) {
             if (method.getName().startsWith("get") &&
-                    method.getName().toUpperCase().contains(field.getName().toUpperCase())) {
+                    method.getName().equalsIgnoreCase("get" + field.getName())) {
                 getter = method;
             }
         }
@@ -588,7 +589,7 @@ public class DatabaseManager {
         Method setter = null;
         for (Method method : type.getClass().getMethods()) {
             if (method.getName().startsWith("set") &&
-                    method.getName().toUpperCase().contains(field.getName().toUpperCase())) {
+                    method.getName().equalsIgnoreCase("set" + field.getName())) {
                 setter = method;
             }
         }
