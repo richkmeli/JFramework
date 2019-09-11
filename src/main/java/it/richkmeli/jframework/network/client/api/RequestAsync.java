@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.network;
+package it.richkmeli.jframework.network.client.api;
 
 import com.google.gson.Gson;
 import it.richkmeli.jframework.util.Logger;

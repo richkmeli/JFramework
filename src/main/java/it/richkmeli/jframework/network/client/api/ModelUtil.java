@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.network;
+package it.richkmeli.jframework.network.client.api;
 
 import java.lang.reflect.Field;
 

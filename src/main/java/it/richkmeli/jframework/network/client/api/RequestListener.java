@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.network;
+package it.richkmeli.jframework.network.client.api;
 
 // M is the generic model
 public interface RequestListener<M> {
