@@ -1,29 +1,15 @@
-package it.richkmeli.jframework.network.client.raw;
+package it.richkmeli.jframework.network.tcp.client.api.client.raw;
+
+import it.richkmeli.jframework.network.util.CommunicationLock;
 
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Client {
     private static Socket clientSocket;
 
-    static class Lock {
-        public static volatile AtomicBoolean isFinished = new AtomicBoolean();
-        public static String message;
-    }
 
-
-    public static String getMessage() {
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        String s = Client.Lock.message;
-        Client.Lock.message = "";
-        return s;
-    }
 
     public static void start(String serverAddress, int port) {
         String message = "";
@@ -33,14 +19,13 @@ public class Client {
             clientSocket = new Socket(serverAddress, port);
             startListenThread();
 
-            String response = getMessage();
+            String response = CommunicationLock.getMessage();
             send("2");
-            response = getMessage();
+            response = CommunicationLock.getMessage();
 
-            boolean b = true;
-            while (b) {
+            while (CommunicationLock.isFinished()) {
                 send("1");
-                response = getMessage();
+                response = CommunicationLock.getMessage();
             }
 
 
@@ -146,7 +131,7 @@ public class Client {
                     int character;
                     while ((character = reader.read()) != -1) {
                         System.out.print((char) character);
-                        Client.Lock.message += (char) character;
+                        CommunicationLock.append((char) character);
                     }
                 } catch (Exception e) {
 //					e.printStackTrace();

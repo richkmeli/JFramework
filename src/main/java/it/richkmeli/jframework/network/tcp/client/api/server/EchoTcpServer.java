@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.network.server;
+package it.richkmeli.jframework.network.tcp.client.api.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;

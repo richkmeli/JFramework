@@ -1,8 +1,8 @@
-package it.richkmeli.jframework.network;
+package it.richkmeli.jframework.network.tcp.client.api;
 
-import it.richkmeli.jframework.network.client.api.ModelUtil;
-import it.richkmeli.jframework.network.client.api.RequestAsync;
-import it.richkmeli.jframework.network.client.api.RequestListener;
+import it.richkmeli.jframework.network.tcp.client.api.client.api.ModelUtil;
+import it.richkmeli.jframework.network.tcp.client.api.client.api.RequestAsync;
+import it.richkmeli.jframework.network.tcp.client.api.client.api.RequestListener;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
