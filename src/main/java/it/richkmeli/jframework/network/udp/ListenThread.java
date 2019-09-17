@@ -1,5 +1,6 @@
 package it.richkmeli.jframework.network.udp;
 
+import it.richkmeli.jframework.network.util.CommunicationLock;
 import it.richkmeli.jframework.util.Logger;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ public class ListenThread extends Thread {
     private Integer listenPort;
     private Integer packetSize;
     private boolean verboseMode;
+    private CommunicationLock communicationLock;
 
     public PrintStream getPrintStream() {
         return printStream;
@@ -25,6 +27,7 @@ public class ListenThread extends Thread {
         this.packetSize = packetSize;
         this.verboseMode = verboseMode;
         this.printStream = System.out;
+        communicationLock = new CommunicationLock();
     }
 
     public ListenThread(Integer listenPort, Integer packetSize, PrintStream printStream, boolean verboseMode) {
@@ -32,6 +35,7 @@ public class ListenThread extends Thread {
         this.packetSize = packetSize;
         this.verboseMode = verboseMode;
         this.printStream = printStream;
+        communicationLock = new CommunicationLock();
     }
 
     @Override
@@ -67,6 +71,7 @@ public class ListenThread extends Thread {
                 // GESTIONE PACCHETTI IN ARRIVO
                 String infoPacket = packetContent.substring(4, packetContent.length());
                 printStream.print(infoPacket);
+                communicationLock.append(infoPacket);
 
                 if (verboseMode)
                     printStream.println("\t\t Riceived from: " + listenPacket.getAddress() + " : " + listenPacket.getPort());
@@ -83,6 +88,10 @@ public class ListenThread extends Thread {
             Logger.error(e);
             //e.printStackTrace();
         }
+    }
+
+    public String getMessage() {
+        return communicationLock.getMessage();
     }
 }
 

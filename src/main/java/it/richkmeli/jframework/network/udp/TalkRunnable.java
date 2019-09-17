@@ -54,23 +54,31 @@ public class TalkRunnable implements Runnable {
                 //listenThread.start();
 
                 boolean end = false;
+                int flushTimer = 0;
+                int valorizedChar = 0;
                 while (!end) {
-                    int read;
-                    read = inputReader.read();
+                    int read = inputReader.read();
                     char charRead = (char) read;
+                    if (read != -1 || (flushTimer++ >= 10 && valorizedChar > 0)) {
+                        valorizedChar++;
+                        // reset
+                        flushTimer = 0;
 
-                    bufferFile.append(charRead); // concateniamo il contenuto di buffer con il carattere letto, bufferFile.length() = dim bufferFile + 2(dovuti a inputReader.read())
-                    if (bufferFile.toString().compareTo("quit") == 0) {
-                        end = true;
-                        break;
-                    }
+                        bufferFile.append(charRead); // concateniamo il contenuto di buffer con il carattere letto, bufferFile.length() = dim bufferFile + 2(dovuti a inputReader.read())
+                        if (bufferFile.toString().compareTo("quit") == 0) {
+                            end = true;
+                            break;
+                        }
 
-                    if (bufferFile.length() == packetSize || (charRead == '\n' && bufferFile.length() >= 3)) {
-                        P2pChatARQ.sendPacket(talkSocket, receiverIP, receiverPort, talkNumPacket, bufferFile.toString(), listenThread.getPrintStream(), verboseMode);
-                        bufferFile = new StringBuilder();
-                        talkNumPacket++;
-                        if (talkNumPacket == 9999)
-                            talkNumPacket = 1;    // se si arriva al numero massimo permesso dall'intestazione, rinizia
+                        if (bufferFile.length() == packetSize || (charRead == '\n' && bufferFile.length() >= 3)) {
+                            P2pChatARQ.sendPacket(talkSocket, receiverIP, receiverPort, talkNumPacket, bufferFile.toString(), listenThread.getPrintStream(), verboseMode);
+                            bufferFile = new StringBuilder();
+                            talkNumPacket++;
+                            if (talkNumPacket == 9999)
+                                talkNumPacket = 1;    // se si arriva al numero massimo permesso dall'intestazione, rinizia
+
+                            valorizedChar = 0;
+                        }
                     }
                 }
 

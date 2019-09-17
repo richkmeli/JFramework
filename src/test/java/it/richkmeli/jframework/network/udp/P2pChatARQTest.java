@@ -19,15 +19,24 @@ public class P2pChatARQTest {
         peerB.startListen(6001);
 
 
-        Thread.sleep(400);
+        Thread.sleep(20);
         // B
-        InputStream inputStreamB = new ByteArrayInputStream("i'm peerB".getBytes());
+        InputStream inputStreamB = new ByteArrayInputStream("i'm peerB____qwertyuiop".getBytes());
         peerB.startTalk("127.0.0.1", 6000, null, inputStreamB, false);
 
-        Thread.sleep(400);
+        Thread.sleep(20);
         // A
-        InputStream inputStreamA = new ByteArrayInputStream("i'm peerA".getBytes());
+        InputStream inputStreamA = new ByteArrayInputStream("i'm peerA____qwertyuiop".getBytes());
         peerA.startTalk("127.0.0.1", 6001, null, inputStreamA, false);
+
+
+        Thread.sleep(20);
+        // A
+        String messageReceivedByA = peerA.getMessage();
+        // B
+        String messageReceivedByB = peerB.getMessage();
+
+        System.out.println("\n" + messageReceivedByA + " || " + messageReceivedByB);
 
     }
 

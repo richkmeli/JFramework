@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class Client {
     private static Socket clientSocket;
-
+    private static CommunicationLock communicationLock;
 
 
     public static void start(String serverAddress, int port) {
@@ -19,13 +19,13 @@ public class Client {
             clientSocket = new Socket(serverAddress, port);
             startListenThread();
 
-            String response = CommunicationLock.getMessage();
+            String response = communicationLock.getMessage();
             send("2");
-            response = CommunicationLock.getMessage();
+            response = communicationLock.getMessage();
 
-            while (CommunicationLock.isFinished()) {
+            while (communicationLock.isFinished()) {
                 send("1");
-                response = CommunicationLock.getMessage();
+                response = communicationLock.getMessage();
             }
 
 
@@ -131,7 +131,7 @@ public class Client {
                     int character;
                     while ((character = reader.read()) != -1) {
                         System.out.print((char) character);
-                        CommunicationLock.append((char) character);
+                        communicationLock.append((char) character);
                     }
                 } catch (Exception e) {
 //					e.printStackTrace();

@@ -67,5 +67,8 @@ public class P2pChatARQ {
         } while (ackNum != numPacket);
     }
 
+    public String getMessage() {
+        return listenThread.getMessage();
+    }
 
 }
