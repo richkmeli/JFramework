@@ -55,3 +55,9 @@ To compile the project and generate the jar file, you have to run:
     mvn package
     
 The jar is located in the folder "target".
+
+#### JFramework Dependencies
+
+JFramework uses **Bouncy Castle**, so you need to install it on your system.
+To do this, add the [Bouncy Castle provider jar](https://www.bouncycastle.org/download/bcprov-jdk15on-163.jar) (lib/**bcprov-jdk15on-163.jar**) to the **$JAVA_HOME/jre/lib/ext** directory.
+The provider is dynamically loaded by JFramework.
