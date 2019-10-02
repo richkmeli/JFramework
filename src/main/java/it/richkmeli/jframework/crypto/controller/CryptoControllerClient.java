@@ -206,8 +206,8 @@ public class CryptoControllerClient extends CryptoController {
 
             return chipertext;
         } else {
-            Logger.error("encrypt, crypto not initialized, current stare: " + currentState);
-            throw new CryptoException("encrypt, crypto not initialized, current stare: " + currentState);
+            Logger.error("encrypt, crypto not initialized, current state: " + currentState);
+            throw new CryptoException("encrypt, crypto not initialized, current state: " + currentState);
         }
     }
 
@@ -223,8 +223,8 @@ public class CryptoControllerClient extends CryptoController {
             }
             return decrypted;
         } else {
-            Logger.error("decrypt, crypto not initialized, current stare: " + currentState);
-            throw new CryptoException("decrypt, crypto not initialized, current stare: " + currentState);
+            Logger.error("decrypt, crypto not initialized, current state: " + currentState);
+            throw new CryptoException("decrypt, crypto not initialized, current state: " + currentState);
         }
     }
 
