@@ -192,7 +192,7 @@ public class CryptoTest {
             String decryptedTextServer = client.decrypt(encryptedPayloadServer);
             assertEquals(""/*default of encrypt and decrypt error*/, decryptedTextServer);
         } catch (CryptoException e) {
-            assertEquals("java.lang.Exception: encrypt, crypto not initialized, current stare: 0", e.getMessage());
+            assertEquals("java.lang.Exception: encrypt, crypto not initialized, current state: 0", e.getMessage());
             //e.printStackTrace();
             //assert false;
         }
