@@ -13,7 +13,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: EDeploy env
-      run: docker-compose up
+    - name: Disable services enabled by default
+      run: sudo service mysql stop
+    - name: Deploy env
+      run: docker-compose up -d
     - name: Build with Maven
       run: mvn clean install
