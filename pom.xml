@@ -7,7 +7,7 @@
     <groupId>it.richkmeli.jframework</groupId>
     <artifactId>JFramework</artifactId>
     <!-- TODO RELEASE -->
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
 
     <repositories>

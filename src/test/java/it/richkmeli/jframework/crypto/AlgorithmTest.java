@@ -1,9 +1,6 @@
 package it.richkmeli.jframework.crypto;
 
-import it.richkmeli.jframework.crypto.algorithm.AES;
-import it.richkmeli.jframework.crypto.algorithm.DiffieHellman;
-import it.richkmeli.jframework.crypto.algorithm.RSA;
-import it.richkmeli.jframework.crypto.algorithm.SHA256;
+import it.richkmeli.jframework.crypto.algorithm.*;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
 import it.richkmeli.jframework.crypto.model.ClientSecureData;
 import it.richkmeli.jframework.crypto.model.DiffieHellmanPayload;
@@ -24,17 +21,18 @@ import static org.junit.Assert.assertEquals;
 
 
 public class AlgorithmTest {
+    private static int[] plainTextLengths = {8, 10, 100, 1000};
+    private static int[] keyLengths = {8, 10, 12, 16 /*128 bits*/, 32 /*256 bits*/, 64 /*512 bits*/};
+
+
     @Test
     public void rc4() {
-        int[] plainTextLenghts = {8, 10, 100, 1000};
-        int[] keyLenghts = {8, 10, 12};
 
-        for (int i : plainTextLenghts) {
-            for (int i2 : keyLenghts) {
+        for (int i : plainTextLengths) {
+            for (int i2 : keyLengths) {
 
                 String plain = RandomStringGenerator.generateAlphanumericString(i);
                 String key = RandomStringGenerator.generateAlphanumericString(i2);
-
 
                 String encrypted = Crypto.encryptRC4(plain, key);
 
@@ -47,9 +45,8 @@ public class AlgorithmTest {
 
     @Test
     public void aes() {
-        int[] plainTextLenghts = {8, 10, 100, 1000};
 
-        for (int i : plainTextLenghts) {
+        for (int i : plainTextLengths) {
 
             String plain = RandomStringGenerator.generateAlphanumericString(i);
 
@@ -75,13 +72,12 @@ public class AlgorithmTest {
 
     @Test
     public void aesString() {
-        int[] plainTextLenghts = {8, 10, 100, 1000};
-        String[] keyList = new String[]{"ciao", "crypto2", "1234597890p56789098", "12345978fdgfdgdfgfdgdf90p5678909845646464564"};
 
-        for (String key : keyList) {
-            for (int i : plainTextLenghts) {
+        for (int i : plainTextLengths) {
+            for (int i2 : keyLengths) {
 
                 String plain = RandomStringGenerator.generateAlphanumericString(i);
+                String key = RandomStringGenerator.generateAlphanumericString(i2);
 
                 String decrypted = null;
                 try {
@@ -95,6 +91,7 @@ public class AlgorithmTest {
                 assertEquals(plain, decrypted);
             }
         }
+
     }
 
     @Test
@@ -212,12 +209,13 @@ public class AlgorithmTest {
             serverSecureData.addSecretKey("ID", secretKey_B);
 
             //System.out.println("DH_test, secretKey_A: "+secretKey_A+"  secretKey_B: "+ secretKey_B);
-            String plain = "ciao";
-            String encrypted = AES.encrypt(plain, clientSecureData.getSecretKey());
+            for (int i : plainTextLengths) {
+                String plain = RandomStringGenerator.generateAlphanumericString(i);
 
-            String decrypted = AES.decrypt(encrypted, serverSecureData.getSecretKey("ID"));
-
-            assertEquals(plain, decrypted);
+                String encrypted = AES.encrypt(plain, clientSecureData.getSecretKey());
+                String decrypted = AES.decrypt(encrypted, serverSecureData.getSecretKey("ID"));
+                assertEquals(plain, decrypted);
+            }
             assertEquals(secretKey_A, secretKey_B);
         } catch (Exception e) {
             e.printStackTrace();
@@ -258,6 +256,30 @@ public class AlgorithmTest {
         } catch (Exception e) {
             e.printStackTrace();
             assert false;
+        }
+    }
+
+    @Test
+    public void ellipticCurves() {
+        try {
+            // A
+            KeyPair keyPairA = EllipticCurves.generateKP();
+            // B
+            KeyPair keyPairB = EllipticCurves.generateKP();
+
+            for (int i : plainTextLengths) {
+                String plain = RandomStringGenerator.generateAlphanumericString(i);
+
+                String chipertext = EllipticCurves.encrypt(plain, keyPairA.getPublic().getEncoded());
+                String decrypted = EllipticCurves.decrypt(chipertext, keyPairA.getPrivate().getEncoded());
+
+                //assertEquals(plain,decrypted);
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            //assert false;
         }
     }
 

@@ -12,6 +12,8 @@ import java.util.Map;
 // la gestione della comunicazione.
 
 public class EchoTcpServer {
+    public static boolean end = false;
+
     public static void main(String[] args) {
         // PARAMETRI
         Map<String, String> param = parameter(args);
@@ -32,7 +34,7 @@ public class EchoTcpServer {
                 throw new IOException("Apertura del socket di ascolto sulla porta di ascolto " + listenPort + " fallita");
             } // apertura socket sulla porta
 
-            Boolean end = false;
+
             while (!end) {
 
                 try {    // blocco per risorsa client socket attesa connessione

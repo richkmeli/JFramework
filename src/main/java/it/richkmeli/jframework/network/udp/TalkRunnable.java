@@ -17,6 +17,8 @@ public class TalkRunnable implements Runnable {
     private Integer receiverPort;
     private boolean verboseMode;
     private InputStream inputStream;
+    public static boolean end = false;
+
     // communication info
 
 
@@ -53,7 +55,6 @@ public class TalkRunnable implements Runnable {
                 // TODO controlla se gia avviato da fuori
                 //listenThread.start();
 
-                boolean end = false;
                 int flushTimer = 0;
                 int valorizedChar = 0;
                 while (!end) {

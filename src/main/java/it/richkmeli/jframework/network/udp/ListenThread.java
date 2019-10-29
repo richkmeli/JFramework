@@ -14,12 +14,12 @@ public class ListenThread extends Thread {
     private Integer packetSize;
     private boolean verboseMode;
     private CommunicationLock communicationLock;
+    private boolean isLast = false;
+    private PrintStream printStream;
 
     public PrintStream getPrintStream() {
         return printStream;
     }
-
-    private PrintStream printStream;
 
 
     public ListenThread(Integer listenPort, Integer packetSize, boolean verboseMode) {
@@ -62,7 +62,6 @@ public class ListenThread extends Thread {
             DatagramPacket listenPacket = new DatagramPacket(listenBuffer, listenBuffer.length);    // pacchetto a datagramma
             int listenNumPacket = 0;    // per gestione numero pacchetti, e per ACK di ritorno
 
-            Boolean isLast = false;
             while (!isLast) {
                 listenSocket.receive(listenPacket);
 

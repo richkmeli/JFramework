@@ -1,6 +1,6 @@
 package it.richkmeli.jframework.crypto.util;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 public class RandomStringGenerator {
     public static String generateAlphanumericString(int lenght) {
@@ -8,7 +8,7 @@ public class RandomStringGenerator {
         int alphabetLength = alphabet.length();
 
         StringBuilder result = new StringBuilder();
-        Random random = new Random();
+        SecureRandom random = new SecureRandom();
 
         for (int i = 0; i < lenght; ++i) {
             result.append(alphabet.charAt(random.nextInt(alphabetLength)));
@@ -29,7 +29,7 @@ public class RandomStringGenerator {
         //int leftLimit = 97; // letter 'a'
         //int rightLimit = 122; // letter 'z'
         //int targetStringLength = 10;
-        Random random = new Random();
+        SecureRandom random = new SecureRandom();
         StringBuilder buffer = new StringBuilder(targetStringLength);
         for (int i = 0; i < targetStringLength; i++) {
             int randomLimitedInt = leftLimit + (int)
