@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.crypto.model;
+package it.richkmeli.jframework.crypto.controller.payload;
 
 import java.math.BigInteger;
 import java.security.PublicKey;

@@ -1,10 +1,10 @@
 package it.richkmeli.jframework.crypto;
 
 import it.richkmeli.jframework.crypto.algorithm.*;
+import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
+import it.richkmeli.jframework.crypto.data.model.ClientSecureData;
+import it.richkmeli.jframework.crypto.data.model.ServerSecureData;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
-import it.richkmeli.jframework.crypto.model.ClientSecureData;
-import it.richkmeli.jframework.crypto.model.DiffieHellmanPayload;
-import it.richkmeli.jframework.crypto.model.ServerSecureData;
 import it.richkmeli.jframework.crypto.util.RandomStringGenerator;
 import org.junit.Test;
 
@@ -15,6 +15,7 @@ import javax.crypto.SecretKey;
 import java.math.BigInteger;
 import java.security.*;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -24,6 +25,9 @@ public class AlgorithmTest {
     private static int[] plainTextLengths = {8, 10, 100, 1000};
     private static int[] keyLengths = {8, 10, 12, 16 /*128 bits*/, 32 /*256 bits*/, 64 /*512 bits*/};
 
+    private static String genString(int i) {
+        return RandomStringGenerator.generateAlphanumericString(i);
+    }
 
     @Test
     public void rc4() {
@@ -31,11 +35,10 @@ public class AlgorithmTest {
         for (int i : plainTextLengths) {
             for (int i2 : keyLengths) {
 
-                String plain = RandomStringGenerator.generateAlphanumericString(i);
-                String key = RandomStringGenerator.generateAlphanumericString(i2);
+                String plain = genString(i);
+                String key = genString(i2);
 
                 String encrypted = Crypto.encryptRC4(plain, key);
-
                 String decrypted = Crypto.decryptRC4(encrypted, key);
 
                 assertEquals(plain, decrypted);
@@ -48,7 +51,7 @@ public class AlgorithmTest {
 
         for (int i : plainTextLengths) {
 
-            String plain = RandomStringGenerator.generateAlphanumericString(i);
+            String plain = genString(i);
 
             SecretKey AESsecretKey = null;
             try {
@@ -60,6 +63,8 @@ public class AlgorithmTest {
             String decrypted = null;
             try {
                 String encrypted = AES.encrypt(plain, AESsecretKey);
+                //String encrypted2 = AES.encrypt(plain, AESsecretKey);
+                //System.out.println(encrypted + " " + encrypted2);
                 decrypted = AES.decrypt(encrypted, AESsecretKey);
             } catch (CryptoException e) {
                 e.printStackTrace();
@@ -76,8 +81,8 @@ public class AlgorithmTest {
         for (int i : plainTextLengths) {
             for (int i2 : keyLengths) {
 
-                String plain = RandomStringGenerator.generateAlphanumericString(i);
-                String key = RandomStringGenerator.generateAlphanumericString(i2);
+                String plain = genString(i);
+                String key = genString(i2);
 
                 String decrypted = null;
                 try {
@@ -95,6 +100,50 @@ public class AlgorithmTest {
     }
 
     @Test
+    public void aes2() {
+
+        for (int i : plainTextLengths) {
+
+            String plain = genString(i);
+
+            SecretKey AESsecretKey = null;
+            try {
+                AESsecretKey = AES.generateKey();
+            } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+                e.printStackTrace();
+            }
+
+            List<byte[]> ivs = IvManager.generateIvs(128, 5);
+
+            for (byte[] iv : ivs) {
+                String decrypted = null;
+                try {
+                    String encrypted = AES.encrypt(plain, AESsecretKey, iv);
+                    decrypted = AES.decrypt(encrypted, AESsecretKey, iv);
+                    System.out.println("plain: " + plain + " | encrypted: " + encrypted + " | decrypted: " + decrypted + " | iv: " + Base64.getEncoder().encodeToString(iv));
+                    assertEquals(plain, decrypted);
+
+                    // decrypt with a wrong iv
+                    byte[] wrongIv = IvManager.generateIvs(128, 1).get(0); // "0000000000000000".getBytes();
+                    String decrypted2 = "";
+                    try {
+                        decrypted2 = AES.decrypt(encrypted, AESsecretKey, wrongIv);
+                        assert false;
+                    } catch (CryptoException ce) {
+                        System.out.println("plain: " + plain + " | encrypted: " + encrypted + " | decrypted: " + decrypted2 + " | wrongIv: " + Base64.getEncoder().encodeToString(wrongIv));
+                    }
+                    //assertNotEquals(plain, decrypted);
+                } catch (CryptoException e) {
+                    e.printStackTrace();
+                    assert false;
+                }
+            }
+
+
+        }
+    }
+
+    @Test
     public void rsaEncryptdecrypt() {
         try {
             KeyPair keyPair = RSA.generateKeyPair();
@@ -106,7 +155,7 @@ public class AlgorithmTest {
 
             for (int i : plainTextLenghts) {
 
-                byte[] plain = RandomStringGenerator.generateAlphanumericString(i).getBytes();
+                byte[] plain = genString(i).getBytes();
 
                 byte[] decrypted = null;
                 try {
@@ -210,7 +259,7 @@ public class AlgorithmTest {
 
             //System.out.println("DH_test, secretKey_A: "+secretKey_A+"  secretKey_B: "+ secretKey_B);
             for (int i : plainTextLengths) {
-                String plain = RandomStringGenerator.generateAlphanumericString(i);
+                String plain = genString(i);
 
                 String encrypted = AES.encrypt(plain, clientSecureData.getSecretKey());
                 String decrypted = AES.decrypt(encrypted, serverSecureData.getSecretKey("ID"));
@@ -268,7 +317,7 @@ public class AlgorithmTest {
             KeyPair keyPairB = EllipticCurves.generateKP();
 
             for (int i : plainTextLengths) {
-                String plain = RandomStringGenerator.generateAlphanumericString(i);
+                String plain = genString(i);
 
                 String chipertext = EllipticCurves.encrypt(plain, keyPairA.getPublic().getEncoded());
                 String decrypted = EllipticCurves.decrypt(chipertext, keyPairA.getPrivate().getEncoded());
@@ -280,6 +329,21 @@ public class AlgorithmTest {
         } catch (Exception e) {
             e.printStackTrace();
             //assert false;
+        }
+    }
+
+
+    @Test
+    public void IvManager() {
+        try {
+            List<byte[]> ivs = IvManager.generateIvs(256, 20);
+
+            for (byte[] b : ivs) {
+                System.out.print(Base64.getEncoder().encodeToString(b) + " ");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 

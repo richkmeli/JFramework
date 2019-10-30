@@ -19,7 +19,7 @@ public class CryptoTest {
     private Crypto.Client client;
     private Crypto.Server server;
 
-    private final static String[] cryptoStrings = {"01", "sdfs648df5", "-e.fe-w.f", "", "234pjojojojojojojojojojojojojojojojo234pi23pi4jpi234j2", "012345678", "{}+è\\/\\/\\/"};
+    private final static String[] cryptoStrings = {"01"/*, "瓬薅\uE420㞵澖膼丛쀊怉☊诨궭⣼\u0DF7Ἱ嗹"*/, "sdfs648df5", "-e.fe-w.f", "", "234pjojojojojojojojojojojojojojojojo234pi23pi4jpi234j2", "012345678", "{}+è\\/\\/\\/"};
 
     @Test
     public void crypto() {

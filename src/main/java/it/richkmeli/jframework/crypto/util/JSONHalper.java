@@ -2,7 +2,7 @@ package it.richkmeli.jframework.crypto.util;
 
 import it.richkmeli.jframework.crypto.algorithm.AES;
 import it.richkmeli.jframework.crypto.algorithm.DiffieHellman;
-import it.richkmeli.jframework.crypto.model.DiffieHellmanPayload;
+import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
@@ -13,7 +13,7 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JSONhalper {
+public class JSONHalper {
 
     public static String formatResponse(int state, String payload) {
         JSONObject responseJSON = new JSONObject();

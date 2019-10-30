@@ -1,6 +1,6 @@
 package it.richkmeli.jframework.crypto.algorithm;
 
-import it.richkmeli.jframework.crypto.model.DiffieHellmanPayload;
+import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.KeyAgreement;

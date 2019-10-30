@@ -136,11 +136,11 @@ public class Crypto {
     }
 
     public static void putData(File file, String secretKey, String key, String value) {
-        SecureDataManager.putData(file,secretKey,key,value);
+        SecureDataManager.putData(file, secretKey, key, value);
     }
 
     public static String getData(File file, String secretKey, String key) {
-        return SecureDataManager.getData(file,secretKey,key);
+        return SecureDataManager.getData(file, secretKey, key);
     }
 
 

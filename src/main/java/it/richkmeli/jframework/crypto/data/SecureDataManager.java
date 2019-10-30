@@ -1,9 +1,9 @@
 package it.richkmeli.jframework.crypto.data;
 
 import it.richkmeli.jframework.crypto.algorithm.AES;
+import it.richkmeli.jframework.crypto.data.model.ClientSecureData;
+import it.richkmeli.jframework.crypto.data.model.ServerSecureData;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
-import it.richkmeli.jframework.crypto.model.ClientSecureData;
-import it.richkmeli.jframework.crypto.model.ServerSecureData;
 import it.richkmeli.jframework.util.Logger;
 import org.json.JSONObject;
 
@@ -61,30 +61,30 @@ public class SecureDataManager {
     }
 
     public static void putData(File file, String secretKey, String key, String value) {
-        String data = SecureDataManager.getSecureData(file,secretKey);
+        String data = SecureDataManager.getSecureData(file, secretKey);
         JSONObject jsonObject;
         if (data != null) {
             jsonObject = new JSONObject(data);
-        }else {
+        } else {
             jsonObject = new JSONObject();
         }
-        jsonObject.put(key,value);
-        SecureDataManager.setSecureData(file,jsonObject.toString(),secretKey);
+        jsonObject.put(key, value);
+        SecureDataManager.setSecureData(file, jsonObject.toString(), secretKey);
     }
 
     public static String getData(File file, String secretKey, String key) {
-        String data = SecureDataManager.getSecureData(file,secretKey);
+        String data = SecureDataManager.getSecureData(file, secretKey);
         JSONObject jsonObject;
         String value = "";
         if (data != null) {
             jsonObject = new JSONObject(data);
-            if(jsonObject.has(key)){
+            if (jsonObject.has(key)) {
                 value = jsonObject.getString(key);
-            }else {
+            } else {
                 Logger.error("Crypto, getData: jsonObject doesn't contain key: " + key);
             }
-        }else {
-            Logger.error("Crypto, getData, file: "+file.getName()+" is empty");
+        } else {
+            Logger.error("Crypto, getData, file: " + file.getName() + " is empty");
         }
         return value;
     }

@@ -2,12 +2,12 @@ package it.richkmeli.jframework.crypto.controller;
 
 import it.richkmeli.jframework.crypto.algorithm.AES;
 import it.richkmeli.jframework.crypto.algorithm.DiffieHellman;
+import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
 import it.richkmeli.jframework.crypto.data.SecureDataManager;
 import it.richkmeli.jframework.crypto.data.SecureDataState;
+import it.richkmeli.jframework.crypto.data.model.ClientSecureData;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
-import it.richkmeli.jframework.crypto.model.ClientSecureData;
-import it.richkmeli.jframework.crypto.model.DiffieHellmanPayload;
-import it.richkmeli.jframework.crypto.util.JSONhalper;
+import it.richkmeli.jframework.crypto.util.JSONHalper;
 import it.richkmeli.jframework.util.Logger;
 import org.json.JSONObject;
 
@@ -41,7 +41,7 @@ public class CryptoControllerClient extends CryptoController {
                     SecureDataManager.setClientSecureData(secureData, secretKey, clientSecureData);
 
                     stateS = SecureDataState.PUBLIC_KEY_GENERATED;
-                    payload = JSONhalper.dhPayloadToJSON(diffieHellmanPayload).toString();
+                    payload = JSONHalper.dhPayloadToJSON(diffieHellmanPayload).toString();
                     Logger.info("init, public key generated");
                 } catch (Exception e) {
                     Logger.error("init, error generating public key", e);
@@ -61,7 +61,7 @@ public class CryptoControllerClient extends CryptoController {
                         JSONObject publicKey = decodedPayload.equalsIgnoreCase("") ? new JSONObject() : new JSONObject(decodedPayload);
 
                         ClientSecureData clientSecureData = SecureDataManager.getClientSecureData(secureData, secretKey);
-                        clientSecureData.setPublicKeyServer(JSONhalper.dhPublicKeyFromJSON(publicKey));
+                        clientSecureData.setPublicKeyServer(JSONHalper.dhPublicKeyFromJSON(publicKey));
                         SecureDataManager.setClientSecureData(secureData, secretKey, clientSecureData);
 
                         Logger.info("init, public keys exchanged");
@@ -107,7 +107,7 @@ public class CryptoControllerClient extends CryptoController {
                 break;
         }
 
-        return JSONhalper.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
+        return JSONHalper.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
     }
 
 

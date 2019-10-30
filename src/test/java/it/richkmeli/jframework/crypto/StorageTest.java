@@ -2,10 +2,10 @@ package it.richkmeli.jframework.crypto;
 
 import it.richkmeli.jframework.crypto.algorithm.AES;
 import it.richkmeli.jframework.crypto.algorithm.DiffieHellman;
+import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
 import it.richkmeli.jframework.crypto.data.SecureDataManager;
-import it.richkmeli.jframework.crypto.model.ClientSecureData;
-import it.richkmeli.jframework.crypto.model.DiffieHellmanPayload;
-import it.richkmeli.jframework.crypto.model.ServerSecureData;
+import it.richkmeli.jframework.crypto.data.model.ClientSecureData;
+import it.richkmeli.jframework.crypto.data.model.ServerSecureData;
 import org.junit.Test;
 
 import javax.crypto.SecretKey;

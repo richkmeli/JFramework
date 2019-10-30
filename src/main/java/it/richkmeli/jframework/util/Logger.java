@@ -29,8 +29,8 @@ public class Logger {
 
     public static void error(String message, Throwable throwable) {
         if (DEBUG) {
-            System.err.println(formatLogEvent(ERROR_TAG,  message + " || " + throwable.getMessage()));
-            printOnLogFile(ERROR_TAG,  message + " || " + throwable.getMessage());
+            System.err.println(formatLogEvent(ERROR_TAG, message + " || " + throwable.getMessage()));
+            printOnLogFile(ERROR_TAG, message + " || " + throwable.getMessage());
         }
     }
 
@@ -49,12 +49,12 @@ public class Logger {
     }
 
     // default for info and error
-    private static String formatLogEvent(String messageType, String s){
-        return formatLogEvent(messageType,s,4);
+    private static String formatLogEvent(String messageType, String s) {
+        return formatLogEvent(messageType, s, 4);
     }
 
-    private static String formatLogEvent(String messageType, String s, int i){
-        return new Timestamp(System.currentTimeMillis()) + ", " + messageType + " " + getTag(i) + " : " + s ;
+    private static String formatLogEvent(String messageType, String s, int i) {
+        return new Timestamp(System.currentTimeMillis()) + ", " + messageType + " " + getTag(i) + " : " + s;
     }
 
     private static void printOnLogFile(String messageType, String s) {
@@ -67,7 +67,7 @@ public class Logger {
             } else {
                 fr.write(new Timestamp(System.currentTimeMillis()) + ", " + getTag(3) + " : " + s + '\n');
             }*/
-            fr.write(formatLogEvent(messageType,s,4)+ '\n');
+            fr.write(formatLogEvent(messageType, s, 4) + '\n');
             fr.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,8 +77,8 @@ public class Logger {
 
     public static void checkLogFileDimension() {
         File logFile = new File(LOG_FILENAME);
-        if (getFileSizeMegaBytes(logFile) > 50){
-            if (!logFile.delete()){
+        if (getFileSizeMegaBytes(logFile) > 50) {
+            if (!logFile.delete()) {
                 error("Logfile not found for deleting process.");
             }
         }

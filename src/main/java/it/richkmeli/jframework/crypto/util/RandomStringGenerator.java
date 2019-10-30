@@ -1,16 +1,17 @@
 package it.richkmeli.jframework.crypto.util;
 
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
 public class RandomStringGenerator {
-    public static String generateAlphanumericString(int lenght) {
+    public static String generateAlphanumericString(int length) {
         String alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         int alphabetLength = alphabet.length();
 
         StringBuilder result = new StringBuilder();
         SecureRandom random = new SecureRandom();
 
-        for (int i = 0; i < lenght; ++i) {
+        for (int i = 0; i < length; ++i) {
             result.append(alphabet.charAt(random.nextInt(alphabetLength)));
         }
 
@@ -38,6 +39,24 @@ public class RandomStringGenerator {
         }
         return buffer.toString();
 
+    }
+
+    public static String generateUtf8String(int length) {
+        byte[] array = new byte[length]; // length is bounded by 7
+        new SecureRandom().nextBytes(array);
+        return new String(array, StandardCharsets.UTF_8);
+    }
+
+    public static String generateUtf16String(int length) {
+        byte[] array = new byte[length]; // length is bounded by 7
+        new SecureRandom().nextBytes(array);
+        return new String(array, StandardCharsets.UTF_16);
+    }
+
+    public static String generateASCIItring(int length) {
+        byte[] array = new byte[length]; // length is bounded by 7
+        new SecureRandom().nextBytes(array);
+        return new String(array, StandardCharsets.US_ASCII);
     }
 
 

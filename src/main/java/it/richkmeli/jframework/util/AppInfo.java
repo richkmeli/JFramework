@@ -6,7 +6,7 @@ import java.util.Properties;
 public class AppInfo {
 
     // it works only with jar that contains pom.properties, at the end of this class there is an example of info to be added into pom file
-    public static synchronized String getVersion(Class clazz){
+    public static synchronized String getVersion(Class clazz) {
         String version = null;
 
         // try to load from maven properties first

@@ -2,12 +2,12 @@ package it.richkmeli.jframework.crypto.controller;
 
 import it.richkmeli.jframework.crypto.algorithm.AES;
 import it.richkmeli.jframework.crypto.algorithm.DiffieHellman;
+import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
 import it.richkmeli.jframework.crypto.data.SecureDataManager;
 import it.richkmeli.jframework.crypto.data.SecureDataState;
+import it.richkmeli.jframework.crypto.data.model.ServerSecureData;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
-import it.richkmeli.jframework.crypto.model.DiffieHellmanPayload;
-import it.richkmeli.jframework.crypto.model.ServerSecureData;
-import it.richkmeli.jframework.crypto.util.JSONhalper;
+import it.richkmeli.jframework.crypto.util.JSONHalper;
 import it.richkmeli.jframework.util.Logger;
 import org.json.JSONObject;
 
@@ -43,7 +43,7 @@ public class CryptoControllerServer extends CryptoController {
 
                     // check if the other part is in a different state (not sync)
                     if (!decodedPayload.equalsIgnoreCase("")) {
-                        DiffieHellmanPayload diffieHellmanPayload = JSONhalper.dhPayloadFromJSON(new JSONObject(decodedPayload));
+                        DiffieHellmanPayload diffieHellmanPayload = JSONHalper.dhPayloadFromJSON(new JSONObject(decodedPayload));
 
                         KeyPair keys_B = DiffieHellman.dh1(diffieHellmanPayload.getPQ());
 
@@ -67,7 +67,7 @@ public class CryptoControllerServer extends CryptoController {
                         Logger.info("init, private key generated");
 
                         stateS = SecureDataState.SECRET_KEY_EXCHANGED;
-                        payload = (JSONhalper.dhPublicKeyToJSON(publicKey_B, diffieHellmanPayload.getPQ())).toString();
+                        payload = (JSONHalper.dhPublicKeyToJSON(publicKey_B, diffieHellmanPayload.getPQ())).toString();
                     } else {
                         Logger.error("init, server secure data has been removed or client is in a wrong state");
 
@@ -89,7 +89,7 @@ public class CryptoControllerServer extends CryptoController {
                 break;
         }
 
-        return JSONhalper.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
+        return JSONHalper.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
     }
 
     // Active, servlet received data from client, not directly from a payload

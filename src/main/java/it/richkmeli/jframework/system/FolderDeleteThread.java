@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class FolderDeleteThread extends Thread{
+public class FolderDeleteThread extends Thread {
     private File folder;
 
     public FolderDeleteThread(File folder) {
