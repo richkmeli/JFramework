@@ -11,7 +11,10 @@ import org.junit.Test;
 import javax.crypto.SecretKey;
 import java.io.File;
 import java.math.BigInteger;
-import java.security.*;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -61,12 +64,12 @@ public class StorageTest {
 
     private ClientSecureData fillRandomlyClientSecureData() {
         try {
-            List<BigInteger> pg = DiffieHellman.dh0A();
-            KeyPair keys_A = DiffieHellman.dh1(pg);
-            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh2A(pg, keys_A.getPublic());
-            SecretKey secretKey_A = DiffieHellman.dh3(keys_A.getPrivate(), keys_A.getPublic(), AES.ALGORITHM);
+            List<BigInteger> pg = DiffieHellman.dh0A_GeneratePrimeAndGenerator();
+            KeyPair keys_A = DiffieHellman.dh1_GenerateKeyPair(pg);
+            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh2A_CreateDHPayload(pg, keys_A);
+            SecretKey secretKey_A = DiffieHellman.dh3_CalculateSharedSecretKey(pg, diffieHellmanPayload.getPublicKey(), keys_A.getPrivate(), AES.ALGORITHM);
             return new ClientSecureData(keys_A, diffieHellmanPayload, keys_A.getPublic(), secretKey_A);
-        } catch (InvalidAlgorithmParameterException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             e.printStackTrace();
             assert false;
         }
@@ -75,23 +78,23 @@ public class StorageTest {
 
     private ServerSecureData fillRandomlyServerSecureData() {
         try {
-            List<BigInteger> pg = DiffieHellman.dh0A();
-            KeyPair keys_A = DiffieHellman.dh1(pg);
-            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh2A(pg, keys_A.getPublic());
+            List<BigInteger> pg = DiffieHellman.dh0A_GeneratePrimeAndGenerator();
+            KeyPair keys_A = DiffieHellman.dh1_GenerateKeyPair(pg);
+            DiffieHellmanPayload DiffieHellmanPayload = DiffieHellman.dh2A_CreateDHPayload(pg, keys_A);
 
-            KeyPair keys_B = DiffieHellman.dh1(diffieHellmanPayload.getPQ());
+            KeyPair keys_B = DiffieHellman.dh1_GenerateKeyPair(DiffieHellmanPayload.getPG());
 
             PublicKey publicKey = keys_B.getPublic();
             ServerSecureData serverSecureData = new ServerSecureData(pg, keys_B);
-            serverSecureData.addDiffieHellmanPayload("ID", diffieHellmanPayload);
+            serverSecureData.addDiffieHellmanPayload("ID", DiffieHellmanPayload);
 
-            SecretKey secretKey_B = DiffieHellman.dh3(serverSecureData.getKeyPairServer().getPrivate(),
-                    serverSecureData.getDiffieHellmanPayload("ID").getA(),
+            SecretKey secretKey_B = DiffieHellman.dh3_CalculateSharedSecretKey(
+                    serverSecureData.getDiffieHellmanPayload("ID").getPG(), serverSecureData.getDiffieHellmanPayload("ID").getPublicKey(), serverSecureData.getKeyPairServer().getPrivate(),
                     AES.ALGORITHM);
             serverSecureData.addSecretKey("ID", secretKey_B);
 
             return serverSecureData;
-        } catch (InvalidAlgorithmParameterException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             e.printStackTrace();
             assert false;
         }

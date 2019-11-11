@@ -46,8 +46,8 @@ public class ServerSecureData {
         JSONObject diffieHellmanPayloadMapJSON = new JSONObject();
         if (this.diffieHellmanPayloadMap != null) {
             for (String s : this.diffieHellmanPayloadMap.keySet()) {
-                DiffieHellmanPayload diffieHellmanPayload = this.diffieHellmanPayloadMap.get(s);
-                diffieHellmanPayloadMapJSON.put(s, JSONHalper.dhPayloadToJSON(diffieHellmanPayload));
+                DiffieHellmanPayload DiffieHellmanPayload = this.diffieHellmanPayloadMap.get(s);
+                diffieHellmanPayloadMapJSON.put(s, JSONHalper.dhPayloadToJSON(DiffieHellmanPayload));
             }
         }
 
@@ -138,8 +138,8 @@ public class ServerSecureData {
         this.secretKeyClientMap = secretKeyClientMap;
     }
 
-    public void addDiffieHellmanPayload(String id, DiffieHellmanPayload diffieHellmanPayload) {
-        this.diffieHellmanPayloadMap.put(id, diffieHellmanPayload);
+    public void addDiffieHellmanPayload(String id, DiffieHellmanPayload DiffieHellmanPayload) {
+        this.diffieHellmanPayloadMap.put(id, DiffieHellmanPayload);
     }
 
     public DiffieHellmanPayload getDiffieHellmanPayload(String id) {

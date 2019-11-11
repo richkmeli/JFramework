@@ -1,60 +1,57 @@
 package it.richkmeli.jframework.crypto.algorithm;
 
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.CipherParameters;
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.InvalidCipherTextException;
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.engines.AESEngine;
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.modes.GCMBlockCipher;
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.paddings.ZeroBytePadding;
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.params.KeyParameter;
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.params.ParametersWithIV;
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.util.Arrays;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import javax.crypto.*;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.util.Base64;
 
 public class AES {
-    private static int keySize = 256;
     public static final String ALGORITHM = "AES";
-    private static String ALGORITHM_CBC = "AES/CBC/NoPadding"; //PKCS5Padding
-    private static String ALGORITHM_GCM = "AES/GCM/NoPadding";
-    private static final String PROVIDER = BouncyCastleProvider.PROVIDER_NAME; //"BC";
 
 
-    public static SecretKey generateKey() throws NoSuchAlgorithmException, NoSuchProviderException {
-        ProviderManager.init(new BouncyCastleProvider());
-
-        KeyGenerator keyGenerator = null;
-        keyGenerator = KeyGenerator.getInstance(ALGORITHM, PROVIDER);
-        keyGenerator.init(keySize);
-
-        return keyGenerator.generateKey();
+    public static SecretKey generateKey(int keySize) {
+        byte[] array = new byte[keySize]; // length is bounded by 7
+        new SecureRandom().nextBytes(array);
+        SecretKey secretKey = new SecretKeySpec(array, "AES");
+        return secretKey;
     }
 
-    // entry point, key as string
+    public static SecretKey generateKey(byte[] bytes, int keySize) {
+        byte[] array = Arrays.copyOf(bytes, keySize);
+        return new SecretKeySpec(array, "AES");
+    }
+
+    // entry point, key as string, without IV
     public static String encrypt(String plaintext, String key) throws CryptoException {
         return encrypt(plaintext, key, null);
     }
 
-    // entry point, key as string
+    // entry point, key as string, without IV
     public static String decrypt(String ciphertext, String key) throws CryptoException {
         return decrypt(ciphertext, key, null);
     }
 
-    // entry point, key as SecretKey
+    // entry point, key as SecretKey, without IV
     public static String encrypt(String input, SecretKey key) throws CryptoException {
         return encrypt(input, key, null);
     }
 
-    // entry point, key as SecretKey
+    // entry point, key as SecretKey, without IV
     public static String decrypt(String input, SecretKey key) throws CryptoException {
         return decrypt(input, key, null);
     }
 
-    // entry point, key as string
+    // entry point, key as string, with IV
     public static String encrypt(String plaintext, String key, byte[] iv) throws CryptoException {
         byte[] decodedKey = (checkKey(key)).getBytes();
         // rebuild key using SecretKeySpec
@@ -63,7 +60,7 @@ public class AES {
         return encrypt(plaintext, originalKey, iv);
     }
 
-    // entry point, key as string
+    // entry point, key as string, with IV
     public static String decrypt(String ciphertext, String key, byte[] iv) throws CryptoException {
         byte[] decodedKey = (checkKey(key)).getBytes();
         // rebuild key using SecretKeySpec
@@ -79,11 +76,10 @@ public class AES {
 
         byte[] ciphertext = null;
         try {
-            ciphertext = encrypt(inputB, key, iv);
+            ciphertext = encrypt(inputB, key.getEncoded(), iv);
         } catch (Exception e) {
             throw new CryptoException(e);
         }
-
 
         // encode encrypted input
         return Base64.getUrlEncoder().encodeToString(ciphertext);
@@ -96,7 +92,7 @@ public class AES {
 
         byte[] plaintext = null;
         try {
-            plaintext = decrypt(decoded, key, iv);
+            plaintext = decrypt(decoded, key.getEncoded(), iv);
         } catch (Exception e) {
             throw new CryptoException(e);
         }
@@ -106,68 +102,48 @@ public class AES {
     }
 
 
-    // Java encrypt
-    private static byte[] encrypt(byte[] plaintext, SecretKey key, byte[] iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, IOException, InvalidAlgorithmParameterException {
-        ProviderManager.init(new BouncyCastleProvider());
+    public static SecretKey loadSecretKey(String secretKey) {
+        return new SecretKeySpec(Base64.getDecoder().decode(secretKey.getBytes()), ALGORITHM);
+    }
 
-        Cipher cipher;
-        //Logger.info(new String(key.getEncoded()) + " length: " + key.getEncoded().length);
+    public static String saveSecretKey(SecretKey secretKey) {
+        return Base64.getEncoder().encodeToString(secretKey.getEncoded());
+
+    }
+
+    public static byte[] encrypt(byte[] plaintext, byte[] key, byte[] iv) throws CryptoException {
+        return doPhase(plaintext, key, iv, true);
+    }
+
+    public static byte[] decrypt(byte[] plaintext, byte[] key, byte[] iv) throws CryptoException {
+        return doPhase(plaintext, key, iv, false);
+    }
+
+    private static byte[] doPhase(byte[] plaintext, byte[] key, byte[] iv, boolean forEncryption) throws CryptoException {
+        // key and IV
+        KeyParameter keyParam = new KeyParameter(key);
+        // backward compatibility
         if (iv == null) {
-            cipher = Cipher.getInstance(ALGORITHM, PROVIDER);
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-        } else {
-            cipher = Cipher.getInstance(ALGORITHM_GCM, PROVIDER);
-            cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(iv.length * 8, iv));
+            iv = "00000000".getBytes();
         }
-        return cipher.doFinal(plaintext);
-    }
+        CipherParameters cipherParameters = new ParametersWithIV(keyParam, iv);
+        // padding
+        ZeroBytePadding padding = new ZeroBytePadding();
 
-    // Java decrypt
-    private static byte[] decrypt(byte[] ciphertext, SecretKey key, byte[] iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, IOException, InvalidAlgorithmParameterException {
-        ProviderManager.init(new BouncyCastleProvider());
+        // cipher
+        GCMBlockCipher cipher = new GCMBlockCipher(new AESEngine());
 
-        Cipher cipher;
-        if (iv == null) {
-            cipher = Cipher.getInstance(ALGORITHM, PROVIDER);
-            cipher.init(Cipher.DECRYPT_MODE, key);
-        } else {
-            cipher = Cipher.getInstance(ALGORITHM_GCM, PROVIDER);
-            cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(iv.length * 8, iv));
+        cipher.reset();
+        cipher.init(forEncryption, cipherParameters);
+
+        byte[] buffer = new byte[cipher.getOutputSize(plaintext.length)];
+        int len = cipher.processBytes(plaintext, 0, plaintext.length, buffer, 0);
+        try {
+            len += cipher.doFinal(buffer, len);
+        } catch (InvalidCipherTextException e) {
+            throw new CryptoException(e);
         }
-        return cipher.doFinal(ciphertext);
-    }
-
-    // Java encrypt CBC
-    private static byte[] encryptCBC(byte[] plaintext, SecretKey key, byte[] iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, IOException, InvalidAlgorithmParameterException, CryptoException {
-        ProviderManager.init(new BouncyCastleProvider());
-
-        Cipher cipher = Cipher.getInstance(ALGORITHM_CBC, PROVIDER);
-        cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
-        return process(cipher, plaintext);
-    }
-
-    // Java decrypt CBC
-    private static byte[] decryptCBC(byte[] ciphertext, SecretKey key, byte[] iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, IOException, InvalidAlgorithmParameterException {
-        ProviderManager.init(new BouncyCastleProvider());
-        Cipher cipher = Cipher.getInstance(ALGORITHM_CBC, PROVIDER);
-        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
-        return process(cipher, ciphertext);
-    }
-
-    // for CBC
-    static private byte[] process(Cipher ci, byte[] inB) throws IllegalBlockSizeException, BadPaddingException, IOException {
-        ByteArrayInputStream in = new ByteArrayInputStream(inB);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] ibuf = new byte[1024];
-        int len;
-        while ((len = in.read(ibuf)) != -1) {
-            byte[] obuf = ci.update(ibuf, 0, len);
-            if (obuf != null) out.write(obuf);
-        }
-        byte[] obuf = ci.doFinal();
-        if (obuf != null) out.write(obuf);
-
-        return out.toByteArray();
+        return Arrays.copyOfRange(buffer, 0, len);
     }
 
 
@@ -182,14 +158,6 @@ public class AES {
         return key;
     }
 
-    public static SecretKey loadSecretKey(String secretKey) {
-        return new SecretKeySpec(Base64.getDecoder().decode(secretKey.getBytes()), ALGORITHM);
-    }
-
-    public static String saveSecretKey(SecretKey secretKey) {
-        return Base64.getEncoder().encodeToString(secretKey.getEncoded());
-
-    }
 
     private static String secretKeyToBase64(SecretKey secretKey) {
         return (secretKey != null) ? (Base64.getEncoder().encodeToString(secretKey.getEncoded())) : "";
@@ -197,3 +165,62 @@ public class AES {
 
 
 }
+
+
+//    // Java encrypt CBC
+//    private static byte[] encryptCBC(byte[] plaintext, SecretKey key, byte[] iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, IOException, InvalidAlgorithmParameterException, CryptoException {
+//        ProviderManager.init(PROVIDER);
+//
+//        Cipher cipher = Cipher.getInstance(ALGORITHM_CBC, PROVIDER);
+//        cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+//        return process(cipher, plaintext);
+//    }
+//
+//    // Java decrypt CBC
+//    private static byte[] decryptCBC(byte[] ciphertext, SecretKey key, byte[] iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, IOException, InvalidAlgorithmParameterException {
+//        ProviderManager.init(PROVIDER);
+//        Cipher cipher = Cipher.getInstance(ALGORITHM_CBC, PROVIDER);
+//        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
+//        return process(cipher, ciphertext);
+//    }
+//
+//    // for CBC
+//    static private byte[] process(Cipher ci, byte[] inB) throws IllegalBlockSizeException, BadPaddingException, IOException {
+//        ByteArrayInputStream in = new ByteArrayInputStream(inB);
+//        ByteArrayOutputStream out = new ByteArrayOutputStream();
+//        byte[] ibuf = new byte[1024];
+//        int len;
+//        while ((len = in.read(ibuf)) != -1) {
+//            byte[] obuf = ci.update(ibuf, 0, len);
+//            if (obuf != null) out.write(obuf);
+//        }
+//        byte[] obuf = ci.doFinal();
+//        if (obuf != null) out.write(obuf);
+//
+//        return out.toByteArray();
+//    }
+
+
+//    private byte[] decryptWithLWCrypto(byte[] cipher, String password, byte[] salt, final int iterationCount)
+//            throws Exception {
+//        PKCS12ParametersGenerator pGen = new PKCS12ParametersGenerator(new SHA256Digest());
+//        char[] passwordChars = password.toCharArray();
+//        final byte[] pkcs12PasswordBytes = PBEParametersGenerator
+//                .PKCS12PasswordToBytes(passwordChars);
+//        pGen.init(pkcs12PasswordBytes, salt, iterationCount);
+//
+//        CBCBlockCipher aesCBC = new CBCBlockCipher(new AESEngine());
+//        ParametersWithIV aesCBCParams = (ParametersWithIV) pGen.generateDerivedParameters(256, 128);
+//
+//        aesCBC.init(false, aesCBCParams);
+//        PaddedBufferedBlockCipher aesCipher = new PaddedBufferedBlockCipher(aesCBC,
+//                new PKCS7Padding());
+//        byte[] plainTemp = new byte[aesCipher.getOutputSize(cipher.length)];
+//        int offset = aesCipher.processBytes(cipher, 0, cipher.length, plainTemp, 0);
+//        int last = aesCipher.doFinal(plainTemp, offset);
+//        final byte[] plain = new byte[offset + last];
+//        System.arraycopy(plainTemp, 0, plain, 0, plain.length);
+//        return plain;
+//    }
+
+

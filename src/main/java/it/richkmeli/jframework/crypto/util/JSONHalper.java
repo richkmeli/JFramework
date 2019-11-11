@@ -71,8 +71,8 @@ public class JSONHalper {
 
     public static JSONObject dhPayloadToJSON(DiffieHellmanPayload diffieHellmanPayload) {
         JSONObject diffieHellmanPayloadJSON = new JSONObject();
-        diffieHellmanPayloadJSON.put("pg", pgToJSON(diffieHellmanPayload.getPQ()));
-        diffieHellmanPayloadJSON.put("public", dhPublicKeyToJSON(diffieHellmanPayload.getA(), diffieHellmanPayload.getPQ()));
+        diffieHellmanPayloadJSON.put("pg", pgToJSON(diffieHellmanPayload.getPG()));
+        diffieHellmanPayloadJSON.put("public", dhPublicKeyToJSON(diffieHellmanPayload.getPublicKey(), diffieHellmanPayload.getPG()));
         return diffieHellmanPayloadJSON;
     }
 

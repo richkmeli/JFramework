@@ -1,6 +1,6 @@
-package it.richkmeli.jframework.crypto.algorithm;
+package it.richkmeli.jframework.crypto.algorithm.bc;
 
-public class EllipticCurves {
+public class EllipticCurves_BC {
     public static final String ALGORITHM = "ECDH"; //
     public static final String STD_NAME = "brainpoolp256r1"; //sect571r1 : NIST/SECG curve over a 571 bit binary field
     public static final String CIPHER_ALGO = "AES/GCM/NoPadding"; // ECIESwithAES
@@ -11,7 +11,7 @@ public class EllipticCurves {
 //        kpgen.initialize(new ECGenParameterSpec(STD_NAME), new SecureRandom());
 //        return kpgen.generateKeyPair();
 //    }
-//ECPrivateKeyParameters
+//
 //    public static SecretKey generateSharedSecret(PrivateKey privateKey, PublicKey publicKey) {
 //        try {
 //            KeyAgreement keyAgreement = KeyAgreement.getInstance(ALGORITHM, PROVIDER);

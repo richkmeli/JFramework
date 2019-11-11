@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.crypto.algorithm;
+package it.richkmeli.jframework.crypto.algorithm.bc;
 
 import java.security.Provider;
 import java.security.Security;

@@ -7,20 +7,23 @@ import java.util.List;
 
 public class DiffieHellmanPayload {
     private List<BigInteger> pg;
-    private PublicKey a;
+    private PublicKey publicKey;
+    private BigInteger message;
 
-    public DiffieHellmanPayload(List<BigInteger> list, PublicKey a) {
+    public DiffieHellmanPayload(List<BigInteger> list, PublicKey publicKey) {
         pg = new ArrayList<>();
         pg.addAll(list);
-        this.a = a;
+        this.publicKey = publicKey;
     }
 
-    public List<BigInteger> getPQ() {
+    public List<BigInteger> getPG() {
         return pg;
 
     }
 
-    public PublicKey getA() {
-        return a;
+    public PublicKey getPublicKey() {
+        return publicKey;
     }
+
+
 }

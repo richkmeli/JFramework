@@ -33,15 +33,15 @@ public class CryptoControllerClient extends CryptoController {
             case SecureDataState.NOT_INITIALIZED:
                 SecureDataManager.initClientSecureData(secureData, secretKey);
                 try {
-                    List<BigInteger> pg = DiffieHellman.dh0A();
-                    KeyPair keys_A = DiffieHellman.dh1(pg);
-                    DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh2A(pg, keys_A.getPublic());
-                    ClientSecureData clientSecureData = new ClientSecureData(keys_A, diffieHellmanPayload, null, null);
+                    List<BigInteger> pg = DiffieHellman.dh0A_GeneratePrimeAndGenerator();
+                    KeyPair keys_A = DiffieHellman.dh1_GenerateKeyPair(pg);
+                    DiffieHellmanPayload DiffieHellmanPayload = DiffieHellman.dh2A_CreateDHPayload(pg, keys_A);
+                    ClientSecureData clientSecureData = new ClientSecureData(keys_A, DiffieHellmanPayload, null, null);
 
                     SecureDataManager.setClientSecureData(secureData, secretKey, clientSecureData);
 
                     stateS = SecureDataState.PUBLIC_KEY_GENERATED;
-                    payload = JSONHalper.dhPayloadToJSON(diffieHellmanPayload).toString();
+                    payload = JSONHalper.dhPayloadToJSON(DiffieHellmanPayload).toString();
                     Logger.info("init, public key generated");
                 } catch (Exception e) {
                     Logger.error("init, error generating public key", e);
@@ -67,8 +67,10 @@ public class CryptoControllerClient extends CryptoController {
                         Logger.info("init, public keys exchanged");
 
                         clientSecureData = SecureDataManager.getClientSecureData(secureData, secretKey);
-                        SecretKey secretKey_A = DiffieHellman.dh3(clientSecureData.getKeyPairClient().getPrivate(),
+                        SecretKey secretKey_A = DiffieHellman.dh3_CalculateSharedSecretKey(
+                                clientSecureData.getDiffieHellmanPayload().getPG(),
                                 clientSecureData.getPublicKeyServer(),
+                                clientSecureData.getKeyPairClient().getPrivate(),
                                 AES.ALGORITHM);
                         clientSecureData.setSecretKey(secretKey_A);
 

@@ -1,31 +1,30 @@
 package it.richkmeli.jframework.crypto.algorithm;
 
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.generators.DHKeyPairGenerator;
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.params.*;
 import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import it.richkmeli.jframework.util.Logger;
 
-import javax.crypto.KeyAgreement;
 import javax.crypto.SecretKey;
 import javax.crypto.interfaces.DHPrivateKey;
 import javax.crypto.interfaces.DHPublicKey;
-import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.DHPrivateKeySpec;
 import javax.crypto.spec.DHPublicKeySpec;
 import java.math.BigInteger;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class DiffieHellman {
     public static final String ALGORITHM = "DH";
-    public static final String PROVIDER = "BC";
-    public static final String SIGN_ALGORITHM = "SHA1";
+    //public static final String SIGN_ALGORITHM = "SHA1";
     //private static BigInteger g512 = new BigInteger("1234567890", 16);
     //private static BigInteger p512 = new BigInteger("1234567890", 16);
 
-    public static List<BigInteger> dh0A() {
-        ProviderManager.init(new BouncyCastleProvider());
-
+    public static List<BigInteger> dh0A_GeneratePrimeAndGenerator() {
         int bitLength = 512; // 512 bits
         SecureRandom rnd = new SecureRandom();
         BigInteger p = BigInteger.probablePrime(bitLength, rnd);
@@ -38,106 +37,134 @@ public class DiffieHellman {
 
     }
 
+    // generate keys pair
+    public static KeyPair dh1_GenerateKeyPair(List<BigInteger> pg) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        BigInteger p = pg.get(0);
+        BigInteger g = pg.get(1);
+
+        // DHParameterSpec dhParams = new DHParameterSpec(p, g);
+        DHParameters parameter = new DHParameters(p, g);
+        SecureRandom rnd = new SecureRandom();
+
+        DHKeyGenerationParameters dhKeyGenerationParameters = new DHKeyGenerationParameters(rnd, parameter);
+
+        DHKeyPairGenerator keyPairGenerator = new DHKeyPairGenerator();
+        keyPairGenerator.init(dhKeyGenerationParameters);
+
+        AsymmetricCipherKeyPair asymmetricCipherKeyPair = keyPairGenerator.generateKeyPair();
+
+        BigInteger publicY = ((DHPublicKeyParameters) asymmetricCipherKeyPair.getPublic()).getY();
+        BigInteger privateX = ((DHPrivateKeyParameters) asymmetricCipherKeyPair.getPrivate()).getX();
+
+        DHPublicKey dhPublicKey = (DHPublicKey) KeyFactory.getInstance(ALGORITHM).generatePublic(new DHPublicKeySpec(publicY, p, g));
+        DHPrivateKey dhPrivateKey = (DHPrivateKey) KeyFactory.getInstance(ALGORITHM).generatePrivate(new DHPrivateKeySpec(privateX, p, g));
+
+        KeyPair keyPair = new KeyPair(dhPublicKey, dhPrivateKey);
+
+        return keyPair;
+    }
+
+    // generate payload that has to be send
+    public static DiffieHellmanPayload dh2A_CreateDHPayload(List<BigInteger> pg, KeyPair keyPair) {
+        // calculate initial message
+        DHPrivateKey dhPrivateKey_A = (DHPrivateKey) keyPair.getPrivate();
+        DHParameters dhParameters = new DHParameters(pg.get(0), pg.get(1));
+        DHPrivateKeyParameters pv_A = new DHPrivateKeyParameters(dhPrivateKey_A.getX(), dhParameters);
+
+        DHAgreement dhAgreement = new DHAgreement();
+        dhAgreement.init(new ParametersWithRandom(pv_A, new SecureRandom()));
+
+        //AsymmetricCipherKeyPair keyPair_message = dhAgreement.calculateMessage2();
+
+        return new DiffieHellmanPayload(pg, keyPair.getPublic());
+    }
+
+
     // Common phase
-    public static KeyPair dh1(List<BigInteger> list) throws InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchAlgorithmException {
-        BigInteger p = list.get(0);
-        BigInteger g = list.get(1);
+    public static SecretKey dh3_CalculateSharedSecretKey(List<BigInteger> pg, PublicKey publicKey, PrivateKey privateKey_A, String algorithm) {
+        DHPublicKey dhPublicKey_B = (DHPublicKey) publicKey;
+        DHPrivateKey dhPrivateKey_A = (DHPrivateKey) privateKey_A;
 
-        DHParameterSpec dhParams = new DHParameterSpec(p, g);
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM, PROVIDER);
-        keyPairGenerator.initialize(dhParams, new SecureRandom());
+        DHParameters dhParameters = new DHParameters(pg.get(0), pg.get(1));
+        DHPublicKeyParameters pu_B = new DHPublicKeyParameters(dhPublicKey_B.getY(), dhParameters);
+        DHPrivateKeyParameters pv_A = new DHPrivateKeyParameters(dhPrivateKey_A.getX(), dhParameters);
 
-        return keyPairGenerator.generateKeyPair();
-    }
+        DHAgreement dhAgreement = new DHAgreement();
+        dhAgreement.init(new ParametersWithRandom(pv_A, new SecureRandom()));
 
+        //dhAgreement.calculateMessage();
+        dhAgreement.setPrivateValue(pv_A);
+        BigInteger m_B = ((DHPublicKey) publicKey).getY();
+        //System.out.println("m: " + m_B);
+        BigInteger k_A = dhAgreement.calculateAgreement(pu_B, m_B);
 
-    public static DiffieHellmanPayload dh2A(List<BigInteger> pg, PublicKey publicKey) {
-        return new DiffieHellmanPayload(pg, publicKey);
+        //System.out.println("k: " + k_A+"\n");
+        SecretKey secretKey = null;
+        switch (algorithm) {
+            case AES.ALGORITHM:
+                secretKey = AES.generateKey(k_A.toByteArray(), 32);
+                //secretKey = SHA256.hash(secretKey.getEncoded());
+                break;
+            default:
+                Logger.error("dh3_CalculateSharedSecretKey error: algorithm: " + algorithm + " is not supported");
+        }
+
+        return secretKey;
     }
 
 
     // Common phase
-    public static String dh3(PrivateKey privateKey_A, PublicKey publicKey_B) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException {
-        KeyAgreement aKeyAgree = KeyAgreement.getInstance(ALGORITHM, PROVIDER);
-        MessageDigest hash = MessageDigest.getInstance(SIGN_ALGORITHM, PROVIDER);
-
-        aKeyAgree.init(privateKey_A);
-        aKeyAgree.doPhase(publicKey_B, true);
-
-        return new String(hash.digest(aKeyAgree.generateSecret()));
+    public static String dh3_CalculateSharedSecretKey(List<BigInteger> pg, PublicKey publicKey, PrivateKey privateKey_A) {
+        return new String(SHA256.hash(dh3_CalculateSharedSecretKey(pg, publicKey, privateKey_A, AES.ALGORITHM).getEncoded()));
     }
 
-
-    // Common phase
-    public static SecretKey dh3(PrivateKey privateKey_A, PublicKey publicKey_B, String algorithm) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException {
-        KeyAgreement aKeyAgree = KeyAgreement.getInstance(ALGORITHM, PROVIDER);
-
-        aKeyAgree.init(privateKey_A);
-        aKeyAgree.doPhase(publicKey_B, true);
-
-        return aKeyAgree.generateSecret(algorithm);
+    public static PublicKey loadPublicKey(BigInteger y, BigInteger p, BigInteger g) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        //DHParameters parameter = new DHParameters(p, g);
+        //DHPublicKeyParameters dhPublicKeyParameters = new DHPublicKeyParameters(y, parameter);
+        //return KeyPairHelper.bcAsymmetricKeyParameterToJcePublicKey(dhPublicKeyParameters, ALGORITHM);
+        DHPublicKey dhPublicKey = (DHPublicKey) KeyFactory.getInstance(ALGORITHM).generatePublic(new DHPublicKeySpec(y, p, g));
+        return dhPublicKey;
     }
 
-
-    public static PublicKey loadPublicKey(String y, String p, String g) throws Exception {
-        ProviderManager.init(new BouncyCastleProvider());
-
-        DHPublicKeySpec pubKey = new DHPublicKeySpec(new BigInteger(y), new BigInteger(p), new BigInteger(g));
-        //params.getCurve().decodePoint(data), params);
-        KeyFactory kf = KeyFactory.getInstance(ALGORITHM, PROVIDER);
-        return kf.generatePublic(pubKey);
+    public static PrivateKey loadPrivateKey(BigInteger x, BigInteger p, BigInteger g) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        //DHParameters parameter = new DHParameters(p, g);
+        //DHPrivateKeyParameters dhPrivateKeyParameters = new DHPrivateKeyParameters(x, parameter);
+        //return KeyPairHelper.bcAsymmetricKeyParameterToJcePrivateKey(dhPrivateKeyParameters, ALGORITHM);
+        DHPrivateKey dhPrivateKey = (DHPrivateKey) KeyFactory.getInstance(ALGORITHM).generatePrivate(new DHPrivateKeySpec(x, p, g));
+        return dhPrivateKey;
     }
 
-    public static PrivateKey loadPrivateKey(String x, String p, String g) throws Exception {
-        ProviderManager.init(new BouncyCastleProvider());
-
-        DHPrivateKeySpec pubKey = new DHPrivateKeySpec(new BigInteger(x), new BigInteger(p), new BigInteger(g));
-        //params.getCurve().decodePoint(data), params);
-        KeyFactory kf = KeyFactory.getInstance(ALGORITHM, PROVIDER);
-        return kf.generatePrivate(pubKey);
-    }
 
     public static String savePrivateKey(PrivateKey key, BigInteger p, BigInteger g) {
-
-        //return key.getEncoded();
         DHPrivateKey dhPrivateKey = (DHPrivateKey) key;
-        return (dhPrivateKey.getX().toString() + "##" + p + "##" + g);
+        return (dhPrivateKey.getX() + "##" + p + "##" + g);
     }
 
     public static PrivateKey loadPrivateKey(String data) throws Exception {
-        ProviderManager.init(new BouncyCastleProvider());
 
         String[] privKeyAndGenS = data.split("##");
         BigInteger x = new BigInteger(privKeyAndGenS[0]);
         BigInteger p = new BigInteger(privKeyAndGenS[1]);
         BigInteger g = new BigInteger(privKeyAndGenS[2]);
 
-        DHPrivateKeySpec prvkey = new DHPrivateKeySpec(x, p, g);
-        KeyFactory kf = KeyFactory.getInstance(ALGORITHM, PROVIDER);
-        return kf.generatePrivate(prvkey);
+        return loadPrivateKey(x, p, g);
     }
 
 
     public static String savePublicKey(PublicKey key, BigInteger p, BigInteger g) {
-
         DHPublicKey dhPublicKey = (DHPublicKey) key;
-        return (dhPublicKey.getY().toString() + "##" + p + "##" + g);
+        return (dhPublicKey.getY() + "##" + p + "##" + g);
     }
 
     public static PublicKey loadPublicKey(String data) throws Exception {
-        ProviderManager.init(new BouncyCastleProvider());
 
         String[] pubKeyAndGenS = data.split("##");
         BigInteger y = new BigInteger(pubKeyAndGenS[0]);
         BigInteger p = new BigInteger(pubKeyAndGenS[1]);
         BigInteger g = new BigInteger(pubKeyAndGenS[2]);
 
-        DHPublicKeySpec pubKey = new DHPublicKeySpec(y, p, g);
-        //params.getCurve().decodePoint(data), params);
-        KeyFactory kf = KeyFactory.getInstance(ALGORITHM, PROVIDER);
-        return kf.generatePublic(pubKey);
+        return loadPublicKey(y, p, g);
     }
-
 
 }
 
