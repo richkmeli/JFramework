@@ -8,7 +8,6 @@ import java.util.List;
 public class DiffieHellmanPayload {
     private List<BigInteger> pg;
     private PublicKey publicKey;
-    private BigInteger message;
 
     public DiffieHellmanPayload(List<BigInteger> list, PublicKey publicKey) {
         pg = new ArrayList<>();

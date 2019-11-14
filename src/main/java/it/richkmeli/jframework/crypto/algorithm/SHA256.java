@@ -17,4 +17,8 @@ public class SHA256 {
     public static String hash(String input) {
         return TypeConverter.bytesToHex(hash(input.getBytes()));
     }
+
+    public static String hashToString(byte[] input) {
+        return TypeConverter.bytesToHex(hash(input));
+    }
 }

@@ -1,9 +1,12 @@
 package it.richkmeli.jframework.crypto.algorithm;
 
+import it.richkmeli.jframework.crypto.algorithm.bc.AES_BC;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
 import org.junit.Test;
 
 import javax.crypto.SecretKey;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.Base64;
 import java.util.List;
 
@@ -37,6 +40,61 @@ public class AESTest {
             assertEquals(plain, decrypted);
         }
     }
+
+    @Test
+    public void generateKey_encrypt_decrypt_BC_compatibility() {
+
+        for (int i : plainTextLengths) {
+
+            String plain = genString(i);
+            SecretKey AESsecretKey = null;
+            String decrypted = null;
+
+            // generateKey: internal | encrypt : internal | decrypt : BC
+            AESsecretKey = AES.generateKey(32);
+            decrypted = null;
+            try {
+                String encrypted = AES.encrypt(plain, AESsecretKey);
+                decrypted = AES_BC.decrypt(encrypted, AESsecretKey, "00000000".getBytes());
+                assertEquals(plain, decrypted);
+            } catch (CryptoException e) {
+                e.printStackTrace();
+                assert false;
+            }
+
+            // generateKey: internal | encrypt : BC | decrypt : internal
+            AESsecretKey = AES.generateKey(32);
+            decrypted = null;
+            try {
+                String encrypted = AES_BC.encrypt(plain, AESsecretKey);
+                decrypted = AES_BC.decrypt(encrypted, AESsecretKey);
+                assertEquals(plain, decrypted);
+            } catch (CryptoException e) {
+                e.printStackTrace();
+                assert false;
+            }
+
+            // generateKey: BC | encrypt : internal | decrypt : BC
+            try {
+                AESsecretKey = AES_BC.generateKey();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (NoSuchProviderException e) {
+                e.printStackTrace();
+            }
+            decrypted = null;
+            try {
+                String encrypted = AES.encrypt(plain, AESsecretKey);
+                decrypted = AES_BC.decrypt(encrypted, AESsecretKey, "00000000".getBytes());
+                assertEquals(plain, decrypted);
+            } catch (CryptoException e) {
+                e.printStackTrace();
+                assert false;
+            }
+
+        }
+    }
+
 
     @Test
     public void aesString() {

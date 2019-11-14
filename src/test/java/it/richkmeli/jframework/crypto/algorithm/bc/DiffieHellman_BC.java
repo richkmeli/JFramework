@@ -1,5 +1,6 @@
 package it.richkmeli.jframework.crypto.algorithm.bc;
 
+import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.KeyAgreement;
@@ -50,8 +51,8 @@ public class DiffieHellman_BC {
     }
 
 
-    public static DiffieHellmanPayload_BC dh2A(List<BigInteger> pg, PublicKey publicKey) {
-        return new DiffieHellmanPayload_BC(pg, publicKey);
+    public static DiffieHellmanPayload dh2A(List<BigInteger> pg, PublicKey publicKey) {
+        return new DiffieHellmanPayload(pg, publicKey);
     }
 
 

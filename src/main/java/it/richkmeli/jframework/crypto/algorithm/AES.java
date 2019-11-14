@@ -5,8 +5,8 @@ import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.InvalidCiphe
 import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.engines.AESEngine;
 import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.modes.GCMBlockCipher;
 import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.paddings.ZeroBytePadding;
+import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.params.AEADParameters;
 import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.params.KeyParameter;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.params.ParametersWithIV;
 import it.richkmeli.jframework.crypto.algorithm.bouncycastle.util.Arrays;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
 
@@ -126,7 +126,8 @@ public class AES {
         if (iv == null) {
             iv = "00000000".getBytes();
         }
-        CipherParameters cipherParameters = new ParametersWithIV(keyParam, iv);
+        CipherParameters cipherParameters = new AEADParameters(keyParam, iv.length * 8, iv);
+        //new ParametersWithIV(keyParam, iv);
         // padding
         ZeroBytePadding padding = new ZeroBytePadding();
 

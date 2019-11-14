@@ -90,7 +90,7 @@ public class DiffieHellman {
         DHPrivateKeyParameters pv_A = new DHPrivateKeyParameters(dhPrivateKey_A.getX(), dhParameters);
 
         DHAgreement dhAgreement = new DHAgreement();
-        dhAgreement.init(new ParametersWithRandom(pv_A, new SecureRandom()));
+        dhAgreement.init(pv_A/*new ParametersWithRandom(pv_A, new SecureRandom())*/);
 
         //dhAgreement.calculateMessage();
         dhAgreement.setPrivateValue(pv_A);

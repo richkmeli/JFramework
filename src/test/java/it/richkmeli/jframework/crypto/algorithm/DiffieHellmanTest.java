@@ -1,5 +1,6 @@
 package it.richkmeli.jframework.crypto.algorithm;
 
+import it.richkmeli.jframework.crypto.algorithm.bc.DiffieHellman_BC;
 import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.agreement.DHAgreement;
 import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.generators.DHKeyPairGenerator;
@@ -114,7 +115,8 @@ public class DiffieHellmanTest {
             serverSecureData.addSecretKey("ID", secretKey_B);
 
             //System.out.println("DH_test, secretKey_A: "+secretKey_A+"  secretKey_B: "+ secretKey_B);
-            assertEquals(clientSecureData.getSecretKey(), serverSecureData.getSecretKey("ID"));
+            assertEquals(SHA256.hashToString(clientSecureData.getSecretKey().getEncoded()),
+                    SHA256.hashToString(serverSecureData.getSecretKey("ID").getEncoded()));
             for (int i : plainTextLengths) {
                 String plain = genString(i);
                 String encrypted = AES.encrypt(plain, clientSecureData.getSecretKey());
@@ -129,7 +131,7 @@ public class DiffieHellmanTest {
     }
 
     @Test
-    public void DiffieHellmanGPWithRandom() {
+    public void diffieHellmanGPWithRandom() {
         int bitLength = 512; // 512 bits
         SecureRandom rnd = new SecureRandom();
         BigInteger p = BigInteger.probablePrime(bitLength, rnd);
@@ -187,4 +189,62 @@ public class DiffieHellmanTest {
             assert false; //("basic with random 2-way test failed");
         }
     }
+
+    @Test
+    public void diffieHellmanAES_BC_compatibility() {
+        try {
+            // A(client) and B(server) are the parts of the communication example
+
+            // ** A
+            List<BigInteger> pg = DiffieHellman.dh0A_GeneratePrimeAndGenerator();
+            KeyPair keys_A = DiffieHellman.dh1_GenerateKeyPair(pg);
+            DiffieHellmanPayload diffieHellmanPayload = DiffieHellman.dh2A_CreateDHPayload(pg, keys_A);
+            ClientSecureData clientSecureData = new ClientSecureData(keys_A, diffieHellmanPayload, null, null);
+            // A sends --diffieHellmanPayload-- to B
+            // ** B
+            KeyPair keys_B = DiffieHellman_BC.dh1(diffieHellmanPayload.getPG());
+            PublicKey publicKey_B = keys_B.getPublic();
+            ServerSecureData serverSecureData = new ServerSecureData(diffieHellmanPayload.getPG(), keys_B);
+            serverSecureData.addDiffieHellmanPayload("ID", diffieHellmanPayload);
+            // B sends --publicKey_B-- to A
+
+            // **A
+            clientSecureData.setPublicKeyServer(publicKey_B);
+
+            SecretKey secretKey_A = DiffieHellman.dh3_CalculateSharedSecretKey(
+                    clientSecureData.getDiffieHellmanPayload().getPG(),
+                    clientSecureData.getPublicKeyServer(),
+                    clientSecureData.getKeyPairClient().getPrivate(),
+                    AES.ALGORITHM);
+//            SecretKey secretKey_A_BC = DiffieHellman_BC.dh3(
+//                    clientSecureData.getKeyPairClient().getPrivate(),
+//                    clientSecureData.getPublicKeyServer(),
+//                    AES.ALGORITHM);
+//            assertEquals(SHA256.hashToString(secretKey_A.getEncoded()),
+//                    SHA256.hashToString(secretKey_A_BC.getEncoded()));
+            clientSecureData.setSecretKey(secretKey_A);
+            // **B
+            SecretKey secretKey_B = DiffieHellman.dh3_CalculateSharedSecretKey(
+                    serverSecureData.getDiffieHellmanPayload("ID").getPG(),
+                    serverSecureData.getDiffieHellmanPayload("ID").getPublicKey(),
+                    serverSecureData.getKeyPairServer().getPrivate(),
+                    AES.ALGORITHM);
+            serverSecureData.addSecretKey("ID", secretKey_B);
+
+            //System.out.println("DH_test, secretKey_A: "+secretKey_A+"  secretKey_B: "+ secretKey_B);
+            assertEquals(SHA256.hashToString(clientSecureData.getSecretKey().getEncoded()),
+                    SHA256.hashToString(serverSecureData.getSecretKey("ID").getEncoded()));
+            for (int i : plainTextLengths) {
+                String plain = genString(i);
+                String encrypted = AES.encrypt(plain, clientSecureData.getSecretKey());
+                String decrypted = AES.decrypt(encrypted, serverSecureData.getSecretKey("ID"));
+                assertEquals(plain, decrypted);
+            }
+            assertEquals(secretKey_A, secretKey_B);
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert false;
+        }
+    }
+
 }

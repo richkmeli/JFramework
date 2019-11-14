@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.network.tcp.client.api.server;
+package it.richkmeli.jframework.network.tcp.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;

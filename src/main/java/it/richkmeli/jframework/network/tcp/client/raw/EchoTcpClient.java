@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.network.tcp.client.api.client.raw;
+package it.richkmeli.jframework.network.tcp.client.raw;
 
 import java.io.*;
 import java.net.InetAddress;
