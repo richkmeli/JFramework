@@ -19,9 +19,20 @@ public abstract class ServletManager {
     public static final String DEVICES_HTML = "devices.html";
     public static final String LOGIN_HTML = "login.html";
     public static final String DATA_PARAMETER_KEY = "data";
+    protected HttpServletRequest request;
     protected Map<String, String> attribMap;
     protected Session session;
     protected String servletPath;
+
+    public ServletManager(HttpServletRequest request) {
+        this.request = request;
+        try {
+            session = getServerSession();
+        } catch (ServletException e) {
+            //e.printStackTrace();
+            Logger.error(e);
+        }
+    }
 
     public abstract Map<String, String> doSpecificProcessRequest(Map<String, String> attribMap) throws ServletException;
 
@@ -29,7 +40,7 @@ public abstract class ServletManager {
 
     public abstract <T extends Session> T getNewSessionInstance() throws DatabaseException;
 
-    public Map<String, String> doDefaultProcessRequest(HttpServletRequest request) throws ServletException {
+    public Map<String, String> doDefaultProcessRequest() throws ServletException {
         attribMap = extractParameters(request);
         // server session
         session = ServletManager.getServerSession(request);
@@ -40,7 +51,7 @@ public abstract class ServletManager {
         return doSpecificProcessRequest(attribMap);
     }
 
-    public String doDefaultProcessResponse(HttpServletRequest request, String input) throws ServletException {
+    public String doDefaultProcessResponse(String input) throws ServletException {
         // server session
         session = ServletManager.getServerSession(request);
 
@@ -84,10 +95,13 @@ public abstract class ServletManager {
         return attribMap;
     }
 
+    public void checkLogin() throws ServletException {
+        checkLogin(request);
+    }
 
     public static void checkLogin(HttpServletRequest request) throws ServletException {
         // server session
-        Session session = ServletManager.getServerSession(request);
+        Session session = getServerSession(request);
 
         String user = session.getUser();
         // Authentication
@@ -98,14 +112,14 @@ public abstract class ServletManager {
 
     }
 
+    public Session getServerSession() throws ServletException {
+        return getServerSession(request);
+    }
+
     public static Session getServerSession(HttpServletRequest request) throws ServletException {
         // http session
         HttpSession httpSession = request.getSession();
         // server session
-        return ServletManager.getServerSession(httpSession);
-    }
-
-    public static Session getServerSession(HttpSession httpSession) throws ServletException {
         Session session = (Session) httpSession.getAttribute("session");
         if (session == null) {
             try {

@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.web;
+package it.richkmeli.jframework.web.crypto;
 
 import it.richkmeli.jframework.util.Logger;
 import it.richkmeli.jframework.web.response.KOResponse;
@@ -8,8 +8,6 @@ import it.richkmeli.jframework.web.util.ServletManager;
 import it.richkmeli.jframework.web.util.Session;
 import org.json.JSONObject;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -19,26 +17,25 @@ import java.io.PrintWriter;
 import java.util.Base64;
 import java.util.ResourceBundle;
 
-@WebServlet("/secureConnection")
-public abstract class secureConnection extends HttpServlet {
-    private static final long serialVersionUID = 1L;
+public abstract class SecureConnection {
     private String encryptionKey;
 
-    public secureConnection() {
+    public SecureConnection() {
         super();
         encryptionKey = ResourceBundle.getBundle("configuration").getString("encryptionkey");
 
     }
 
-    public abstract void doSpecificActionGet();
+    protected abstract void doBeforeCryptoAction(HttpServletRequest request, String clientID) throws Exception;
+
+    protected abstract void doFinalCryptoAction() throws Exception;
 
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
+    public void doAction(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
         HttpSession httpSession = request.getSession();
         Session session = null;
         try {
-            session = ServletManager.getServerSession(httpSession);
+            session = ServletManager.getServerSession(request);
         } catch (ServletException e) {
             httpSession.setAttribute("error", e);
             request.getRequestDispatcher(ServletManager.ERROR_JSP).forward(request, response);
@@ -55,7 +52,7 @@ public abstract class secureConnection extends HttpServlet {
             if (request.getParameterMap().containsKey("clientID")) {
                 String clientID = new String(Base64.getUrlDecoder().decode(request.getParameter("clientID")));
 
-                session.setRmcID(clientID);
+                doBeforeCryptoAction(request, clientID);
 
                 String clientResponse = "";
                 if (request.getParameterMap().containsKey("data")) {
@@ -67,7 +64,9 @@ public abstract class secureConnection extends HttpServlet {
                     int serverState = new JSONObject(serverResponse).getInt("state");
                     String serverPayload = new JSONObject(serverResponse).getString("payload");
 
-                    doSpecificActionGet();
+                    if (serverState == 3) {
+                        doFinalCryptoAction();
+                    }
 
                     // TODO cambia con OKResponse
                     out.println(serverPayload);
@@ -84,12 +83,5 @@ public abstract class secureConnection extends HttpServlet {
             request.getRequestDispatcher(ServletManager.ERROR_JSP).forward(request, response);
         }
     }
-
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
-        doGet(request, response);
-    }
-
 
 }

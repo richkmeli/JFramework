@@ -8,8 +8,6 @@ import it.richkmeli.jframework.web.util.ServletManager;
 import it.richkmeli.jframework.web.util.Session;
 import org.json.JSONObject;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -17,25 +15,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
-@WebServlet({"/LogIn"})
-public abstract class LogIn extends HttpServlet {
-    private static final long serialVersionUID = 1L;
+public abstract class LogIn {
 
-    public LogIn() {
-        super();
-    }
+    protected abstract void doSpecificAction();
 
-    public abstract void doSpecificActionGet();
-
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
+    public void doAction(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
         HttpSession httpSession = request.getSession();
         Session session = null;
         PrintWriter out = response.getWriter();
 
         try {
-            session = ServletManager.getServerSession(httpSession);
+            session = ServletManager.getServerSession(request);
 
             // check if is not already logged
             if (session.getUser() == null) {
@@ -54,7 +44,7 @@ public abstract class LogIn extends HttpServlet {
                         session.setUser(email);
                         session.setAdmin(isAdmin);
 
-                        doSpecificActionGet();
+                        doSpecificAction();
 
                         JSONObject adminInfo = new JSONObject();
                         adminInfo.put("admin", isAdmin);
@@ -91,10 +81,5 @@ public abstract class LogIn extends HttpServlet {
         out.flush();
         out.close();
 
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
-        this.doGet(request, response);
     }
 }

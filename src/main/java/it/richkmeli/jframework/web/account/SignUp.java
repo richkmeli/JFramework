@@ -9,8 +9,6 @@ import it.richkmeli.jframework.web.util.ServletException;
 import it.richkmeli.jframework.web.util.ServletManager;
 import it.richkmeli.jframework.web.util.Session;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -18,26 +16,18 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
-@WebServlet({"/SignUp"})
-public class SignUp extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-    private static final int keyLength = 32;
-    private String password;
+public abstract class SignUp {
 
-    public SignUp() {
-        super();
-    }
+    protected abstract void doSpecificAction();
 
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
+    public void doAction(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
 
         HttpSession httpSession = request.getSession();
         Session session = null;
         PrintWriter out = response.getWriter();
 
         try {
-            session = ServletManager.getServerSession(httpSession);
+            session = ServletManager.getServerSession(request);
 
             if (session.getUser() == null) {
                 //Map<String, String> attribMap = ServletManager.doDefaultProcessRequest(request);
@@ -51,6 +41,7 @@ public class SignUp extends HttpServlet {
                     session.getAuthDatabaseManager().addUser(new User(email, pass, false));
                     session.setUser(email);
                     out.println((new OKResponse(StatusCode.SUCCESS)).json());
+                    doSpecificAction();
                 }
             } else {
                 out.println((new KOResponse(StatusCode.ALREADY_LOGGED)).json());
@@ -63,8 +54,5 @@ public class SignUp extends HttpServlet {
 
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
-        this.doGet(request, response);
-    }
 
 }

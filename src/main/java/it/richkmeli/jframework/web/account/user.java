@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.web;
+package it.richkmeli.jframework.web.account;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -12,8 +12,6 @@ import it.richkmeli.jframework.web.util.ServletManager;
 import it.richkmeli.jframework.web.util.Session;
 import org.json.JSONObject;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -23,20 +21,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Servlet implementation class DevicesListServlet
- */
-@WebServlet("/user")
-public class user extends HttpServlet {
-    private static final long serialVersionUID = 1L;
+public class user {
 
-    public user() {
-        super();
-    }
-
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
         PrintWriter out = response.getWriter();
 
         try {
@@ -79,25 +66,14 @@ public class user extends HttpServlet {
         out.close();
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
-        doGet(request, response);
-    }
-
-    @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException, IOException {
-        super.doPut(req, resp);
-    }
-
-    @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException, IOException {
+    public void doDelete(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException, IOException {
         //if the code below is de-commented, this servlet disables DELETE
         //super.doDelete(req, resp);
         PrintWriter out = resp.getWriter();
         HttpSession httpSession = req.getSession();
         Session session = null;
         try {
-            session = ServletManager.getServerSession(httpSession);
+            session = ServletManager.getServerSession(req);
         } catch (ServletException e) {
             httpSession.setAttribute("error", e);
             req.getRequestDispatcher(ServletManager.ERROR_JSP).forward(req, resp);

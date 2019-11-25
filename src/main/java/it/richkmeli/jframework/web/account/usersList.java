@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.web;
+package it.richkmeli.jframework.web.account;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -12,8 +12,6 @@ import it.richkmeli.jframework.web.util.ServletException;
 import it.richkmeli.jframework.web.util.ServletManager;
 import it.richkmeli.jframework.web.util.Session;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -22,24 +20,15 @@ import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.util.List;
 
-/**
- * Servlet implementation class DevicesListServlet
- */
-@WebServlet("/usersList")
-public class usersList extends HttpServlet {
-    private static final long serialVersionUID = 1L;
 
-    public usersList() {
-        super();
-    }
+public class usersList {
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
         PrintWriter out = response.getWriter();
         HttpSession httpSession = request.getSession();
         Session session = null;
         try {
-            session = ServletManager.getServerSession(httpSession);
+            session = ServletManager.getServerSession(request);
         } catch (ServletException e) {
             httpSession.setAttribute("error", e);
             request.getRequestDispatcher(ServletManager.ERROR_JSP).forward(request, response);
@@ -88,12 +77,7 @@ public class usersList extends HttpServlet {
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
-        doGet(request, response);
-    }
-
-    private String GenerateUsersListJSON(Session session) throws DatabaseException {
+    private static String GenerateUsersListJSON(Session session) throws DatabaseException {
         AuthDatabaseManager authDatabaseManager = session.getAuthDatabaseManager();
         List<User> userList = authDatabaseManager.getAllUsers();
 

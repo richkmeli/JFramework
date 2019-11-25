@@ -7,7 +7,6 @@ import it.richkmeli.jframework.orm.DatabaseException;
 public class Session {
     private AuthDatabaseManager authDatabaseManager;
     private String userID;      //user from AuthSchema
-    private String rmcID;       //client id from RichkwareSchema
     private Boolean isAdmin;
     private Crypto.Server cryptoServer;
 
@@ -34,10 +33,6 @@ public class Session {
             authDatabaseManager = new AuthDatabaseManager();
             return authDatabaseManager;
         }
-    }
-
-    public void setRmcID(String rmcID) {
-        this.rmcID = rmcID;
     }
 
     public String getUser() {
