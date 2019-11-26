@@ -3,6 +3,7 @@ package it.richkmeli.jframework.web.util;
 import it.richkmeli.jframework.auth.AuthDatabaseManager;
 import it.richkmeli.jframework.crypto.Crypto;
 import it.richkmeli.jframework.orm.DatabaseException;
+import it.richkmeli.jframework.util.Logger;
 
 public class Session {
     private AuthDatabaseManager authDatabaseManager;
@@ -17,11 +18,11 @@ public class Session {
         cryptoServer = new Crypto.Server();
     }
 
-    public Session(Session session) throws DatabaseException {
-        authDatabaseManager = new AuthDatabaseManager();
-        userID = null;
-        isAdmin = false;
-        cryptoServer = new Crypto.Server();
+    public Session(Session session) {
+        authDatabaseManager = session.authDatabaseManager;
+        userID = session.userID;
+        isAdmin = session.isAdmin;
+        cryptoServer = session.cryptoServer;
     }
 
 
@@ -48,7 +49,22 @@ public class Session {
     }
 
     public Boolean isAdmin() {
-        return isAdmin;
+        if (isAdmin == null) {
+            if (userID != null) {
+                try {
+                    isAdmin = authDatabaseManager.isAdmin(userID);
+                } catch (DatabaseException e) {
+                    Logger.error("isAdmin", e);
+                    return false;
+                }
+                return isAdmin;
+            } else {
+                Logger.error("isAdmin, userID is null");
+                return false;
+            }
+        } else {
+            return isAdmin;
+        }
     }
 
     public void setAdmin(Boolean admin) {

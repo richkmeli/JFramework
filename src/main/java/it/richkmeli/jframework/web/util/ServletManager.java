@@ -38,7 +38,7 @@ public abstract class ServletManager {
 
     public abstract String doSpecificProcessResponse(String output) throws ServletException;
 
-    public abstract <T extends Session> T getNewSessionInstance() throws DatabaseException;
+    public abstract <T extends Session> T getNewSessionInstance() throws ServletException, DatabaseException;
 
     public Map<String, String> doDefaultProcessRequest() throws ServletException {
         attribMap = extractParameters(request);
@@ -85,7 +85,7 @@ public abstract class ServletManager {
                     Logger.info("extractParameters: the body is not JSON formatted.");
                 }
             } else {
-                Logger.info("extractParameters: the body is empty.");
+                Logger.info("Servlet: " + request.getServletPath() + ", extractParameters: the body is empty.");
             }
         } catch (IOException e) {
             //e.printStackTrace();
@@ -149,7 +149,7 @@ public abstract class ServletManager {
             try {
                 session = getNewSessionInstance();
                 httpSession.setAttribute("session" + sessionName, session);
-            } catch (DatabaseException e) {
+            } catch (Exception e) {
                 throw new ServletException(e);
                 //httpSession.setAttribute("error", e);
                 //request.getRequestDispatcher("JSP/error.jsp").forward(request, response);
