@@ -66,19 +66,19 @@ public class user {
         out.close();
     }
 
-    public void doDelete(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException, IOException {
+    public void doDelete(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException, IOException, ServletException {
         //if the code below is de-commented, this servlet disables DELETE
         //super.doDelete(req, resp);
         PrintWriter out = resp.getWriter();
         HttpSession httpSession = req.getSession();
         Session session = null;
-        try {
+//        try {
             session = ServletManager.getServerSession(req);
-        } catch (ServletException e) {
-            httpSession.setAttribute("error", e);
-            req.getRequestDispatcher(ServletManager.ERROR_JSP).forward(req, resp);
-
-        }
+//        } catch (ServletException e) {
+//            httpSession.setAttribute("error", e);
+//            req.getRequestDispatcher(ServletManager.ERROR_JSP).forward(req, resp);
+//
+//        }
 
         try {
             String user = session.getUser();

@@ -23,17 +23,17 @@ import java.util.List;
 
 public class usersList {
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException, ServletException {
         PrintWriter out = response.getWriter();
         HttpSession httpSession = request.getSession();
         Session session = null;
-        try {
+        //try {
             session = ServletManager.getServerSession(request);
-        } catch (ServletException e) {
-            httpSession.setAttribute("error", e);
-            request.getRequestDispatcher(ServletManager.ERROR_JSP).forward(request, response);
-
-        }
+//        } catch (ServletException e) {
+//            httpSession.setAttribute("error", e);
+//            request.getRequestDispatcher(ServletManager.ERROR_JSP).forward(request, response);
+//
+//        }
 
         try {
 

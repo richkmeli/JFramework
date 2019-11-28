@@ -1,5 +1,7 @@
 package it.richkmeli.jframework.web.account;
 
+import it.richkmeli.jframework.orm.DatabaseException;
+import it.richkmeli.jframework.util.Logger;
 import it.richkmeli.jframework.web.response.KOResponse;
 import it.richkmeli.jframework.web.response.OKResponse;
 import it.richkmeli.jframework.web.response.StatusCode;
@@ -10,27 +12,25 @@ import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
 public abstract class LogIn {
 
-    protected abstract void doSpecificAction();
+    protected abstract void doSpecificAction(HttpServletRequest request) throws ServletException, DatabaseException;
 
-    public void doAction(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
-        HttpSession httpSession = request.getSession();
+    public void doAction(HttpServletRequest request, HttpServletResponse response, ServletManager servletManager) throws javax.servlet.ServletException, IOException {
         Session session = null;
         PrintWriter out = response.getWriter();
 
         try {
-            session = ServletManager.getServerSession(request);
+            session = servletManager.getServerSession();
 
             // check if is not already logged
             if (session.getUser() == null) {
-                Map<String, String> attribMap = ServletManager.extractParameters(request);
-                //Map<String, String> attribMap = ServletManager.doDefaultProcessRequest(request);
+                Map<String, String> attribMap = servletManager.doDefaultProcessRequest();/*ServletManager.extractParameters(request);
+                /*Map<String, String> attribMap = ServletManager.doDefaultProcessRequest(request);*/
 
                 String email = attribMap.get("email");// = request.getParameter("email");
                 String pass = attribMap.get("password");
@@ -44,14 +44,14 @@ public abstract class LogIn {
                         session.setUser(email);
                         session.setAdmin(isAdmin);
 
-                        doSpecificAction();
+                        doSpecificAction(request);
 
                         JSONObject adminInfo = new JSONObject();
                         adminInfo.put("admin", isAdmin);
 
 
-                        String output = adminInfo.toString();
-//                        String output = ServletManager.doDefaultProcessResponse(request, adminInfo.toString());
+                        //String output = adminInfo.toString();
+                        String output = servletManager.doDefaultProcessResponse(adminInfo.toString());
 
                         out.println((new OKResponse(StatusCode.SUCCESS, output)).json());
                     } else {
@@ -59,6 +59,7 @@ public abstract class LogIn {
                         out.println((new KOResponse(StatusCode.WRONG_PASSWORD)).json());
                     }
                 } else {
+                    Logger.error("User: " + email + " not found in AuthDatabase.");
                     // mail non trovata
                     out.println((new KOResponse(StatusCode.ACCOUNT_NOT_FOUND, "user: " + request.getAttribute("email") + "; password: " + request.getAttribute("password"))).json());
                 }
@@ -68,7 +69,7 @@ public abstract class LogIn {
             }
         } catch (ServletException e) {
             session.setUser(null);
-            if (e.getMessage().contains("java.lang.Exception: decrypt, crypto not initialized, current stare: 0")) {
+            if (e.getMessage().contains("java.lang.Exception: decrypt, crypto not initialized, current state: 0")) {
                 out.println((new KOResponse(StatusCode.SECURE_CONNECTION, e.getMessage())).json());
             } else {
                 out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());

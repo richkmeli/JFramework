@@ -15,13 +15,9 @@ import java.io.IOException;
 import java.util.*;
 
 public abstract class ServletManager {
-    public static final String ERROR_JSP = "JSP/error.jsp";
-    public static final String DEVICES_HTML = "devices.html";
-    public static final String LOGIN_HTML = "login.html";
-    public static final String DATA_PARAMETER_KEY = "data";
+    protected static Session session;
     protected HttpServletRequest request;
     protected Map<String, String> attribMap;
-    protected Session session;
     protected String servletPath;
 
     public ServletManager(HttpServletRequest request) {
@@ -34,11 +30,11 @@ public abstract class ServletManager {
         }
     }
 
-    public abstract Map<String, String> doSpecificProcessRequest(Map<String, String> attribMap) throws ServletException;
+    public abstract void doSpecificProcessRequest() throws ServletException;
 
     public abstract String doSpecificProcessResponse(String output) throws ServletException;
 
-    public abstract <T extends Session> T getNewSessionInstance() throws ServletException, DatabaseException;
+    //public abstract <T extends Session> T getNewSessionInstance() throws ServletException, DatabaseException;
 
     public Map<String, String> doDefaultProcessRequest() throws ServletException {
         attribMap = extractParameters(request);
@@ -48,7 +44,8 @@ public abstract class ServletManager {
         // set servletPath for specific process request
         servletPath = request.getServletPath();
 
-        return doSpecificProcessRequest(attribMap);
+        doSpecificProcessRequest();
+        return attribMap;
     }
 
     public String doDefaultProcessResponse(String input) throws ServletException {
@@ -135,7 +132,7 @@ public abstract class ServletManager {
     }
 
 
-    public <T extends Session> T getExtendedServerSession(String sessionName, HttpServletRequest request) throws ServletException {
+   /* public <T extends Session> T getExtendedServerSession(String sessionName, HttpServletRequest request) throws ServletException {
         // http session
         HttpSession httpSession = request.getSession();
         // server session
@@ -156,7 +153,7 @@ public abstract class ServletManager {
             }
         }
         return session;
-    }
+    }*/
 
 
     public static String printHttpHeaders(HttpServletRequest request) {

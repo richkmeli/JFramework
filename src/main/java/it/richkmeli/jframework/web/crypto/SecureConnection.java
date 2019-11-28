@@ -31,16 +31,16 @@ public abstract class SecureConnection {
     protected abstract void doFinalCryptoAction() throws Exception;
 
 
-    public void doAction(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
+    public void doAction(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException, ServletException {
         HttpSession httpSession = request.getSession();
         Session session = null;
-        try {
+        // try {
             session = ServletManager.getServerSession(request);
-        } catch (ServletException e) {
-            httpSession.setAttribute("error", e);
-            request.getRequestDispatcher(ServletManager.ERROR_JSP).forward(request, response);
-
-        }
+//        } catch (ServletException e) {
+//            httpSession.setAttribute("error", e);
+//            request.getRequestDispatcher(ServletManager.ERROR_JSP).forward(request, response);
+//
+//        }
 
         try {
             PrintWriter out = response.getWriter();
@@ -79,8 +79,9 @@ public abstract class SecureConnection {
             }
         } catch (Exception e) {
             Logger.error("SERVLET encryptionKey, doGet", e);
-            httpSession.setAttribute("error", e);
-            request.getRequestDispatcher(ServletManager.ERROR_JSP).forward(request, response);
+            //httpSession.setAttribute("error", e);
+            //request.getRequestDispatcher(ServletManager.ERROR_JSP).forward(request, response);
+            throw new ServletException(e);
         }
     }
 
