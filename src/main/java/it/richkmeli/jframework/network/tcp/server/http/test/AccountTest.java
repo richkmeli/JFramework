@@ -1,9 +1,9 @@
-package it.richkmeli.jframework.web.test;
+package it.richkmeli.jframework.network.tcp.server.http.test;
 
 import it.richkmeli.jframework.auth.model.User;
+import it.richkmeli.jframework.network.tcp.server.http.util.Session;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.Logger;
-import it.richkmeli.jframework.web.util.Session;
 
 public class AccountTest {
 

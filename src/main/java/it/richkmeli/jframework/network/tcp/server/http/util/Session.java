@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.web.util;
+package it.richkmeli.jframework.network.tcp.server.http.util;
 
 import it.richkmeli.jframework.auth.AuthDatabaseManager;
 import it.richkmeli.jframework.crypto.Crypto;

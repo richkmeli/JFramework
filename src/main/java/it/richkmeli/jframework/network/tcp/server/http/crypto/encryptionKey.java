@@ -1,11 +1,11 @@
-//package it.richkmeli.jframework.web;
+package it.richkmeli.jframework.network.tcp.server.http.crypto;//package it.richkmeli.jframework.web;
 //
 //import it.richkmeli.jframework.crypto.Crypto;
-//import it.richkmeli.jframework.web.response.KOResponse;
-//import it.richkmeli.jframework.web.response.OKResponse;
-//import it.richkmeli.jframework.web.response.StatusCode;
-//import it.richkmeli.jframework.web.util.ServletManager;
-//import it.richkmeli.jframework.web.util.Session;
+//import it.richkmeli.jframework.network.service.response.KOResponse;
+//import it.richkmeli.jframework.network.service.response.OKResponse;
+//import it.richkmeli.jframework.network.service.response.StatusCode;
+//import it.richkmeli.jframework.network.service.util.ServletManager;
+//import it.richkmeli.jframework.network.service.util.Session;
 //import org.json.JSONObject;
 //
 //import javax.servlet.annotation.WebServlet;

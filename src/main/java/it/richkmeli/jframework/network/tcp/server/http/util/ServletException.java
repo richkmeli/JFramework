@@ -1,6 +1,6 @@
-package it.richkmeli.jframework.web.util;
+package it.richkmeli.jframework.network.tcp.server.http.util;
 
-import it.richkmeli.jframework.web.response.KOResponse;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.KOResponse;
 
 public class ServletException extends Exception {
     private KOResponse koResponse;

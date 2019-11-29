@@ -1,9 +1,9 @@
-package it.richkmeli.jframework.web.util;
+package it.richkmeli.jframework.network.tcp.server.http.util;
 
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.KOResponse;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.StatusCode;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.Logger;
-import it.richkmeli.jframework.web.response.KOResponse;
-import it.richkmeli.jframework.web.response.StatusCode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

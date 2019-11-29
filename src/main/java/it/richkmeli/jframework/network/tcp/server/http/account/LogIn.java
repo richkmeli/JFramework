@@ -1,13 +1,13 @@
-package it.richkmeli.jframework.web.account;
+package it.richkmeli.jframework.network.tcp.server.http.account;
 
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.KOResponse;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.OKResponse;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.StatusCode;
+import it.richkmeli.jframework.network.tcp.server.http.util.ServletException;
+import it.richkmeli.jframework.network.tcp.server.http.util.ServletManager;
+import it.richkmeli.jframework.network.tcp.server.http.util.Session;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.Logger;
-import it.richkmeli.jframework.web.response.KOResponse;
-import it.richkmeli.jframework.web.response.OKResponse;
-import it.richkmeli.jframework.web.response.StatusCode;
-import it.richkmeli.jframework.web.util.ServletException;
-import it.richkmeli.jframework.web.util.ServletManager;
-import it.richkmeli.jframework.web.util.Session;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;

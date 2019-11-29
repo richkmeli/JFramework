@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.web.response;
+package it.richkmeli.jframework.network.tcp.server.http.payload.response;
 
 import org.json.JSONObject;
 
