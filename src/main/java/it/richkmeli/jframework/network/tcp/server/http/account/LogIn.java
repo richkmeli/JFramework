@@ -44,11 +44,15 @@ public abstract class LogIn {
                         session.setUser(email);
                         session.setAdmin(isAdmin);
 
-                        doSpecificAction(request);
+                        try {
+                            doSpecificAction(request);
+                        } catch (ServletException se) {
+                            Logger.error(se);
+                            throw se;
+                        }
 
                         JSONObject adminInfo = new JSONObject();
                         adminInfo.put("admin", isAdmin);
-
 
                         //String output = adminInfo.toString();
                         String output = servletManager.doDefaultProcessResponse(adminInfo.toString());

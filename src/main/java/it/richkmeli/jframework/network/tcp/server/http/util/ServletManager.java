@@ -117,11 +117,25 @@ public abstract class ServletManager {
         // http session
         HttpSession httpSession = request.getSession();
         // server session
-        Session session = (Session) httpSession.getAttribute("session");
+        session = (Session) httpSession.getAttribute("session");
         if (session == null) {
             try {
                 session = new Session();
                 httpSession.setAttribute("session", session);
+            } catch (DatabaseException e) {
+                throw new ServletException(e);
+                //httpSession.setAttribute("error", e);
+                //request.getRequestDispatcher("JSP/error.jsp").forward(request, response);
+            }
+        } else {
+            try {
+                if (session.getAuthDatabaseManager() == null) {
+                    Logger.error("HTTPSession: jFramework Session not null | AuthDatabaseManager null");
+                    session = new Session();
+                    httpSession.setAttribute("session", session);
+                } else {
+                    //Logger.info("HTTPSession: "+session.getUser()+" " + session.isAdmin() + " " + session.getAuthDatabaseManager());
+                }
             } catch (DatabaseException e) {
                 throw new ServletException(e);
                 //httpSession.setAttribute("error", e);
