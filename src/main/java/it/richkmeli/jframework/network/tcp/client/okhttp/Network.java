@@ -82,24 +82,43 @@ public class Network {
 
         Logger.info("Get request to: " + url);
 
-        if (lastHeaders != null)
+        if (lastHeaders != null) {
             request = new Request.Builder()
                     .url(url)
                     .addHeader("Cookie", lastHeaders.get("Set-Cookie"))
                     .get()
                     .build();
-        else
+        } else {
             request = new Request.Builder()
                     .url(url)
                     .get()
                     .build();
-
+        }
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String jsonResponse = response.body().string().trim();
-                if (response.headers().get("Set-Cookie") != null)
-                    lastHeaders = response.headers();
+                if (response.headers().get("Set-Cookie") != null) {
+                    // TODO gestire cookies, non sovrascrittura semplice
+                    if (lastHeaders != null) {
+                        if (lastHeaders.get("Cookie") != null) {
+                            if (lastHeaders.get("Cookie").length() < response.headers("Cookie").size()) {
+                                Logger.info("lastHeaders < response");
+                                lastHeaders = response.headers();
+                            } else {
+                                Logger.info("Cookie OK");
+                            }
+                        } else {
+                            Logger.info("lastHeaders.get(\"Cookie\") == null");
+                            lastHeaders = response.headers();
+                        }
+                    } else {
+                        Logger.info("lastHeaders == null");
+                        lastHeaders = response.headers();
+                    }
+
+                    //Logger.info(lastHeaders.toString());
+                }
 
                 if (ResponseParser.parseStatus(jsonResponse).equalsIgnoreCase("ok")) {
 

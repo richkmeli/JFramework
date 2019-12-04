@@ -41,6 +41,9 @@ public abstract class SignUp {
                     session.getAuthDatabaseManager().addUser(new User(email, pass, false));
                     session.setUser(email);
                     out.println((new OKResponse(StatusCode.SUCCESS)).json());
+
+                    response.addCookie(ServletManager.initSessionCookie(request));
+
                     doSpecificAction();
                 }
             } else {

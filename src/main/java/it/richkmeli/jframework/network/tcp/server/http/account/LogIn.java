@@ -29,7 +29,7 @@ public abstract class LogIn {
 
             // check if is not already logged
             if (session.getUser() == null) {
-                Map<String, String> attribMap = servletManager.doDefaultProcessRequest();/*ServletManager.extractParameters(request);
+                Map<String, String> attribMap = servletManager.doDefaultProcessRequest(false);/*ServletManager.extractParameters(request);
                 /*Map<String, String> attribMap = ServletManager.doDefaultProcessRequest(request);*/
 
                 String email = attribMap.get("email");// = request.getParameter("email");
@@ -43,6 +43,8 @@ public abstract class LogIn {
                         // set userID into the session
                         session.setUser(email);
                         session.setAdmin(isAdmin);
+
+                        response.addCookie(ServletManager.initSessionCookie(request));
 
                         try {
                             doSpecificAction(request);

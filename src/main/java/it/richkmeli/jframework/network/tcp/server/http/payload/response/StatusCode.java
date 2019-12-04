@@ -21,13 +21,15 @@ public enum StatusCode {
     WRONG_PASSWORD(2103, "Wrong password"),
     ACCOUNT_NOT_FOUND(2104, "Account not found"),
     ALREADY_REGISTERED(2105, "Email already registered"),
+    NOT_AUTHORIZED(2106, "The current user is not authorized"),
     // db error 22xx
     DB_ERROR(3000, "Error in DB"), // TODO cambiare in 2200, controllare che in RMC non siano
     FIELD_EMPTY(3001, "Field empty in DB"),
     // crypto error 23xx
     SECURE_CONNECTION(2300, "Secure Connection error"),
     // network protocol error 24xx
-    CHANNEL_UNKNOWN(2400, "Channel Unknown");
+    CHANNEL_UNKNOWN(2400, "Channel Unknown"),
+    JFRAMEWORK_SESSIONID_ERROR(2401, "JFramework Session ID Error");
     private int code;
     private String defMessage;
 

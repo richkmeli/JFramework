@@ -1,5 +1,6 @@
 package it.richkmeli.jframework.network.tcp.server.http.util;
 
+import it.richkmeli.jframework.crypto.algorithm.SHA256;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.KOResponse;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.StatusCode;
 import it.richkmeli.jframework.orm.DatabaseException;
@@ -8,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.util.*;
 
 public abstract class ServletManager {
+    public static final String JFRAMEWORKSESSIONID = "JFRAMEWORKSESSIONID";
     protected static Session session;
     protected HttpServletRequest request;
     protected Map<String, String> attribMap;
@@ -37,12 +40,20 @@ public abstract class ServletManager {
     //public abstract <T extends Session> T getNewSessionInstance() throws ServletException, DatabaseException;
 
     public Map<String, String> doDefaultProcessRequest() throws ServletException {
+        return doDefaultProcessRequest(true);
+    }
+
+    public Map<String, String> doDefaultProcessRequest(boolean checkSessionCookie) throws ServletException {
         attribMap = extractParameters(request);
         // server session
         session = ServletManager.getServerSession(request);
 
         // set servletPath for specific process request
         servletPath = request.getServletPath();
+
+        if (checkSessionCookie) {
+            checkSessionCookie(request);
+        }
 
         doSpecificProcessRequest();
         return attribMap;
@@ -108,6 +119,65 @@ public abstract class ServletManager {
         }
 
     }
+
+    public static Cookie initSessionCookie(HttpServletRequest request) {
+        // check if JFRAMEWORKSESSIONID exists, if it doesn't exist it is raised an exception
+        if (isCookiePresent(request, JFRAMEWORKSESSIONID)) {
+            //Logger.info("Cookie JFRAMEWORKSESSIONID: already present");
+            return getCookie(request, JFRAMEWORKSESSIONID);
+        } else {
+            String id = request.getRemoteAddr()
+                    //+ "##" + request.getRemoteUser()
+                    + "##" + getCookie(request, "JSESSIONID").getValue()
+                    + "##" + request.getHeader("User-Agent");
+            Logger.info("Cookie JFRAMEWORKSESSIONID: " + id);
+            return new Cookie(JFRAMEWORKSESSIONID, SHA256.hashToString(id.getBytes()));
+        }
+    }
+
+    // set JFRAMEWORKSESSIONID cookie for Session Hijacking Attack protection
+    public static Cookie generateSessionCookie(HttpServletRequest request) {
+        String id = request.getRemoteAddr()
+                //+ "##" + request.getRemoteUser()
+                + "##" + getCookie(request, "JSESSIONID").getValue()
+                + "##" + request.getHeader("User-Agent");
+        //Logger.info("Cookie JFRAMEWORKSESSIONID: " + id);
+        return new Cookie(JFRAMEWORKSESSIONID, SHA256.hashToString(id.getBytes()));
+    }
+
+    public static void checkSessionCookie(HttpServletRequest request) throws ServletException {
+        Cookie extractedjframeworkSessionID = getCookie(request, JFRAMEWORKSESSIONID);
+        if (!isCookiePresent(request, JFRAMEWORKSESSIONID)) {
+            String error = "Cookie: " + JFRAMEWORKSESSIONID + " is not present in HTTP cookies";
+            Logger.error(error);
+            throw new ServletException(new KOResponse(StatusCode.JFRAMEWORK_SESSIONID_ERROR, error));
+        }
+        if (!extractedjframeworkSessionID.getValue().equalsIgnoreCase(generateSessionCookie(request).getValue())) {
+            String error = "JFRAMEWORKSESSIONID mismatch, possible Session Hijacking Attack";
+            Logger.error(error);
+            throw new ServletException(new KOResponse(StatusCode.JFRAMEWORK_SESSIONID_ERROR, error));
+        }
+    }
+
+    public static Cookie getCookie(HttpServletRequest request, String name) {
+        Cookie[] cookies = request.getCookies();
+        Cookie cookie = null;
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equalsIgnoreCase(name)) {
+                    cookie = c;//c.getValue();
+                }
+            }
+        } else {
+            Logger.error("No cookies are present");
+        }
+        return cookie;
+    }
+
+    private static boolean isCookiePresent(HttpServletRequest request, String name) {
+        return getCookie(request, name) != null;
+    }
+
 
     public Session getServerSession() throws ServletException {
         return getServerSession(request);
