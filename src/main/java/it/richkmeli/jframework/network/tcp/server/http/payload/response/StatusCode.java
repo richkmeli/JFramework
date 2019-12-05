@@ -29,7 +29,7 @@ public enum StatusCode {
     SECURE_CONNECTION(2300, "Secure Connection error"),
     // network protocol error 24xx
     CHANNEL_UNKNOWN(2400, "Channel Unknown"),
-    JFRAMEWORK_SESSIONID_ERROR(2401, "JFramework Session ID Error");
+    JFRAMEWORK_SESSIONID_ERROR(2401, "JFramework Session ID Error. Login Required.");
     private int code;
     private String defMessage;
 

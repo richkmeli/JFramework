@@ -29,11 +29,13 @@ public abstract class LogOut {
                 session.removeUser();
                 doSpecificAction();
             }
-            httpSession.invalidate();
+            ServletManager.resetSession(request, response);
 
             out.println((new OKResponse(StatusCode.SUCCESS)).json());
 
         } catch (ServletException e) {
+            out.println(e.getKOResponseJSON());
+        } catch (Exception e) {
             out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
         }
 

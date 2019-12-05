@@ -42,7 +42,7 @@ public abstract class user {
             messageJSON.put("user", user);
             messageJSON.put("admin", isAdmin);
 
-            response.addCookie(ServletManager.initSessionCookie(request));
+            ServletManager.initSessionCookie(request, response);
 
             try {
                 doSpecificAction(request);
@@ -101,9 +101,12 @@ public abstract class user {
             out.flush();
             out.close();
 
+        } catch (ServletException e) {
+            out.println(e.getKOResponseJSON());
+        } catch (DatabaseException e) {
+            out.println((new KOResponse(StatusCode.DB_ERROR, e.getMessage())).json());
         } catch (Exception e) {
-            // redirect to the JSP that handles errors
-            out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage()).json()));
+            out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
         }
 
     }

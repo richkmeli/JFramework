@@ -26,7 +26,7 @@ public abstract class SecureConnection {
 
     }
 
-    protected abstract void doBeforeCryptoAction(HttpServletRequest request, String clientID) throws Exception;
+    protected abstract void doBeforeCryptoAction(HttpServletRequest request, HttpServletResponse response, String clientID) throws Exception;
 
     protected abstract void doFinalCryptoAction() throws Exception;
 
@@ -52,7 +52,7 @@ public abstract class SecureConnection {
             if (request.getParameterMap().containsKey("clientID")) {
                 String clientID = new String(Base64.getUrlDecoder().decode(request.getParameter("clientID")));
 
-                doBeforeCryptoAction(request, clientID);
+                doBeforeCryptoAction(request, response, clientID);
 
                 String clientResponse = "";
                 if (request.getParameterMap().containsKey("data")) {

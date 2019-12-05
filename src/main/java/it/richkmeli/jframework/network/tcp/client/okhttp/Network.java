@@ -97,28 +97,14 @@ public class Network {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String jsonResponse = response.body().string().trim();
-                if (response.headers().get("Set-Cookie") != null) {
-                    // TODO gestire cookies, non sovrascrittura semplice
-                    if (lastHeaders != null) {
-                        if (lastHeaders.get("Cookie") != null) {
-                            if (lastHeaders.get("Cookie").length() < response.headers("Cookie").size()) {
-                                Logger.info("lastHeaders < response");
-                                lastHeaders = response.headers();
-                            } else {
-                                Logger.info("Cookie OK");
-                            }
-                        } else {
-                            Logger.info("lastHeaders.get(\"Cookie\") == null");
-                            lastHeaders = response.headers();
-                        }
-                    } else {
-                        Logger.info("lastHeaders == null");
-                        lastHeaders = response.headers();
-                    }
-
-                    //Logger.info(lastHeaders.toString());
+                String jsonResponse = "";
+                if (response.body() != null) {
+                    jsonResponse = response.body().string().trim();
+                } else {
+                    Logger.error("response.body() == null");
                 }
+
+                setHeader(response);
 
                 if (ResponseParser.parseStatus(jsonResponse).equalsIgnoreCase("ok")) {
 
@@ -162,6 +148,36 @@ public class Network {
         });
     }
 
+    private void setHeader(Response response) {
+        if (response.headers().get("Set-Cookie") != null) {
+            if (lastHeaders != null) {
+
+                if (lastHeaders.get("Set-Cookie") != null) {
+
+                    for (String s : response.headers("Set-Cookie")) {
+                        String[] ss = s.split("=");
+                        if (ss[0].equalsIgnoreCase("JFRAMEWORKSESSIONID")) {
+                            //JFRAMEWORKSESSIONID = ss[1];
+                            Logger.info("JFRAMEWORKSESSIONID present");
+                            lastHeaders = response.headers();
+                        }
+                    }
+
+
+                } else {
+                    Logger.info("lastHeaders.get(\"Set-Cookie\") == null");
+                    lastHeaders = response.headers();
+                }
+            } else {
+                Logger.info("lastHeaders == null");
+                lastHeaders = response.headers();
+            }
+
+
+        }
+        lastHeaders = response.headers();
+    }
+
     public void getRequestCompat(String servlet, String jsonParametersString, NetworkCallback callback) {
         StringBuilder parameters = new StringBuilder("?");
         if (jsonParametersString != null && !jsonParametersString.isEmpty()) {
@@ -178,28 +194,37 @@ public class Network {
             callback.onFailure(new NetworkException(e));
         }
 
-        Request request;
+        Request request = null;
 
         Logger.info("Get request to: " + url);
 
-        if (lastHeaders != null)
-            request = new Request.Builder()
-                    .url(url)
-                    .addHeader("Cookie", lastHeaders.get("Set-Cookie"))
-                    .get()
-                    .build();
-        else
-            request = new Request.Builder()
-                    .url(url)
-                    .get()
-                    .build();
-
+        if (url != null) {
+            if (lastHeaders != null) {
+                if (lastHeaders.get("Set-Cookie") != null) {
+                    request = new Request.Builder()
+                            .url(url)
+                            .addHeader("Cookie", lastHeaders.get("Set-Cookie"))
+                            .get()
+                            .build();
+                } else {
+                    Logger.error("lastHeaders.get(\"Set-Cookie\") is null");
+                }
+            } else {
+                Logger.error("lastHeaders is null");
+                request = new Request.Builder()
+                        .url(url)
+                        .get()
+                        .build();
+            }
+        } else {
+            Logger.error("url is null");
+        }
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String jsonResponse = response.body().string().trim();
-                if (response.headers().get("Set-Cookie") != null)
-                    lastHeaders = response.headers();
+
+                setHeader(response);
 
                 Logger.info("GET response: " + jsonResponse);
 
@@ -349,8 +374,7 @@ public class Network {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String jsonResponse = response.body().string().trim();
-                if (response.headers().get("Set-Cookie") != null)
-                    lastHeaders = response.headers();
+                setHeader(response);
 
                 if (cryptoClient != null) {
                     Logger.info("PUT response (encrypted): " + jsonResponse);

@@ -42,7 +42,7 @@ public abstract class SignUp {
                     session.setUser(email);
                     out.println((new OKResponse(StatusCode.SUCCESS)).json());
 
-                    response.addCookie(ServletManager.initSessionCookie(request));
+                    ServletManager.initSessionCookie(request, response);
 
                     doSpecificAction();
                 }
@@ -53,6 +53,8 @@ public abstract class SignUp {
             out.println((new KOResponse(StatusCode.ALREADY_LOGGED)).json());
         } catch (DatabaseException e) {
             out.println((new KOResponse(StatusCode.DB_ERROR)).json());
+        } catch (Exception e) {
+            out.println((new KOResponse(StatusCode.GENERIC_ERROR)).json());
         }
 
     }

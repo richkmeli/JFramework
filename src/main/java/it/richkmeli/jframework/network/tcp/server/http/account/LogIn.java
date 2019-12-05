@@ -18,7 +18,7 @@ import java.util.Map;
 
 public abstract class LogIn {
 
-    protected abstract void doSpecificAction(HttpServletRequest request) throws ServletException, DatabaseException;
+    protected abstract void doSpecificAction(HttpServletRequest request, HttpServletResponse response) throws ServletException, DatabaseException;
 
     public void doAction(HttpServletRequest request, HttpServletResponse response, ServletManager servletManager) throws javax.servlet.ServletException, IOException {
         Session session = null;
@@ -44,10 +44,10 @@ public abstract class LogIn {
                         session.setUser(email);
                         session.setAdmin(isAdmin);
 
-                        response.addCookie(ServletManager.initSessionCookie(request));
+                        ServletManager.initSessionCookie(request, response);
 
                         try {
-                            doSpecificAction(request);
+                            doSpecificAction(request, response);
                         } catch (ServletException se) {
                             Logger.error(se);
                             throw se;
@@ -67,7 +67,7 @@ public abstract class LogIn {
                 } else {
                     Logger.error("User: " + email + " not found in AuthDatabase.");
                     // mail non trovata
-                    out.println((new KOResponse(StatusCode.ACCOUNT_NOT_FOUND, "user: " + request.getAttribute("email") + "; password: " + request.getAttribute("password"))).json());
+                    out.println((new KOResponse(StatusCode.ACCOUNT_NOT_FOUND /*"user: " + request.getAttribute("email") + "; password: " + request.getAttribute("password")*/)).json());
                 }
             } else {
                 // already logged
@@ -75,10 +75,15 @@ public abstract class LogIn {
             }
         } catch (ServletException e) {
             session.setUser(null);
-            if (e.getMessage().contains("java.lang.Exception: decrypt, crypto not initialized, current state: 0")) {
-                out.println((new KOResponse(StatusCode.SECURE_CONNECTION, e.getMessage())).json());
+            if (e.getMessage() != null) {
+                if (e.getMessage().contains("java.lang.Exception: decrypt, crypto not initialized, current state: 0")) {
+                    out.println((new KOResponse(StatusCode.SECURE_CONNECTION, e.getMessage())).json());
+                } else {
+                    out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
+                }
             } else {
-                out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
+                // if the message is Servlet exception is empty, show generic error message
+                out.println((new KOResponse(StatusCode.GENERIC_ERROR)).json());
             }
         } catch (Exception e) {
             session.setUser(null);

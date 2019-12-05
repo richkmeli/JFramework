@@ -33,13 +33,6 @@ public abstract class usersList {
             ServletManager.checkLogin(request);
             Session session = ServletManager.getServerSession(request);
 
-           /* boolean encryption = false;
-            if (request.getParameterMap().containsKey("channel")) {
-                if ("rmc".equalsIgnoreCase(request.getParameter("channel"))) {
-                    encryption = true;
-                }
-            }*/
-
             try {
                 doSpecificAction(request);
             } catch (ServletException se) {
@@ -51,14 +44,6 @@ public abstract class usersList {
                 String output = servletManager.doDefaultProcessResponse(GenerateUsersListJSON(session));
                 out.println(new OKResponse(StatusCode.SUCCESS, output).json());
 
-      /*          if (encryption) {  // RMC
-                    String encPayload = session.getCryptoServer().encrypt(GenerateUsersListJSON(session));
-                    out.println((new OKResponse(StatusCode.SUCCESS, encPayload)).json());
-                } else {  // WEBAPP
-                    // Authentication
-                    out.println((new OKResponse(StatusCode.SUCCESS, GenerateUsersListJSON(session)).json()));
-                }
-*/
                 out.flush();
                 out.close();
             } else {
@@ -68,9 +53,10 @@ public abstract class usersList {
 
         } catch (ServletException e) {
             out.println(e.getKOResponseJSON());
+        } catch (DatabaseException e) {
+            out.println((new KOResponse(StatusCode.DB_ERROR, e.getMessage())).json());
         } catch (Exception e) {
-            // redirect to the JSP that handles errors
-            out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage()).json()));
+            out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
         }
     }
 

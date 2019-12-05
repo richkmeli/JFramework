@@ -11,20 +11,24 @@ import org.json.JSONObject;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.*;
 
 public abstract class ServletManager {
-    public static final String JFRAMEWORKSESSIONID = "JFRAMEWORKSESSIONID";
+    public static final String JFSESSIONID = "JFRAMEWORKSESSIONID";
+    //private static final int JFSESSIONCOOKIE_MAXAGE = 3600; // Number of seconds until the cookie expires
     protected static Session session;
     protected HttpServletRequest request;
+    protected HttpServletResponse response;
     protected Map<String, String> attribMap;
     protected String servletPath;
 
-    public ServletManager(HttpServletRequest request) {
+    public ServletManager(HttpServletRequest request, HttpServletResponse response) {
         this.request = request;
+        this.response = response;
         try {
             session = getServerSession();
         } catch (ServletException e) {
@@ -52,7 +56,7 @@ public abstract class ServletManager {
         servletPath = request.getServletPath();
 
         if (checkSessionCookie) {
-            checkSessionCookie(request);
+            checkSessionCookie(request, response);
         }
 
         doSpecificProcessRequest();
@@ -120,19 +124,22 @@ public abstract class ServletManager {
 
     }
 
-    public static Cookie initSessionCookie(HttpServletRequest request) {
+    public static void initSessionCookie(HttpServletRequest request, HttpServletResponse response) {
+        Cookie cookie;
         // check if JFRAMEWORKSESSIONID exists, if it doesn't exist it is raised an exception
-        if (isCookiePresent(request, JFRAMEWORKSESSIONID)) {
+        if (isCookiePresent(request, JFSESSIONID)) {
             //Logger.info("Cookie JFRAMEWORKSESSIONID: already present");
-            return getCookie(request, JFRAMEWORKSESSIONID);
+            cookie = getCookie(request, JFSESSIONID);
         } else {
             String id = request.getRemoteAddr()
                     //+ "##" + request.getRemoteUser()
                     + "##" + getCookie(request, "JSESSIONID").getValue()
                     + "##" + request.getHeader("User-Agent");
             Logger.info("Cookie JFRAMEWORKSESSIONID: " + id);
-            return new Cookie(JFRAMEWORKSESSIONID, SHA256.hashToString(id.getBytes()));
+            cookie = new Cookie(JFSESSIONID, SHA256.hashToString(id.getBytes()));
+            //cookie.setMaxAge(JFSESSIONCOOKIE_MAXAGE);
         }
+        response.addCookie(cookie);
     }
 
     // set JFRAMEWORKSESSIONID cookie for Session Hijacking Attack protection
@@ -142,20 +149,25 @@ public abstract class ServletManager {
                 + "##" + getCookie(request, "JSESSIONID").getValue()
                 + "##" + request.getHeader("User-Agent");
         //Logger.info("Cookie JFRAMEWORKSESSIONID: " + id);
-        return new Cookie(JFRAMEWORKSESSIONID, SHA256.hashToString(id.getBytes()));
+        return new Cookie(JFSESSIONID, SHA256.hashToString(id.getBytes()));
     }
 
-    public static void checkSessionCookie(HttpServletRequest request) throws ServletException {
-        Cookie extractedjframeworkSessionID = getCookie(request, JFRAMEWORKSESSIONID);
-        if (!isCookiePresent(request, JFRAMEWORKSESSIONID)) {
-            String error = "Cookie: " + JFRAMEWORKSESSIONID + " is not present in HTTP cookies";
+    public static void checkSessionCookie(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+        Cookie extractedjframeworkSessionID = getCookie(request, JFSESSIONID);
+        if (!isCookiePresent(request, JFSESSIONID) || extractedjframeworkSessionID.getValue().equalsIgnoreCase("")) {
+            String error = "Cookie: " + JFSESSIONID + " is not present in HTTP cookies";
             Logger.error(error);
-            throw new ServletException(new KOResponse(StatusCode.JFRAMEWORK_SESSIONID_ERROR, error));
+            // invalidate httpsession
+            //request.getSession().invalidate();
+            //response.reset();
+            throw new ServletException(new KOResponse(StatusCode.JFRAMEWORK_SESSIONID_ERROR));
         }
         if (!extractedjframeworkSessionID.getValue().equalsIgnoreCase(generateSessionCookie(request).getValue())) {
             String error = "JFRAMEWORKSESSIONID mismatch, possible Session Hijacking Attack";
             Logger.error(error);
-            throw new ServletException(new KOResponse(StatusCode.JFRAMEWORK_SESSIONID_ERROR, error));
+            resetSession(request, response);
+
+            throw new ServletException(new KOResponse(StatusCode.JFRAMEWORK_SESSIONID_ERROR));
         }
     }
 
@@ -172,6 +184,33 @@ public abstract class ServletManager {
             Logger.error("No cookies are present");
         }
         return cookie;
+    }
+
+    public void reset(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            session = new Session();
+        } catch (DatabaseException e) {
+            Logger.error(e);
+        }
+        this.request = null;
+        this.response = null;
+        attribMap = null;
+        servletPath = null;
+        resetSession(request, response);
+    }
+
+
+    public static void resetSession(HttpServletRequest request, HttpServletResponse response) {
+        Cookie cookie = getCookie(request, JFSESSIONID);
+        // invalidate httpsession and delete cookie
+        request.getSession().invalidate();
+        //response.reset();
+        //Cookie cookie = new Cookie(JFRAMEWORKSESSIONID, "");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+            /*cookie = new Cookie("JSESSIONID", "");
+            cookie.setMaxAge(0);
+            response.addCookie(cookie);*/
     }
 
     private static boolean isCookiePresent(HttpServletRequest request, String name) {
