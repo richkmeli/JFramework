@@ -13,7 +13,7 @@ import java.net.URL;
 
 public class Network {
 
-    private String url;
+    private String urlString;
     private OkHttpClient client;
     private Headers lastHeaders;
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -25,7 +25,7 @@ public class Network {
 
     public void setURL(String protocol, String server, String port, String service) throws NetworkException {
         try {
-            this.url = String.valueOf(new URL(protocol + "://" + server + ":" + port + "/" + service + "/"));
+            this.urlString = String.valueOf(new URL(protocol + "://" + server + ":" + port + "/" + service + "/"));
         } catch (MalformedURLException e) {
             throw new NetworkException(e);
         }
@@ -50,7 +50,7 @@ public class Network {
         if (cryptoClient != null) {
             String params = parameters.toString();
             try {
-                url = new URL(this.url + servlet + params);
+                url = new URL(this.urlString + servlet + params);
             } catch (MalformedURLException e) {
                 callback.onFailure(new NetworkException(e));
             }
@@ -73,27 +73,17 @@ public class Network {
 
 //        URL url = null;
         try {
-            url = new URL(this.url + servlet + parameters);
+            url = new URL(this.urlString + servlet + parameters);
         } catch (MalformedURLException e) {
             callback.onFailure(new NetworkException(e));
         }
 
-        Request request;
 
         Logger.info("Get request to: " + url);
 
-        if (lastHeaders != null) {
-            request = new Request.Builder()
-                    .url(url)
-                    .addHeader("Cookie", lastHeaders.get("Set-Cookie"))
-                    .get()
-                    .build();
-        } else {
-            request = new Request.Builder()
-                    .url(url)
-                    .get()
-                    .build();
-        }
+        Request request = buildRequestWithHeader(VERB.GET, url, lastHeaders, null);
+
+
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
@@ -104,7 +94,7 @@ public class Network {
                     Logger.error("response.body() == null");
                 }
 
-                setHeader(response);
+                lastHeaders = setHeader(response, lastHeaders);
 
                 if (ResponseParser.parseStatus(jsonResponse).equalsIgnoreCase("ok")) {
 
@@ -148,7 +138,52 @@ public class Network {
         });
     }
 
-    private void setHeader(Response response) {
+    enum VERB {
+        GET, PUT
+    }
+
+    private static Request buildRequestWithHeader(VERB verb, URL url, Headers lastHeaders, RequestBody body) {
+        Request request = null;
+        // create builder, in which has to be set the request details
+        Request.Builder builder = new Request.Builder();
+        try {
+            if (url != null) {
+                // set url
+                builder.url(url);
+                // set http verb
+                switch (verb) {
+                    case GET:
+                        builder.get();
+                        break;
+                    case PUT:
+                        builder.put(body);
+                        break;
+                    default:
+                        Logger.error("VERB: " + verb.name() + " is not implemented");
+                }
+
+                // check headers
+                if (lastHeaders != null) {
+                    if (lastHeaders.get("Set-Cookie") != null) {
+                        builder.addHeader("Cookie", lastHeaders.get("Set-Cookie"));
+                    } else {
+                        Logger.error("lastHeaders.get(\"Set-Cookie\") is null");
+                    }
+                } else {
+                    Logger.error("lastHeaders is null");
+                }
+            } else {
+                Logger.error("url is null");
+            }
+            request = builder.build();
+        } catch (Exception e) {
+            Logger.error(e);
+            e.printStackTrace();
+        }
+        return request;
+    }
+
+    private static Headers setHeader(Response response, Headers lastHeaders) {
         if (response.headers().get("Set-Cookie") != null) {
             if (lastHeaders != null) {
 
@@ -165,17 +200,15 @@ public class Network {
 
 
                 } else {
-                    Logger.info("lastHeaders.get(\"Set-Cookie\") == null");
+                    Logger.error("lastHeaders.get(\"Set-Cookie\") == null");
                     lastHeaders = response.headers();
                 }
             } else {
-                Logger.info("lastHeaders == null");
+                Logger.error("lastHeaders == null");
                 lastHeaders = response.headers();
             }
-
-
         }
-        lastHeaders = response.headers();
+        return lastHeaders;
     }
 
     public void getRequestCompat(String servlet, String jsonParametersString, NetworkCallback callback) {
@@ -189,7 +222,7 @@ public class Network {
 
         URL url = null;
         try {
-            url = new URL(this.url + servlet + parameters);
+            url = new URL(this.urlString + servlet + parameters);
         } catch (MalformedURLException e) {
             callback.onFailure(new NetworkException(e));
         }
@@ -198,33 +231,14 @@ public class Network {
 
         Logger.info("Get request to: " + url);
 
-        if (url != null) {
-            if (lastHeaders != null) {
-                if (lastHeaders.get("Set-Cookie") != null) {
-                    request = new Request.Builder()
-                            .url(url)
-                            .addHeader("Cookie", lastHeaders.get("Set-Cookie"))
-                            .get()
-                            .build();
-                } else {
-                    Logger.error("lastHeaders.get(\"Set-Cookie\") is null");
-                }
-            } else {
-                Logger.error("lastHeaders is null");
-                request = new Request.Builder()
-                        .url(url)
-                        .get()
-                        .build();
-            }
-        } else {
-            Logger.error("url is null");
-        }
+        request = buildRequestWithHeader(VERB.GET, url, lastHeaders, null);
+
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String jsonResponse = response.body().string().trim();
 
-                setHeader(response);
+                lastHeaders = setHeader(response, lastHeaders);
 
                 Logger.info("GET response: " + jsonResponse);
 
@@ -345,7 +359,7 @@ public class Network {
 
         URL url = null;
         try {
-            url = new URL(this.url + servlet);
+            url = new URL(this.urlString + servlet);
         } catch (MalformedURLException e) {
             callback.onFailure(new NetworkException(e));
         }
@@ -358,23 +372,14 @@ public class Network {
         RequestBody body = RequestBody.create(JSON, jsonParameters.toString());
 
 
-        if (lastHeaders != null)
-            request = new Request.Builder()
-                    .url(url)
-                    .addHeader("Cookie", lastHeaders.get("Set-Cookie"))
-                    .put(body)
-                    .build();
-        else
-            request = new Request.Builder()
-                    .url(url)
-                    .put(body)
-                    .build();
+        request = buildRequestWithHeader(VERB.PUT, url, lastHeaders, body);
+        ;
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String jsonResponse = response.body().string().trim();
-                setHeader(response);
+                lastHeaders = setHeader(response, lastHeaders);
 
                 if (cryptoClient != null) {
                     Logger.info("PUT response (encrypted): " + jsonResponse);
@@ -401,27 +406,17 @@ public class Network {
     public String GetRequestSync(String parameter) throws NetworkException {
         URL url = null;
         try {
-            url = new URL(this.url + parameter);
+            url = new URL(this.urlString + parameter);
         } catch (MalformedURLException e) {
             throw new NetworkException(e);
         }
 
         Response response;
-        Request request;
+
 
         Logger.info("Request to: " + url);
 
-        if (lastHeaders != null)
-            request = new Request.Builder()
-                    .url(url)
-                    .addHeader("Cookie", lastHeaders.get("Set-Cookie"))
-                    .get()
-                    .build();
-        else
-            request = new Request.Builder()
-                    .url(url)
-                    .get()
-                    .build();
+        Request request = buildRequestWithHeader(VERB.GET, url, lastHeaders, null);
 
         try {
             response = client.newCall(request).execute();
@@ -438,8 +433,7 @@ public class Network {
 
         Logger.info(responseString);
 
-        if (response.headers().get("Set-Cookie") != null)
-            lastHeaders = response.headers();
+        lastHeaders = setHeader(response, lastHeaders);
 
         return responseString;
     }
