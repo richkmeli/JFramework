@@ -10,17 +10,20 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Network {
 
     private String urlString;
     private OkHttpClient client;
-    private Headers lastHeaders;
+    private static List<String> cookieList;
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     public Network() {
         client = new OkHttpClient();
-        lastHeaders = null;
+        //lastHeaders = null;
+        cookieList = new ArrayList<>();
     }
 
     public void setURL(String protocol, String server, String port, String service) throws NetworkException {
@@ -32,7 +35,7 @@ public class Network {
     }
 
     public void deleteSession() {
-        lastHeaders = null;
+        cookieList = new ArrayList<>();
     }
 
 
@@ -71,7 +74,6 @@ public class Network {
             parameters = new StringBuilder("?" + additionalParameters + "&data=" + encryptedParameters);
         }
 
-//        URL url = null;
         try {
             url = new URL(this.urlString + servlet + parameters);
         } catch (MalformedURLException e) {
@@ -81,7 +83,7 @@ public class Network {
 
         Logger.info("Get request to: " + url);
 
-        Request request = buildRequestWithHeader(VERB.GET, url, lastHeaders, null);
+        Request request = buildRequestWithHeader(VERB.GET, url, null);
 
 
         client.newCall(request).enqueue(new Callback() {
@@ -94,7 +96,8 @@ public class Network {
                     Logger.error("response.body() == null");
                 }
 
-                lastHeaders = setHeader(response, lastHeaders);
+                /*lastHeaders = */
+                saveCookies(response/*, lastHeaders*/);
 
                 if (ResponseParser.parseStatus(jsonResponse).equalsIgnoreCase("ok")) {
 
@@ -142,7 +145,7 @@ public class Network {
         GET, PUT
     }
 
-    private static Request buildRequestWithHeader(VERB verb, URL url, Headers lastHeaders, RequestBody body) {
+    private Request buildRequestWithHeader(VERB verb, URL url, RequestBody body) {
         Request request = null;
         // create builder, in which has to be set the request details
         Request.Builder builder = new Request.Builder();
@@ -163,15 +166,12 @@ public class Network {
                 }
 
                 // check headers
-                if (lastHeaders != null) {
-                    if (lastHeaders.get("Set-Cookie") != null) {
-                        builder.addHeader("Cookie", lastHeaders.get("Set-Cookie"));
-                    } else {
-                        Logger.error("lastHeaders.get(\"Set-Cookie\") is null");
-                    }
-                } else {
-                    Logger.error("lastHeaders is null");
+                StringBuilder stringBuilder = new StringBuilder();
+                for (String key : cookieList) {
+                    stringBuilder.append(key).append(";");
                 }
+                builder.addHeader("Cookie", stringBuilder.toString());
+
             } else {
                 Logger.error("url is null");
             }
@@ -183,32 +183,15 @@ public class Network {
         return request;
     }
 
-    private static Headers setHeader(Response response, Headers lastHeaders) {
-        if (response.headers().get("Set-Cookie") != null) {
-            if (lastHeaders != null) {
-
-                if (lastHeaders.get("Set-Cookie") != null) {
-
-                    for (String s : response.headers("Set-Cookie")) {
-                        String[] ss = s.split("=");
-                        if (ss[0].equalsIgnoreCase("JFRAMEWORKSESSIONID")) {
-                            //JFRAMEWORKSESSIONID = ss[1];
-                            Logger.info("JFRAMEWORKSESSIONID present");
-                            lastHeaders = response.headers();
-                        }
-                    }
-
-
-                } else {
-                    Logger.error("lastHeaders.get(\"Set-Cookie\") == null");
-                    lastHeaders = response.headers();
-                }
+    private static void saveCookies(Response response) {
+        for (String s : response.headers("Set-Cookie")) {
+            if (cookieList.contains(s)) {
             } else {
-                Logger.error("lastHeaders == null");
-                lastHeaders = response.headers();
+                cookieList.add(s);
             }
         }
-        return lastHeaders;
+        //Logger.info("CookieMap: " + cookieList);
+
     }
 
     public void getRequestCompat(String servlet, String jsonParametersString, NetworkCallback callback) {
@@ -231,14 +214,14 @@ public class Network {
 
         Logger.info("Get request to: " + url);
 
-        request = buildRequestWithHeader(VERB.GET, url, lastHeaders, null);
+        request = buildRequestWithHeader(VERB.GET, url, null);
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String jsonResponse = response.body().string().trim();
 
-                lastHeaders = setHeader(response, lastHeaders);
+                saveCookies(response);
 
                 Logger.info("GET response: " + jsonResponse);
 
@@ -251,103 +234,6 @@ public class Network {
             }
         });
     }
-
-//    public void getRequestCompat(String servlet, String jsonParametersString, boolean encryption, NetworkCallback callback) {
-//        StringBuilder parameters = new StringBuilder("?");
-//        if (jsonParametersString != null && !jsonParametersString.isEmpty()) {
-//            JSONObject jsonParameters = new JSONObject(jsonParametersString);
-//            for (String key : jsonParameters.keySet()) {
-//                parameters.append("&").append(key).append("=").append(jsonParameters.get(key));
-//            }
-//        }
-//
-//        PrivateKey RSAprivateKeyClient = null;
-//        try {
-//            if (encryption) {
-//                KeyPair keyPair = CryptoCompat.getGeneratedKeyPairRSA();
-//                PublicKey RSApublicKeyClient = keyPair.getPublic();
-//                RSAprivateKeyClient = keyPair.getPrivate();
-//
-//                parameters.append("?&encryption=true&Kpub=").append(CryptoCompat.savePublicKey(RSApublicKeyClient));
-//            }
-//        } catch (GeneralSecurityException | CryptoException e) {
-//            callback.onFailure(new NetworkException(e));
-//        }
-//
-//        URL url = null;
-//        try {
-//            url = new URL(this.url + servlet + parameters);
-//        } catch (MalformedURLException e) {
-//            callback.onFailure(new NetworkException(e));
-//        }
-//
-//        Request request;
-//
-//        Logger.info("Get request to: " + url);
-//
-//        if (lastHeaders != null)
-//            request = new Request.Builder()
-//                    .url(url)
-//                    .addHeader("Cookie", lastHeaders.get("Set-Cookie"))
-//                    .get()
-//                    .build();
-//        else
-//            request = new Request.Builder()
-//                    .url(url)
-//                    .get()
-//                    .build();
-//
-//        PrivateKey finalRSAprivateKeyClient = RSAprivateKeyClient;
-//        client.newCall(request).enqueue(new Callback() {
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                String jsonResponse = response.body().string().trim();
-//                if (response.headers().get("Set-Cookie") != null)
-//                    lastHeaders = response.headers();
-//
-//                try {
-//
-//                    if (encryption) {
-//                        Logger.info("GET response (encrypted): " + jsonResponse);
-//
-//                        String messageResponse = ResponseParser.parseMessage(jsonResponse);
-//
-//                        Type listType = new TypeToken<KeyExchangePayloadCompat>() {
-//                        }.getType();
-//                        Gson gson = new Gson();
-//                        KeyExchangePayloadCompat keyExchangePayload = gson.fromJson(messageResponse, listType);
-//
-//                        SecretKey AESsecretKey = CryptoCompat.getAESKeyFromKeyExchange(keyExchangePayload, finalRSAprivateKeyClient);
-//                        String data = keyExchangePayload.getData();
-//
-//                        messageResponse = CryptoCompat.decryptRC4(data, new String(AESsecretKey.getEncoded()));
-//
-//                        //CREATE new JSON
-//                        JSONObject json = new JSONObject(jsonResponse);
-//                        json.remove("message");
-//                        json.put("message", messageResponse);
-//                        jsonResponse = json.toString();
-//
-//                        Logger.info("GET response (decrypted): " + jsonResponse);
-//
-//                        callback.onSuccess(jsonResponse);
-//                    } else {
-//                        Logger.info("GET response: " + jsonResponse);
-//
-//                        callback.onSuccess(jsonResponse);
-//                    }
-//                } catch (CryptoException e) {
-//                    Logger.error(e.getMessage());
-//                    callback.onFailure(new NetworkException(e));
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                callback.onFailure(new NetworkException(e));
-//            }
-//        });
-//    }
 
     public void putRequest(String servlet, String jsonParamentesString, Crypto.Client cryptoClient, NetworkCallback callback) {
 
@@ -372,14 +258,14 @@ public class Network {
         RequestBody body = RequestBody.create(JSON, jsonParameters.toString());
 
 
-        request = buildRequestWithHeader(VERB.PUT, url, lastHeaders, body);
-        ;
+        request = buildRequestWithHeader(VERB.PUT, url, body);
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String jsonResponse = response.body().string().trim();
-                lastHeaders = setHeader(response, lastHeaders);
+                /*lastHeaders = */
+                saveCookies(response/*, lastHeaders*/);
 
                 if (cryptoClient != null) {
                     Logger.info("PUT response (encrypted): " + jsonResponse);
@@ -416,7 +302,7 @@ public class Network {
 
         Logger.info("Request to: " + url);
 
-        Request request = buildRequestWithHeader(VERB.GET, url, lastHeaders, null);
+        Request request = buildRequestWithHeader(VERB.GET, url, null);
 
         try {
             response = client.newCall(request).execute();
@@ -433,7 +319,7 @@ public class Network {
 
         Logger.info(responseString);
 
-        lastHeaders = setHeader(response, lastHeaders);
+        saveCookies(response);
 
         return responseString;
     }

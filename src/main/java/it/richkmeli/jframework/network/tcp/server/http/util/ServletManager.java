@@ -144,10 +144,17 @@ public abstract class ServletManager {
 
     // set JFRAMEWORKSESSIONID cookie for Session Hijacking Attack protection
     public static Cookie generateSessionCookie(HttpServletRequest request) {
-        String id = request.getRemoteAddr()
-                //+ "##" + request.getRemoteUser()
-                + "##" + getCookie(request, "JSESSIONID").getValue()
-                + "##" + request.getHeader("User-Agent");
+        String remoteAddr = request.getRemoteAddr();
+        Cookie jsessionidCookie = getCookie(request, "JSESSIONID");
+        String jsessionid = "";
+        if (jsessionidCookie == null) {
+            Logger.error("JSESSIONID is not present");
+        } else {
+            jsessionid = jsessionidCookie.getValue();
+        }
+        String userAgent = request.getHeader("User-Agent");
+
+        String id = remoteAddr + "##" + jsessionid + "##" + userAgent;
         //Logger.info("Cookie JFRAMEWORKSESSIONID: " + id);
         return new Cookie(JFSESSIONID, SHA256.hashToString(id.getBytes()));
     }

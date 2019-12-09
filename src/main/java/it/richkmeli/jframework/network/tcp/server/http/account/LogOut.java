@@ -36,6 +36,7 @@ public abstract class LogOut {
         } catch (ServletException e) {
             out.println(e.getKOResponseJSON());
         } catch (Exception e) {
+            //e.printStackTrace();
             out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
         }
 
