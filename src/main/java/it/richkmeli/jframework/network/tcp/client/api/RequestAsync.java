@@ -60,15 +60,22 @@ public class RequestAsync extends Thread {
 
         JSONObject s = null;
         try {
-            JSONArray a = new JSONObject(result).getJSONArray("results");
-            s = a.getJSONObject(0);
-
+            if (result != null) {
+                JSONArray a = new JSONObject(result).getJSONArray("results");
+                s = a.getJSONObject(0);
+            } else {
+                Logger.error("RequestAsync: result is null");
+            }
         } catch (JSONException e) {
             Logger.error("RequestAsync: 4xx ", e);
 
             try {
                 // {"statusCode":404,"error":"Not Found"}
-                s = new JSONObject(result);
+                if (result != null) {
+                    s = new JSONObject(result);
+                } else {
+                    Logger.error("RequestAsync: result is null");
+                }
                 //type = ErrorResponse.class;
             } catch (JSONException e1) {
                 e1.printStackTrace();

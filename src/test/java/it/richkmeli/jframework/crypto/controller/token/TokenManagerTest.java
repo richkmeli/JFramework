@@ -23,7 +23,7 @@ public class TokenManagerTest {
     public void generate_verify_temporized() {
         for (int i : plainTextLengths) {
             String value = genString(i);
-            for (int minOfVal = 0; i < 5; minOfVal++) {
+            for (int minOfVal = 0; minOfVal < 5; minOfVal++) {
                 String token = TokenManager.generateTemporized(value, minOfVal);
 
                 //System.out.println("TEST temp: " + token);

@@ -17,7 +17,7 @@ import java.security.NoSuchProviderException;
 import java.util.Base64;
 
 public class AES_BC {
-    private static int keySize = 256;
+    private static final int KEY_SIZE = 256;
     public static final String ALGORITHM = "AES";
     private static String ALGORITHM_CBC = "AES/CBC/NoPadding"; //PKCS5Padding
     private static String ALGORITHM_GCM = "AES/GCM/NoPadding";
@@ -29,7 +29,7 @@ public class AES_BC {
 
         KeyGenerator keyGenerator = null;
         keyGenerator = KeyGenerator.getInstance(ALGORITHM, PROVIDER);
-        keyGenerator.init(keySize);
+        keyGenerator.init(KEY_SIZE);
 
         return keyGenerator.generateKey();
     }
@@ -173,9 +173,11 @@ public class AES_BC {
 
     private static String checkKey(String key) {
         if (key.length() < 32) {
-            while (key.length() < 32) {
-                key += "0";
+            StringBuilder keyBuilder = new StringBuilder(key);
+            while (keyBuilder.length() < 32) {
+                keyBuilder.append("0");
             }
+            key = keyBuilder.toString();
         } else if (key.length() > 32) {
             key = key.substring(0, 32);
         }

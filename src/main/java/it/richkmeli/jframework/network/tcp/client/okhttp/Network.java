@@ -120,13 +120,12 @@ public class Network {
 
                         Logger.info("GET response (decrypted): " + jsonResponse);
 
-
-                        callback.onSuccess(jsonResponse);
+                        //callback.onSuccess(jsonResponse);
                     } else {
                         Logger.info("GET response: " + jsonResponse);
-
-                        callback.onSuccess(jsonResponse);
+                        //callback.onSuccess(jsonResponse);
                     }
+                    callback.onSuccess(jsonResponse);
                 } else {
                     Logger.info("GET response: " + jsonResponse);
 
@@ -219,7 +218,13 @@ public class Network {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String jsonResponse = response.body().string().trim();
+                ResponseBody responseBody = response.body();
+                String jsonResponse = "";
+                if (responseBody != null) {
+                    jsonResponse = responseBody.string().trim();
+                } else {
+                    Logger.error("ResponseBody is null");
+                }
 
                 saveCookies(response);
 
@@ -263,7 +268,13 @@ public class Network {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String jsonResponse = response.body().string().trim();
+                ResponseBody responseBody = response.body();
+                String jsonResponse = "";
+                if (responseBody != null) {
+                    jsonResponse = responseBody.string().trim();
+                } else {
+                    Logger.error("ResponseBody is null");
+                }
                 /*lastHeaders = */
                 saveCookies(response/*, lastHeaders*/);
 
@@ -273,13 +284,12 @@ public class Network {
                     //TODO DECRYPT
 
                     Logger.info("PUT response (decrypted): " + jsonResponse);
-
-                    callback.onSuccess(jsonResponse);
+                    //callback.onSuccess(jsonResponse);
                 } else {
                     Logger.info("PUT response: " + jsonResponse);
-
-                    callback.onSuccess(jsonResponse);
+                    //callback.onSuccess(jsonResponse);
                 }
+                callback.onSuccess(jsonResponse);
             }
 
             @Override
@@ -312,7 +322,12 @@ public class Network {
 
         String responseString = null;
         try {
-            responseString = response.body().string().trim();
+            ResponseBody responseBody = response.body();
+            if (responseBody != null) {
+                responseString = responseBody.string().trim();
+            } else {
+                Logger.error("ResponseBody is null");
+            }
         } catch (IOException e) {
             throw new NetworkException(e);
         }

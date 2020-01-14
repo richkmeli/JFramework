@@ -150,9 +150,11 @@ public class AES {
 
     private static String checkKey(String key) {
         if (key.length() < 32) {
-            while (key.length() < 32) {
-                key += "0";
+            StringBuilder keyBuilder = new StringBuilder(key);
+            while (keyBuilder.length() < 32) {
+                keyBuilder.append("0");
             }
+            key = keyBuilder.toString();
         } else if (key.length() > 32) {
             key = key.substring(0, 32);
         }

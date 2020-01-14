@@ -68,7 +68,7 @@ public class ListenThread extends Thread {
                 String packetContent = new String(listenPacket.getData(), 0, listenPacket.getLength()); //(byte[] byteArray, int offset, int count), count= dimensione pacchetto ricevuto
                 listenNumPacket = Integer.parseInt(packetContent.substring(0, 4)); // primi 4 caratteri utilizzati per la numerazione
                 // GESTIONE PACCHETTI IN ARRIVO
-                String infoPacket = packetContent.substring(4, packetContent.length());
+                String infoPacket = packetContent.substring(4/*, packetContent.length()*/);
                 printStream.print(infoPacket);
                 communicationLock.append(infoPacket);
 

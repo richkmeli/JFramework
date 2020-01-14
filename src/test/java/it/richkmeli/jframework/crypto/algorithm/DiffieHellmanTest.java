@@ -185,9 +185,7 @@ public class DiffieHellmanTest {
 
         System.out.println("DH_test, \nsecretKey_A: " + k1 + "  \nsecretKey_B: " + k2);
 
-        if (!k1.equals(k2)) {
-            assert false; //("basic with random 2-way test failed");
-        }
+        assert k1.equals(k2); //("basic with random 2-way test failed");
     }
 
     @Test

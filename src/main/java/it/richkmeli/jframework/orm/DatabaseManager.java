@@ -208,7 +208,7 @@ public class DatabaseManager {
             resultSet = preparedStatement.executeQuery();
             List<T> list = getListFromResultSet(type.getClass(), resultSet);
             if (!list.isEmpty()) {
-                elem = (T) list.get(0);
+                elem = list.get(0);
             } else {
                 disconnect(connection, preparedStatement, resultSet);
                 Logger.error("No " + type.getClass().getName() + " found with this (PrimaryKey)");
@@ -288,7 +288,7 @@ public class DatabaseManager {
                         i++, type, field);
             }
         } else {
-            disconnect(connection, preparedStatement, null);
+            disconnect(connection, null, null);
             throw new DatabaseException("ORM, Reflection: PrimaryKey not found");
             //return false;
         }

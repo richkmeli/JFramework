@@ -23,6 +23,6 @@ public interface RMCModel {
 
     List<RMC> getAllRMCs() throws DatabaseException;
 
-    public List<String> getUnassociatedRmcs(String rmcID) throws DatabaseException;
+    List<String> getUnassociatedRmcs(String rmcID) throws DatabaseException;
 
 }

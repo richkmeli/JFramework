@@ -59,11 +59,7 @@ public class TokenManager {
         String calculatedHashWithSalt = insertSaltIntoHashed(salt, calculatedHash, 8);
         //System.out.println("calculatedHashWithSalt: " + calculatedHashWithSalt);
 
-        if (hashed.equalsIgnoreCase(calculatedHash)) {
-            return true;
-        } else {
-            return false;
-        }
+        return hashed.equalsIgnoreCase(calculatedHash);
     }
 
 

@@ -34,7 +34,7 @@ public abstract class LogIn {
 
                 String email = attribMap.get("email");// = request.getParameter("email");
                 String pass = attribMap.get("password");
-                ;// = request.getParameter("password");
+                // = request.getParameter("password");
 
                 if (session.getAuthDatabaseManager().isUserPresent(email)) {
                     boolean isAdmin = session.getAuthDatabaseManager().isAdmin(email);
@@ -74,7 +74,9 @@ public abstract class LogIn {
                 out.println((new KOResponse(StatusCode.ALREADY_LOGGED)).json());
             }
         } catch (ServletException e) {
-            session.setUser(null);
+            if (session != null) {
+                session.setUser(null);
+            }
             if (e.getMessage() != null) {
                 if (e.getMessage().contains("java.lang.Exception: decrypt, crypto not initialized, current state: 0")) {
                     out.println((new KOResponse(StatusCode.SECURE_CONNECTION, e.getMessage())).json());
@@ -86,7 +88,9 @@ public abstract class LogIn {
                 out.println((new KOResponse(StatusCode.GENERIC_ERROR)).json());
             }
         } catch (Exception e) {
-            session.setUser(null);
+            if (session != null) {
+                session.setUser(null);
+            }
             out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
         }
 

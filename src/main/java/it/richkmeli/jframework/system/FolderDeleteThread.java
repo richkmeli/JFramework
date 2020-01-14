@@ -26,8 +26,11 @@ public class FolderDeleteThread extends Thread {
 
     private void delete(File f) throws IOException {
         if (f.isDirectory()) {
-            for (File c : f.listFiles())
-                delete(c);
+            File[] files = f.listFiles();
+            if (files != null) {
+                for (File c : files)
+                    delete(c);
+            }
         }
         if (!f.delete()) {
             throw new FileNotFoundException("Failed to delete file: " + f);

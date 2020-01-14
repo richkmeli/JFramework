@@ -28,12 +28,10 @@ public class Session {
 
     public AuthDatabaseManager getAuthDatabaseManager() throws DatabaseException {
         //Logger.i("authDatabaseManager" + authDatabaseManager);
-        if (authDatabaseManager != null) {
-            return authDatabaseManager;
-        } else {
+        if (authDatabaseManager == null) {
             authDatabaseManager = new AuthDatabaseManager();
-            return authDatabaseManager;
         }
+        return authDatabaseManager;
     }
 
     public String getUser() {

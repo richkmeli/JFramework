@@ -58,7 +58,7 @@ public class P2pChatARQ {
                 socket.setSoTimeout(2000);    // TEMPORIZZAZIONE: lancia eccezione(SocketTimeoutException) se non si riceve nulla in 2 secondi
                 socket.receive(packet); // se non riceviamo riscontro(ACK) dal server continuamo ad inviare
                 ackPacket = new String(packet.getData(), 0, packet.getLength()); //(byte[] byteArray, int offset, int count), count= dimensione pacchetto ricevuto
-                ackNum = Integer.parseInt(ackPacket.substring(3, ackPacket.length()));  // ack della forma: ACK0002 , cioe "ACK" + numPacket
+                ackNum = Integer.parseInt(ackPacket.substring(3/*, ackPacket.length()*/));  // ack della forma: ACK0002 , cioe "ACK" + numPacket
                 if (verboseMode) printStream.print("\tReceived: " + ackPacket);
             } catch (SocketTimeoutException e) {
                 socket.send(packet);    // quando viene lanciata eccezione rinvio pacchetto

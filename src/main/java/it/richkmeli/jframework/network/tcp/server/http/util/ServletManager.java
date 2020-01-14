@@ -295,7 +295,7 @@ public abstract class ServletManager {
             if (values != null) {
                 while (values.hasMoreElements()) {
                     String value = (String) values.nextElement();
-                    out.append(name + ": " + value + "\n");
+                    out.append(name).append(": ").append(value).append("\n");
                 }
             }
         }
@@ -308,7 +308,7 @@ public abstract class ServletManager {
         list.append("{");
         while (attributes.hasMoreElements()) {
             String attribute = attributes.nextElement();
-            list.append(attribute + " : " + httpSession.getAttribute(attribute));
+            list.append(attribute).append(" : ").append(httpSession.getAttribute(attribute));
             list.append(attributes.hasMoreElements() ? " - " : "}");
         }
 
