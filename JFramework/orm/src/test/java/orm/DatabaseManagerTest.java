@@ -1,24 +1,25 @@
 package orm;
 
-import crypto.orm.dataexample.device.DeviceDatabaseManager;
-import crypto.orm.dataexample.rmc.RMCDatabaseManager;
-import crypto.orm.dataexample.rmc.model.RMC;
 import it.richkmeli.jframework.crypto.Crypto;
 import it.richkmeli.jframework.crypto.controller.PasswordManager;
 import it.richkmeli.jframework.crypto.util.RandomStringGenerator;
-import crypto.orm.dataexample.device.model.Device;
 import it.richkmeli.jframework.orm.DatabaseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import orm.dataexample.auth.AuthDatabaseManagerTest;
 import orm.dataexample.auth.UserTest;
+import orm.dataexample.device.DeviceDatabaseManager;
+import orm.dataexample.device.model.Device;
+import orm.dataexample.rmc.RMCDatabaseManager;
+import orm.dataexample.rmc.model.RMC;
 
 import java.util.List;
 
 import static org.junit.Assert.*;
 
 public abstract class DatabaseManagerTest {
+    public static final int ENTRIES = 10;
     protected AuthDatabaseManagerTest authDatabaseManager;
     protected DeviceDatabaseManager deviceDatabaseManager;
     protected RMCDatabaseManager rmcDatabaseManager;
@@ -53,7 +54,7 @@ public abstract class DatabaseManagerTest {
     private void createAuthdb() throws DatabaseException {
         authDatabaseManager.addUser(new UserTest("richk@i.it", "00000000", true));
         authDatabaseManager.addUser(new UserTest("er@fv.it", "00000000", false));
-        for (int i = 0; i < 120; i++) {
+        for (int i = 0; i < ENTRIES; i++) {
             String email = RandomStringGenerator.generateAlphanumericString(8) + "@" + RandomStringGenerator.generateAlphanumericString(8) + "." + RandomStringGenerator.generateAlphanumericString(2);
             String password = RandomStringGenerator.generateAlphanumericString(i);
             UserTest u = new UserTest(email,
@@ -72,7 +73,7 @@ public abstract class DatabaseManagerTest {
         deviceDatabaseManager.addDevice(new Device("device1", "192.168.0.100", "9000", "20-10-2018",
                 "testencryptionkey", email, "start##start##start", ""));
 
-        for (int i = 0; i < 120; i++) {
+        for (int i = 0; i < ENTRIES; i++) {
             String device = "device" + RandomStringGenerator.generateAlphanumericString(8) + "_" + i;
             email = RandomStringGenerator.generateAlphanumericString(8) + "@" + RandomStringGenerator.generateAlphanumericString(8) + "." + RandomStringGenerator.generateAlphanumericString(2);
             authDatabaseManager.addUser(new UserTest(email, PasswordManager.hashPassword("00000000", false), false));
@@ -95,7 +96,7 @@ public abstract class DatabaseManagerTest {
         authDatabaseManager.addUser(new UserTest(email, PasswordManager.hashPassword("00000000", false), false));
         rmcDatabaseManager.addRMC(new RMC(email, "ClientID_1"));
 
-        for (int i = 0; i < 120; i++) {
+        for (int i = 0; i < ENTRIES; i++) {
             email = RandomStringGenerator.generateAlphanumericString(8) + "@" + RandomStringGenerator.generateAlphanumericString(8) + "." + RandomStringGenerator.generateAlphanumericString(2);
             String clientID = RandomStringGenerator.generateAlphanumericString(32);
             authDatabaseManager.addUser(new UserTest(email, PasswordManager.hashPassword("00000000", false), false));

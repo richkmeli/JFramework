@@ -1,9 +1,9 @@
 package orm.dataexample.device;
 
-import crypto.orm.dataexample.device.model.DeviceModel;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.orm.DatabaseManager;
-import crypto.orm.dataexample.device.model.Device;
+import orm.dataexample.device.model.Device;
+import orm.dataexample.device.model.DeviceModel;
 
 import java.util.ArrayList;
 import java.util.List;

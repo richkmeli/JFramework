@@ -1,10 +1,10 @@
 package orm.dataexample.rmc;
 
 
-import crypto.orm.dataexample.rmc.model.RMC;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.orm.DatabaseManager;
-import crypto.orm.dataexample.rmc.model.RMCModel;
+import orm.dataexample.rmc.model.RMC;
+import orm.dataexample.rmc.model.RMCModel;
 
 import java.util.ArrayList;
 import java.util.List;

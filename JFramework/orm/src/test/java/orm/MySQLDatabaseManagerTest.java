@@ -1,9 +1,9 @@
 package orm;
 
-import crypto.orm.dataexample.device.DeviceDatabaseManager;
-import crypto.orm.dataexample.rmc.RMCDatabaseManager;
 import it.richkmeli.jframework.orm.DatabaseException;
 import orm.dataexample.auth.AuthDatabaseManagerTest;
+import orm.dataexample.device.DeviceDatabaseManager;
+import orm.dataexample.rmc.RMCDatabaseManager;
 
 public class MySQLDatabaseManagerTest extends DatabaseManagerTest {
 

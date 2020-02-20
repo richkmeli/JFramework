@@ -1,5 +1,6 @@
 package system;
 
+import it.richkmeli.jframework.system.FolderDeleteThread;
 import org.junit.Test;
 
 import java.io.File;
