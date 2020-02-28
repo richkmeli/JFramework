@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
-public abstract class LogIn {
+public abstract class LogInJob {
 
     protected abstract void doSpecificAction(HttpServletRequest request, HttpServletResponse response) throws JServletException, DatabaseException;
 

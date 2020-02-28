@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public abstract class LogOut {
+public abstract class LogOutJob {
 
     protected abstract void doSpecificAction();
 

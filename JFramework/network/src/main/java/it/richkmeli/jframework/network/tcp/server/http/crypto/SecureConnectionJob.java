@@ -17,10 +17,10 @@ import java.io.PrintWriter;
 import java.util.Base64;
 import java.util.ResourceBundle;
 
-public abstract class SecureConnection {
+public abstract class SecureConnectionJob {
     private String encryptionKey;
 
-    public SecureConnection() {
+    public SecureConnectionJob() {
         super();
         encryptionKey = ResourceBundle.getBundle("configuration").getString("encryptionkey");
 

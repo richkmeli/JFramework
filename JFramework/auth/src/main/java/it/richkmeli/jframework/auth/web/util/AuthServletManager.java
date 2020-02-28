@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
 
+/** AuthServletJob add authentication to ServletJob. A new job has to extend AuthServletJob
+ *
+ */
 public abstract class AuthServletManager extends ServletManager {
     protected static AuthSession authSession;
 
@@ -25,16 +28,21 @@ public abstract class AuthServletManager extends ServletManager {
         }
     }
 
+    public abstract void doSpecificProcessRequestAuth() throws JServletException;
+
+    public abstract String doSpecificProcessResponseAuth(String input) throws JServletException;
+
     @Override
     public void doSpecificProcessRequest() throws JServletException {
         authSession = AuthServletManager.getAuthServerSession(request);
+        doSpecificProcessRequestAuth();
     }
 
     @Override
     public String doSpecificProcessResponse(String input) throws JServletException {
         // server session
         authSession = AuthServletManager.getAuthServerSession(request);
-        return input;
+        return doSpecificProcessResponseAuth(input);
     }
 
 
@@ -93,7 +101,7 @@ public abstract class AuthServletManager extends ServletManager {
         authSession = (AuthSession) httpSession.getAttribute("auth_session");
         if (authSession == null) {
             try {
-                authSession = new AuthSession();
+                authSession = new AuthSession(getServerSession(request));
                 httpSession.setAttribute("auth_session", authSession);
             } catch (DatabaseException e) {
                 throw new JServletException(e);

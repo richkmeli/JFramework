@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
-public abstract class SignUp {
+public abstract class SignUpJob {
 
     protected abstract void doSpecificAction();
 

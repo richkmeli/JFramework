@@ -1,7 +1,6 @@
 package it.richkmeli.jframework.auth.web.util;
 
 import it.richkmeli.jframework.auth.AuthDatabaseManager;
-import it.richkmeli.jframework.crypto.Crypto;
 import it.richkmeli.jframework.network.tcp.server.http.util.Session;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.Logger;
@@ -23,6 +22,13 @@ public class AuthSession extends Session {
         authDatabaseManager = new AuthDatabaseManager();
         userID = null;
         isAdmin = false;
+    }
+
+    public AuthSession(AuthSession authSession) {
+        super();
+        authDatabaseManager = authSession.authDatabaseManager;
+        userID = authSession.userID;
+        isAdmin = authSession.isAdmin;
     }
 
     public AuthSession(AuthSession authSession, Session session) {

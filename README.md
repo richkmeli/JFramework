@@ -20,6 +20,9 @@ It provides the following functionalities:
 -   **System**
 -   **Utility**
 
+For every parts it is generated an independent jar (with all its dependencies included) in case of it is necessary doing 
+a partial usage of JFramework. The compiled components are placed into **release** folder. 
+
 ## Get Started
 
 ### Import in your project
@@ -45,7 +48,11 @@ To get **JFramework** into your build, you have to:
     
 ### Compile
 
-To obtain the jar file, you can download it from the [JFramework Releases](https://github.com/richkmeli/JFramework/releases), instead if you want to build the jar file by yourself, you need to download:
+JFramework uses maven as build automation tool, the root (parent) project is a maven multimodules project,
+namely **JFramework-multimodules**, in which are contained JFramework and all its sub projects as modules.
+
+
+To obtain the jar files, you can download it from the [JFramework Releases](https://github.com/richkmeli/JFramework/releases), instead if you want to build the jar file by yourself, you need to download:
 
 -   java
 -   maven
@@ -54,10 +61,5 @@ To compile the project and generate the jar file, you have to run:
 
     mvn package
     
-The jar is located in the folder "target".
+The jar files are located into the folder "release".
 
-#### JFramework Dependencies
-
-JFramework uses **Bouncy Castle**, so you need to install it on your system.
-To do this, add the [Bouncy Castle provider jar](https://www.bouncycastle.org/download/bcprov-jdk15on-163.jar) (lib/**bcprov-jdk15on-163.jar**) to the **$JAVA_HOME/jre/lib/ext** directory.
-The provider is dynamically loaded by JFramework.
