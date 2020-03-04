@@ -26,8 +26,9 @@ before_script:
   - sudo service mysql stop
   - sudo service postgresql stop
   - docker-compose up -d
-  - mvn clean install
-  - mvn package
+  - mvn install
+  #- mvn clean install
+  #- mvn package
 
 #script:
 #  - curl http://0.0.0.0:8080/Richkware-Manager-Server/
