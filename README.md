@@ -40,11 +40,21 @@ To get **JFramework** into your build, you have to:
     
 #### Add the dependency
 
+For all the framework:
+
 	<dependency>
 	    <groupId>com.github.richkmeli</groupId>
 	    <artifactId>JFramework</artifactId>
-	    <version>Tag</version>
+	    <version>TAG</version>
 	</dependency>
+   
+For a specific module (auth, crypto, ...) of the framework:
+  
+    <dependency>
+        <groupId>com.github.richkmeli.JFramework</groupId>
+        <artifactId>MODULE_NAME</artifactId>
+        <version>TAG</version>
+    </dependency> 
     
 ### Compile
 
