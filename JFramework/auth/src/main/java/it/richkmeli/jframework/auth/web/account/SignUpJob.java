@@ -29,7 +29,7 @@ public abstract class SignUpJob {
         try {
             authSession = AuthServletManager.getAuthServerSession(request);
 
-            if (authSession.getUser() == null) {
+            if (authSession.getUserID() == null) {
                 //Map<String, String> attribMap = ServletManager.doDefaultProcessRequest(request);
                 Map<String, String> attribMap = AuthServletManager.extractParameters(request);
 
@@ -39,7 +39,7 @@ public abstract class SignUpJob {
                     out.println((new KOResponse(StatusCode.ALREADY_REGISTERED)).json());
                 } else {
                     authSession.getAuthDatabaseManager().addUser(new User(email, pass, false));
-                    authSession.setUser(email);
+                    authSession.setUserID(email);
                     out.println((new OKResponse(StatusCode.SUCCESS)).json());
 
                     AuthServletManager.initSessionCookie(request, response);

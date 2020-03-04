@@ -3,6 +3,10 @@ package it.richkmeli.jframework.network.tcp.server.http.util;
 
 import it.richkmeli.jframework.crypto.Crypto;
 
+/**
+ * do not add static modifier to these fields, because this respective ServletManager has a static object of this class
+ */
+
 public class Session {
     private Crypto.Server cryptoServer;
 

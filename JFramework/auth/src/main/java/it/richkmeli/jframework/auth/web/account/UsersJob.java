@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 
-public abstract class UsersListJob {
+public abstract class UsersJob {
 
     protected abstract void doSpecificAction(HttpServletRequest request) throws JServletException, DatabaseException;
 

@@ -28,7 +28,7 @@ public abstract class LogInJob {
             authSession = authServletManager.getAuthServerSession();
 
             // check if is not already logged
-            if (authSession.getUser() == null) {
+            if (authSession.getUserID() == null) {
                 Map<String, String> attribMap = authServletManager.doDefaultProcessRequest(false);/*ServletManager.extractParameters(request);
                 /*Map<String, String> attribMap = ServletManager.doDefaultProcessRequest(request);*/
 
@@ -41,7 +41,7 @@ public abstract class LogInJob {
                     if (authSession.getAuthDatabaseManager().checkPassword(email, pass)) {
 
                         // set userID into the session
-                        authSession.setUser(email);
+                        authSession.setUserID(email);
                         authSession.setAdmin(isAdmin);
 
                         AuthServletManager.initSessionCookie(request, response);
@@ -75,7 +75,7 @@ public abstract class LogInJob {
             }
         } catch (JServletException e) {
             if (authSession != null) {
-                authSession.setUser(null);
+                authSession.setUserID(null);
             }
             if (e.getMessage() != null) {
                 if (e.getMessage().contains("java.lang.Exception: decrypt, crypto not initialized, current state: 0")) {
@@ -89,7 +89,7 @@ public abstract class LogInJob {
             }
         } catch (Exception e) {
             if (authSession != null) {
-                authSession.setUser(null);
+                authSession.setUserID(null);
             }
             out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
         }

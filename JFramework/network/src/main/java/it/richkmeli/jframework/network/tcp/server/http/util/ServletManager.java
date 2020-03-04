@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.*;
 
 public abstract class ServletManager {
+    public static final String HTTP_SESSION_NAME = "session";
     public static final String JFSESSIONID = "JFRAMEWORKSESSIONID";
     //private static final int JFSESSIONCOOKIE_MAXAGE = 3600; // Number of seconds until the cookie expires
     protected static Session session;
@@ -64,7 +65,7 @@ public abstract class ServletManager {
 
     public String doDefaultProcessResponse(String input) throws JServletException {
         // server session
-        session = ServletManager.getServerSession(request);
+        ServletManager.setServerSession(session,request);
 
         // set servletPath for specific process response
         servletPath = request.getServletPath();
@@ -96,7 +97,7 @@ public abstract class ServletManager {
                     Logger.info("extractParameters: the body is not JSON formatted.");
                 }
             } else {
-                Logger.info("Servlet: " + request.getServletPath() + ", extractParameters: the body is empty.");
+                //Logger.info("Servlet: " + request.getServletPath() + ", extractParameters: the body is empty.");
             }
         } catch (IOException e) {
             //e.printStackTrace();
@@ -118,7 +119,7 @@ public abstract class ServletManager {
                     //+ "##" + request.getRemoteUser()
                     + "##" + getCookie(request, "JSESSIONID").getValue()
                     + "##" + request.getHeader("User-Agent");
-            Logger.info("Cookie JFRAMEWORKSESSIONID: " + id);
+            //Logger.info("Cookie JFRAMEWORKSESSIONID: " + id);
             String hashed = SHA256.hashToString(id.getBytes());
             cookie = new Cookie(JFSESSIONID, hashed);
             //cookie.setMaxAge(JFSESSIONCOOKIE_MAXAGE);
@@ -145,16 +146,16 @@ public abstract class ServletManager {
     }
 
     public static void checkSessionCookie(HttpServletRequest request, HttpServletResponse response) throws JServletException {
-        Cookie extractedjframeworkSessionID = getCookie(request, JFSESSIONID);
-        if (!isCookiePresent(request, JFSESSIONID) || extractedjframeworkSessionID.getValue().equalsIgnoreCase("")) {
-            String error = "Cookie: " + JFSESSIONID + " is not present in HTTP cookies";
-            Logger.error(error);
+        Cookie extractedJframeworkSessionID = getCookie(request, JFSESSIONID);
+        if (!isCookiePresent(request, JFSESSIONID) || extractedJframeworkSessionID.getValue().equalsIgnoreCase("")) {
+            String warning = "Cookie: " + JFSESSIONID + " is not present in HTTP cookies";
+            Logger.warning(warning);
             // invalidate httpsession
             //request.getSession().invalidate();
             //response.reset();
             throw new JServletException(new KOResponse(StatusCode.JFRAMEWORK_SESSIONID_ERROR));
         }
-        if (!extractedjframeworkSessionID.getValue().equalsIgnoreCase(generateSessionCookie(request).getValue())) {
+        if (!extractedJframeworkSessionID.getValue().equalsIgnoreCase(generateSessionCookie(request).getValue())) {
             String error = "JFRAMEWORKSESSIONID mismatch, possible Session Hijacking Attack";
             Logger.error(error);
             resetSession(request, response);
@@ -214,38 +215,39 @@ public abstract class ServletManager {
         return getServerSession(request);
     }
 
+    public static void setServerSession(Session session1, HttpServletRequest request) throws JServletException {
+        // http session
+        HttpSession httpSession = request.getSession();
+        httpSession.setAttribute(HTTP_SESSION_NAME, session);
+    }
+
     public static Session getServerSession(HttpServletRequest request) throws JServletException {
         // http session
         HttpSession httpSession = request.getSession();
         // server session
-        session = (Session) httpSession.getAttribute("session");
-        if (session == null) {
+        Session session1 = (Session) httpSession.getAttribute(HTTP_SESSION_NAME);
+        if (session1 == null) {
             try {
                 session = new Session();
-                httpSession.setAttribute("session", session);
+                setServerSession(session,request);
             } catch (/*DatabaseException*/Exception e) {
                 throw new JServletException(e);
-                //httpSession.setAttribute("error", e);
-                //request.getRequestDispatcher("JSP/error.jsp").forward(request, response);
             }
         } else {
             try {
-                if (session.getCryptoServer() == null) {
+                if (session1.getCryptoServer() == null) {
                     try {
                         Logger.info("HTTPSession: Session not null | CryptoServer null");
                         session = new Session();
-                        httpSession.setAttribute("session", session);
-                        //Logger.info("HTTPSession: " + rmsSession.getUser() + " " + rmsSession.isAdmin() + " " + rmsSession.getAuthDatabaseManager());
+                        setServerSession(session,request);
                     } catch (/*DatabaseException*/Exception e) {
                         throw new JServletException(e);
-                        //httpSession.setAttribute("error", e);
-                        //request.getRequestDispatcher("JSP/error.jsp").forward(request, response);
                     }
+                }else {
+                    session = session1;
                 }
             } catch (/*DatabaseException*/Exception e) {
                 throw new JServletException(e);
-                //httpSession.setAttribute("error", e);
-                //request.getRequestDispatcher("JSP/error.jsp").forward(request, response);
             }
         }
         return session;
@@ -261,11 +263,11 @@ public abstract class ServletManager {
 
 
     public <T extends Session> T getExtendedServerSession(String sessionName, HttpSession httpSession) throws ServletException {
-        T session = (T) httpSession.getAttribute("session" + sessionName);
+        T session = (T) httpSession.getAttribute(HTTP_SESSION_NAME + sessionName);
         if (session == null) {
             try {
                 session = getNewSessionInstance();
-                httpSession.setAttribute("session" + sessionName, session);
+                httpSession.setAttribute(HTTP_SESSION_NAME + sessionName, session);
             } catch (Exception e) {
                 throw new ServletException(e);
                 //httpSession.setAttribute("error", e);

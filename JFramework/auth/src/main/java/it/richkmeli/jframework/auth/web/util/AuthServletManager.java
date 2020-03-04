@@ -12,10 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
 
-/** AuthServletJob add authentication to ServletJob. A new job has to extend AuthServletJob
- *
+/**
+ * Authenticated Servlet Manager
+ * AuthServletJob add authentication to ServletJob. A new job has to extend AuthServletJob
  */
 public abstract class AuthServletManager extends ServletManager {
+    public static final String HTTP_AUTH_SESSION_NAME = "auth_session";
     protected static AuthSession authSession;
 
     public AuthServletManager(HttpServletRequest request, HttpServletResponse response) {
@@ -27,6 +29,7 @@ public abstract class AuthServletManager extends ServletManager {
             Logger.error(e);
         }
     }
+
 
     public abstract void doSpecificProcessRequestAuth() throws JServletException;
 
@@ -41,7 +44,7 @@ public abstract class AuthServletManager extends ServletManager {
     @Override
     public String doSpecificProcessResponse(String input) throws JServletException {
         // server session
-        authSession = AuthServletManager.getAuthServerSession(request);
+        AuthServletManager.setAuthServerSession(authSession, request);
         return doSpecificProcessResponseAuth(input);
     }
 
@@ -70,7 +73,7 @@ public abstract class AuthServletManager extends ServletManager {
         // server session
         AuthSession authSession = getAuthServerSession(request);
 
-        String user = authSession.getUser();
+        String user = authSession.getUserID();
         // Authentication
         if (user == null) {
             Logger.error("ServletManager, user not logged");
@@ -81,7 +84,7 @@ public abstract class AuthServletManager extends ServletManager {
 
 
     public void reset(HttpServletRequest request, HttpServletResponse response) {
-        super.reset(request,response);
+        super.reset(request, response);
         try {
             authSession = new AuthSession();
         } catch (DatabaseException e) {
@@ -98,34 +101,46 @@ public abstract class AuthServletManager extends ServletManager {
         // http session
         HttpSession httpSession = request.getSession();
         // server session
-        authSession = (AuthSession) httpSession.getAttribute("auth_session");
-        if (authSession == null) {
+        // overwrite java authsession with http stored authsession
+        AuthSession authSession1 = (AuthSession) httpSession.getAttribute(HTTP_AUTH_SESSION_NAME);
+        if (authSession1 == null) {
+            // object not present in HTTP session
             try {
                 authSession = new AuthSession(getServerSession(request));
-                httpSession.setAttribute("auth_session", authSession);
+                httpSession.setAttribute(HTTP_AUTH_SESSION_NAME, authSession);
             } catch (DatabaseException e) {
                 throw new JServletException(e);
-                //httpSession.setAttribute("error", e);
-                //request.getRequestDispatcher("JSP/error.jsp").forward(request, response);
             }
         } else {
+            // object present in HTTP session, but not initialized
             try {
-                if (authSession.getAuthDatabaseManager() == null) {
+                if (authSession1.getAuthDatabaseManager() == null) {
                     Logger.error("HTTPSession: jFramework Session not null | AuthDatabaseManager null");
-                    authSession = new AuthSession();
-                    httpSession.setAttribute("auth_session", authSession);
+                    authSession = new AuthSession(getServerSession(request));
+                    httpSession.setAttribute(HTTP_AUTH_SESSION_NAME, authSession);
                 } else {
-                    //Logger.info("HTTPSession: "+session.getUser()+" " + session.isAdmin() + " " + session.getAuthDatabaseManager());
+                    authSession = authSession1;
                 }
             } catch (DatabaseException e) {
                 throw new JServletException(e);
-                //httpSession.setAttribute("error", e);
-                //request.getRequestDispatcher("JSP/error.jsp").forward(request, response);
             }
         }
         return authSession;
     }
 
+    public static void setAuthServerSession(AuthSession authSession1, HttpServletRequest request) throws JServletException {
+        // http session
+        HttpSession httpSession = request.getSession();
+        // set java authsession to http stored authsession
+        // update authSession (derived) with Session object inside (base)
+        if (authSession != null) {
+            if (authSession.getCryptoServer() == null) {
+                authSession = new AuthSession(authSession, getServerSession(request));
+            }
+            httpSession.setAttribute(HTTP_AUTH_SESSION_NAME, authSession);
+        }
+        authSession = authSession1;
+    }
 
 }
 

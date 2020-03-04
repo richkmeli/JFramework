@@ -14,12 +14,20 @@ public class Logger {
     public static Boolean debug = true;
     public static final String INFO_TAG = "INFO";
     public static final String ERROR_TAG = "ERROR";
+    public static final String WARNING_TAG = "WARNING";
 
     // Logger.info(this.getClass(), "...");
     public static void info(String message) {
         if (debug) {
             System.out.println(formatLogEvent(INFO_TAG, message));
             printOnLogFile(INFO_TAG, message);
+        }
+    }
+
+    public static void warning(String message) {
+        if (debug) {
+            System.out.println(formatLogEvent(WARNING_TAG, message));
+            printOnLogFile(WARNING_TAG, message);
         }
     }
 

@@ -5,6 +5,11 @@ import it.richkmeli.jframework.network.tcp.server.http.util.Session;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.Logger;
 
+/**
+ * Authenticated Servlet Manager
+ * do not add static modifier to these fields, because this respective ServletManager has a static object of this class
+ */
+
 public class AuthSession extends Session {
     private AuthDatabaseManager authDatabaseManager;
     private String userID;      //user from AuthSchema
@@ -14,14 +19,14 @@ public class AuthSession extends Session {
         super();
         authDatabaseManager = new AuthDatabaseManager();
         userID = null;
-        isAdmin = false;
+        isAdmin = null;
     }
 
     public AuthSession(Session session) throws DatabaseException {
         super(session);
         authDatabaseManager = new AuthDatabaseManager();
         userID = null;
-        isAdmin = false;
+        isAdmin = null;
     }
 
     public AuthSession(AuthSession authSession) {
@@ -42,16 +47,17 @@ public class AuthSession extends Session {
     public AuthDatabaseManager getAuthDatabaseManager() throws DatabaseException {
         //Logger.i("authDatabaseManager" + authDatabaseManager);
         if (authDatabaseManager == null) {
+            Logger.info("init AuthDatabase");
             authDatabaseManager = new AuthDatabaseManager();
         }
         return authDatabaseManager;
     }
 
-    public String getUser() {
+    public String getUserID() {
         return userID;
     }
 
-    public void setUser(String userID) {
+    public void setUserID(String userID) {
         this.userID = userID;
     }
 

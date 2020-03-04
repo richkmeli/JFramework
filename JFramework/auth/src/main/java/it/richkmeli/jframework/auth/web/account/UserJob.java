@@ -35,7 +35,7 @@ public abstract class UserJob {
             // server authSession
             AuthSession authSession = AuthServletManager.getAuthServerSession(request);
 
-            String user = authSession.getUser();
+            String user = authSession.getUserID();
             boolean isAdmin = authSession.getAuthDatabaseManager().isAdmin(user);
 
             JSONObject messageJSON = new JSONObject();
@@ -78,12 +78,12 @@ public abstract class UserJob {
 
             // server authSession
             AuthSession authSession = AuthServletManager.getAuthServerSession(request);
-            String user = authSession.getUser();
+            String user = authSession.getUserID();
 
             if (attribMap.containsKey("email")) {
                 String payload = attribMap.get("email");
 
-                if (authSession.getUser().equals(payload)) {
+                if (authSession.getUserID().equals(payload)) {
                     authSession.getAuthDatabaseManager().removeUser(payload);
                     authSession.removeUser();
                     out.println((new OKResponse(StatusCode.SUCCESS).json()));
@@ -114,7 +114,7 @@ public abstract class UserJob {
     private String GenerateUserListJSON(AuthSession authSession) {
         //DatabaseManager databaseManager = authSession.getDatabaseManager();
         List<User> userList = new ArrayList<>();//databaseManager.refreshUser();
-        userList.add(new User(authSession.getUser(), "hidden", authSession.isAdmin()));
+        userList.add(new User(authSession.getUserID(), "hidden", authSession.isAdmin()));
 
         Type type = new TypeToken<List<User>>() {
         }.getType();
