@@ -1,7 +1,7 @@
 package it.richkmeli.jframework.network.tcp.server.http.crypto;
 
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.KOResponse;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.StatusCode;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.BaseStatusCode;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 import it.richkmeli.jframework.network.tcp.server.http.util.ServletManager;
 import it.richkmeli.jframework.network.tcp.server.http.util.Session;
@@ -72,10 +72,10 @@ public abstract class SecureConnectionJob {
                     out.println(serverPayload);
                     out.flush();
                 } else {
-                    out.println((new KOResponse(StatusCode.SECURE_CONNECTION, "data parameter not present")).json());
+                    out.println((new KoResponse(BaseStatusCode.SECURE_CONNECTION, "data parameter not present")).json());
                 }
             } else {
-                out.println((new KOResponse(StatusCode.SECURE_CONNECTION, "clientID parameter not present")).json());
+                out.println((new KoResponse(BaseStatusCode.SECURE_CONNECTION, "clientID parameter not present")).json());
             }
         } catch (Exception e) {
             Logger.error("SERVLET encryptionKey, doGet", e);

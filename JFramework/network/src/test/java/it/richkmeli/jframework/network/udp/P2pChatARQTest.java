@@ -1,6 +1,5 @@
-package network.udp;
+package it.richkmeli.jframework.network.udp;
 
-import it.richkmeli.jframework.network.udp.P2pChatARQ;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -40,5 +39,4 @@ public class P2pChatARQTest {
         System.out.println("\n" + messageReceivedByA + " || " + messageReceivedByB);
 
     }
-
 }

@@ -5,9 +5,9 @@ import com.google.gson.reflect.TypeToken;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
 import it.richkmeli.jframework.auth.web.util.AuthSession;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.KOResponse;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.OKResponse;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.StatusCode;
+import it.richkmeli.jframework.auth.web.util.AuthStatusCode;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.OkResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.Logger;
@@ -25,7 +25,7 @@ import java.util.Map;
 public abstract class UserJob {
     protected abstract void doSpecificAction(HttpServletRequest request) throws JServletException, DatabaseException;
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response, AuthServletManager servletManager) throws javax.servlet.ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response, AuthServletManager servletManager) throws IOException {
         PrintWriter out = response.getWriter();
 
         try {
@@ -52,16 +52,16 @@ public abstract class UserJob {
             }
 
             String output = servletManager.doDefaultProcessResponse(messageJSON.toString());
-            out.println(new OKResponse(StatusCode.SUCCESS, output).json());
+            out.println(new OkResponse(AuthStatusCode.SUCCESS, output).json());
 
             out.flush();
             out.close();
         } catch (JServletException e) {
-            out.println(e.getKOResponseJSON());
+            out.println(e.getKoResponseJSON());
         } catch (DatabaseException e) {
-            out.println((new KOResponse(StatusCode.DB_ERROR, e.getMessage())).json());
+            out.println((new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage())).json());
         } catch (Exception e) {
-            out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
+            out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
         }
         out.flush();
         out.close();
@@ -86,27 +86,27 @@ public abstract class UserJob {
                 if (authSession.getUserID().equals(payload)) {
                     authSession.getAuthDatabaseManager().removeUser(payload);
                     authSession.removeUser();
-                    out.println((new OKResponse(StatusCode.SUCCESS).json()));
+                    out.println((new OkResponse(AuthStatusCode.SUCCESS,"User "+payload+" Removed").json()));
                 } else {
                     if (authSession.isAdmin()) {
                         authSession.getAuthDatabaseManager().removeUser(payload);
-                        out.println((new OKResponse(StatusCode.SUCCESS).json()));
+                        out.println((new OkResponse(AuthStatusCode.SUCCESS,"User "+payload+" deleted. Admin right (admin: " + authSession.getUserID()+")").json()));
                     } else {
-                        out.println((new KOResponse(StatusCode.NOT_AUTHORIZED, "The current user is not authorized").json()));
+                        out.println((new KoResponse(AuthStatusCode.NOT_AUTHORIZED, "The current user is not authorized").json()));
                     }
                 }
             } else {
-                out.println((new KOResponse(StatusCode.MISSING_FIELD).json()));
+                out.println((new KoResponse(AuthStatusCode.MISSING_FIELD).json()));
             }
             out.flush();
             out.close();
 
         } catch (JServletException e) {
-            out.println(e.getKOResponseJSON());
+            out.println(e.getKoResponseJSON());
         } catch (DatabaseException e) {
-            out.println((new KOResponse(StatusCode.DB_ERROR, e.getMessage())).json());
+            out.println((new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage())).json());
         } catch (Exception e) {
-            out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
+            out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
         }
 
     }

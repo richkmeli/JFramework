@@ -1,7 +1,6 @@
 package it.richkmeli.jframework.auth.web.util;
 
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.KOResponse;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.StatusCode;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 import it.richkmeli.jframework.network.tcp.server.http.util.ServletManager;
 import it.richkmeli.jframework.orm.DatabaseException;
@@ -77,7 +76,7 @@ public abstract class AuthServletManager extends ServletManager {
         // Authentication
         if (user == null) {
             Logger.error("ServletManager, user not logged");
-            throw new JServletException(new KOResponse(StatusCode.NOT_LOGGED, "user not logged"));
+            throw new JServletException(new KoResponse(AuthStatusCode.NOT_LOGGED));
         }
 
     }

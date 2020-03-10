@@ -1,8 +1,8 @@
 package it.richkmeli.jframework.network.tcp.server.http.util;
 
 import it.richkmeli.jframework.crypto.algorithm.SHA256;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.KOResponse;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.StatusCode;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.BaseStatusCode;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
 import it.richkmeli.jframework.util.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -153,14 +153,14 @@ public abstract class ServletManager {
             // invalidate httpsession
             //request.getSession().invalidate();
             //response.reset();
-            throw new JServletException(new KOResponse(StatusCode.JFRAMEWORK_SESSIONID_ERROR));
+            throw new JServletException(new KoResponse(BaseStatusCode.JFRAMEWORK_SESSIONID_ERROR));
         }
         if (!extractedJframeworkSessionID.getValue().equalsIgnoreCase(generateSessionCookie(request).getValue())) {
             String error = "JFRAMEWORKSESSIONID mismatch, possible Session Hijacking Attack";
             Logger.error(error);
             resetSession(request, response);
 
-            throw new JServletException(new KOResponse(StatusCode.JFRAMEWORK_SESSIONID_ERROR));
+            throw new JServletException(new KoResponse(BaseStatusCode.JFRAMEWORK_SESSIONID_ERROR));
         }
     }
 

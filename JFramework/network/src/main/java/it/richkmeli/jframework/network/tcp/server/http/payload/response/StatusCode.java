@@ -1,48 +1,18 @@
 package it.richkmeli.jframework.network.tcp.server.http.payload.response;
 
-public enum StatusCode {
+import javafx.util.Pair;
 
-    /**
-     * Legenda codici:
-     * 1000 -> successo
-     * 2000 -> errore servizio network
-     * 3000 -> errore offline
-     * <p>
-     * seconda cifra = tipo di servizio
-     * terza e quarta cifra = numero errore
-     */
+public class StatusCode extends Pair<Integer,String> {
 
-    SUCCESS(1000, ""),
-    GENERIC_ERROR(2000, ""),
-    // account error 21xx
-    NOT_LOGGED(2100, "User is not logged"),
-    ALREADY_LOGGED(2101, "Already logged in"),
-    MISSING_FIELD(2102, "Check input fields"),
-    WRONG_PASSWORD(2103, "Wrong password"),
-    ACCOUNT_NOT_FOUND(2104, "Account not found"),
-    ALREADY_REGISTERED(2105, "Email already registered"),
-    NOT_AUTHORIZED(2106, "The current user is not authorized"),
-    // db error 22xx
-    DB_ERROR(3000, "Error in DB"), // TODO cambiare in 2200, controllare che in RMC non siano
-    FIELD_EMPTY(3001, "Field empty in DB"),
-    // crypto error 23xx
-    SECURE_CONNECTION(2300, "Secure Connection error"),
-    // network protocol error 24xx
-    CHANNEL_UNKNOWN(2400, "Channel Unknown"),
-    JFRAMEWORK_SESSIONID_ERROR(2401, "JFramework Session ID Error. Login Required.");
-    private int code;
-    private String defMessage;
-
-    StatusCode(int code, String mess) {
-        this.code = code;
-        this.defMessage = mess;
+    public StatusCode(Integer key, String value) {
+        super(key, value);
     }
 
-    public String getDefMessage() {
-        return this.defMessage;
+    public String getMessage() {
+        return getValue();
     }
 
     public int getCode() {
-        return code;
+        return getKey();
     }
 }

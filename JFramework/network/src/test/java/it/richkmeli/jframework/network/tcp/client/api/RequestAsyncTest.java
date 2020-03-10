@@ -1,13 +1,11 @@
-package network.tcp.client.api;
+package it.richkmeli.jframework.network.tcp.client.api;
 
-import it.richkmeli.jframework.network.tcp.client.api.ModelUtil;
-import it.richkmeli.jframework.network.tcp.client.api.RequestAsync;
-import it.richkmeli.jframework.network.tcp.client.api.RequestListener;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
 
-public class NetworkUnitTest {
+public class RequestAsyncTest {
 
     @Test
     public void requestAsync() {

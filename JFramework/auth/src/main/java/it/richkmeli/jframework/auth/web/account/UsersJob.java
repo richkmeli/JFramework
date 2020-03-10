@@ -6,9 +6,9 @@ import it.richkmeli.jframework.auth.AuthDatabaseManager;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
 import it.richkmeli.jframework.auth.web.util.AuthSession;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.KOResponse;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.OKResponse;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.StatusCode;
+import it.richkmeli.jframework.auth.web.util.AuthStatusCode;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.OkResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.Logger;
@@ -42,21 +42,21 @@ public abstract class UsersJob {
 
             if (session.isAdmin()) {
                 String output = authServletManager.doDefaultProcessResponse(GenerateUsersListJSON(session));
-                out.println(new OKResponse(StatusCode.SUCCESS, output).json());
+                out.println(new OkResponse(AuthStatusCode.SUCCESS, output).json());
 
                 out.flush();
                 out.close();
             } else {
-                out.println((new KOResponse(StatusCode.NOT_AUTHORIZED, "The current user is not authorized").json()));
+                out.println((new KoResponse(AuthStatusCode.NOT_AUTHORIZED, "The current user is not authorized").json()));
             }
 
 
         } catch (JServletException e) {
-            out.println(e.getKOResponseJSON());
+            out.println(e.getKoResponseJSON());
         } catch (DatabaseException e) {
-            out.println((new KOResponse(StatusCode.DB_ERROR, e.getMessage())).json());
+            out.println((new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage())).json());
         } catch (Exception e) {
-            out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
+            out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
         }
     }
 

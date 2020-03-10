@@ -2,9 +2,9 @@ package it.richkmeli.jframework.auth.web.account;
 
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
 import it.richkmeli.jframework.auth.web.util.AuthSession;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.KOResponse;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.OKResponse;
-import it.richkmeli.jframework.network.tcp.server.http.payload.response.StatusCode;
+import it.richkmeli.jframework.auth.web.util.AuthStatusCode;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.OkResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +17,7 @@ public abstract class LogOutJob {
 
     protected abstract void doSpecificAction();
 
-    public void doAction(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
+    public void doAction(HttpServletRequest request, HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
         HttpSession httpSession = request.getSession();
         AuthSession authSession = null;
@@ -31,13 +31,13 @@ public abstract class LogOutJob {
             }
             AuthServletManager.resetSession(request, response);
 
-            out.println((new OKResponse(StatusCode.SUCCESS)).json());
+            out.println((new OkResponse(AuthStatusCode.SUCCESS, "LogOut succeeded")).json());
 
         } catch (JServletException e) {
-            out.println(e.getKOResponseJSON());
+            out.println(e.getKoResponseJSON());
         } catch (Exception e) {
             //e.printStackTrace();
-            out.println((new KOResponse(StatusCode.GENERIC_ERROR, e.getMessage())).json());
+            out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
         }
 
         out.flush();
