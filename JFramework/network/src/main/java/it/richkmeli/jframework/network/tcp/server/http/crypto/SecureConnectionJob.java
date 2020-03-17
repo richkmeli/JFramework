@@ -5,7 +5,6 @@ import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoRespon
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 import it.richkmeli.jframework.network.tcp.server.http.util.ServletManager;
 import it.richkmeli.jframework.network.tcp.server.http.util.Session;
-import it.richkmeli.jframework.util.Logger;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,25 +25,29 @@ public abstract class SecureConnectionJob {
 
     }
 
+    /**
+     * an implementation of this abstract method should contains all activities to be done BEFORE performing encryption process.
+     * @param request HTTP servlet request
+     * @param response HTTP servlet response
+     * @param clientID client identifier
+     * @throws Exception
+     */
     protected abstract void doBeforeCryptoAction(HttpServletRequest request, HttpServletResponse response, String clientID) throws Exception;
 
+    /**
+     * an implementation of this abstract method should contains all activities to be done AFTER performing encryption process.
+     * @throws Exception
+     */
     protected abstract void doFinalCryptoAction() throws Exception;
 
 
     public void doAction(HttpServletRequest request, HttpServletResponse response) throws IOException, JServletException {
         HttpSession httpSession = request.getSession();
         Session session = null;
-        // try {
-            session = ServletManager.getServerSession(request);
-//        } catch (ServletException e) {
-//            httpSession.setAttribute("error", e);
-//            request.getRequestDispatcher(ServletManager.ERROR_JSP).forward(request, response);
-//
-//        }
+        session = ServletManager.getServerSession(request);
 
+        PrintWriter out = response.getWriter();
         try {
-            PrintWriter out = response.getWriter();
-
             File secureDataServer = new File("TESTsecureDataServer.txt");
             String serverKey = "testkeyServer";
             // TODO rendere unico il client ID, che sarebbe il codice del RMC, vedi se passarlo come parametro o generato o altro fattore
@@ -77,11 +80,10 @@ public abstract class SecureConnectionJob {
             } else {
                 out.println((new KoResponse(BaseStatusCode.SECURE_CONNECTION, "clientID parameter not present")).json());
             }
-        } catch (Exception e) {
-            Logger.error("SERVLET encryptionKey, doGet", e);
-            //httpSession.setAttribute("error", e);
-            //request.getRequestDispatcher(ServletManager.ERROR_JSP).forward(request, response);
-            throw new JServletException(e);
+        } catch (Throwable e) {
+            //Logger.error("SERVLET encryptionKey, doGet", e);
+            //throw new JServletException(e);
+            out.println((new KoResponse(BaseStatusCode.GENERIC_ERROR, e.getMessage())).json());
         }
     }
 

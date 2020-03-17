@@ -1,18 +1,19 @@
 package it.richkmeli.jframework.network.tcp.server.http.payload.response;
 
-import javafx.util.Pair;
+public class StatusCode {
+    private Integer code;
+    private String message;
 
-public class StatusCode extends Pair<Integer,String> {
+    public StatusCode(Integer code, String message) {
+        this.code = code;
+        this.message = message;
+    }
 
-    public StatusCode(Integer key, String value) {
-        super(key, value);
+    public Integer getCode() {
+        return code;
     }
 
     public String getMessage() {
-        return getValue();
-    }
-
-    public int getCode() {
-        return getKey();
+        return message;
     }
 }

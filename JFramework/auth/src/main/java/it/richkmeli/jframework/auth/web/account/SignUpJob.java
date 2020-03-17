@@ -53,7 +53,7 @@ public abstract class SignUpJob {
             out.println((new KoResponse(AuthStatusCode.ALREADY_LOGGED)).json());
         } catch (DatabaseException e) {
             out.println((new KoResponse(AuthStatusCode.DB_ERROR)).json());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR)).json());
         }
 

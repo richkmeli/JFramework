@@ -55,7 +55,7 @@ public abstract class UsersJob {
             out.println(e.getKoResponseJSON());
         } catch (DatabaseException e) {
             out.println((new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage())).json());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
         }
     }

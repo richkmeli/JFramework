@@ -87,7 +87,7 @@ public abstract class LogInJob {
                 // if the message is Servlet exception is empty, show generic error message
                 out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR)).json());
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             if (authSession != null) {
                 authSession.setUserID(null);
             }

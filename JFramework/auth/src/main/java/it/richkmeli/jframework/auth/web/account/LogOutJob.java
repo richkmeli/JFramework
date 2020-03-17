@@ -35,7 +35,7 @@ public abstract class LogOutJob {
 
         } catch (JServletException e) {
             out.println(e.getKoResponseJSON());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             //e.printStackTrace();
             out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
         }

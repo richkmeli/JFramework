@@ -55,7 +55,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>util</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

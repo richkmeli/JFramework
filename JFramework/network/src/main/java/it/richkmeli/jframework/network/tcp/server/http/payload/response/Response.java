@@ -41,6 +41,10 @@ public abstract class Response {
         return additionalMessage;
     }
 
+    /**
+     * Concatenate StatusCode message and additionalMessage of this response
+     * @return the concatenated message
+     */
     public String getMessage() {
         if (VERBOSE) {
             String message;
@@ -68,7 +72,7 @@ public abstract class Response {
     public String json() {
         JSONObject output = new JSONObject();
         output.put("status", getStatus());
-        output.put("statusCode", getStatusCode());
+        output.put("statusCode", getStatusCode().getCode());
         output.put("message", getMessage());
         return output.toString();
     }
