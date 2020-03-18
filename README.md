@@ -27,23 +27,62 @@ a partial usage of JFramework. The compiled components are placed into **release
 
 ### Import in your project
 
-To get **JFramework** into your build, you have to: 
+To get **JFramework** into your project, you can use: 
+-   
+-   JFramework Github
 
-#### Add the JitPack repository to your build file
+|  Repository  | Visibility | Version | 
+|--------------|:----:|:---:|
+| JitPack  | Public | stable |
+| JFramework Github | Github Users | all |
+
+#### Add the JitPack repository to your maven build file
+On JitPack repo are published only stable versions and the release scope is public.
 
 	<repositories>
 		<repository>
 		    <id>jitpack.io</id>
 		    <url>https://jitpack.io</url>
 		</repository>
+		...
 	</repositories>
-    
-#### Add the dependency
+	
+##### Add the dependency
+
+For all the framework:
+
+    <dependency>
+        <groupId>com.github.richkmeli</groupId>
+        <artifactId>JFramework</artifactId>
+        <version>TAG</version>
+    </dependency>
+   
+For a specific module (auth, crypto, ...) of the framework:
+  
+    <dependency>
+        <groupId>com.github.richkmeli.JFramework</groupId>
+        <artifactId>MODULE_NAME</artifactId>
+        <version>TAG</version>
+    </dependency> 
+	
+#### Add the JFramework Github repository to your build file
+On JFramework Github repo are published all versions and the release scope is Github user only.
+(Configuring [Apache Maven](https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-apache-maven-for-use-with-github-packages) or [Gradle](https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-gradle-for-use-with-github-packages) for use with GitHub Packages)
+
+	 <repositories>
+            <repository>
+                <id>github</id>
+                <url>https://maven.pkg.github.com/richkmeli/JFramework</url>
+            </repository>
+            ...
+        </repositories>
+
+##### Add the dependency
 
 For all the framework:
 
 	<dependency>
-	    <groupId>com.github.richkmeli</groupId>
+	    <groupId>it.richkmeli.jframework</groupId>
 	    <artifactId>JFramework</artifactId>
 	    <version>TAG</version>
 	</dependency>
@@ -51,7 +90,7 @@ For all the framework:
 For a specific module (auth, crypto, ...) of the framework:
   
     <dependency>
-        <groupId>com.github.richkmeli.JFramework</groupId>
+        <groupId>it.richkmeli.jframework</groupId>
         <artifactId>MODULE_NAME</artifactId>
         <version>TAG</version>
     </dependency> 
@@ -62,7 +101,7 @@ JFramework uses maven as build automation tool, the root (parent) project is a m
 namely **JFramework-multimodules**, in which are contained JFramework and all its sub projects as modules.
 
 
-To obtain the jar files, you can download it from the [JFramework Releases](https://github.com/richkmeli/JFramework/releases), instead if you want to build the jar file by yourself, you need to download:
+To get the jar files, you can download it from the [JFramework Releases](https://github.com/richkmeli/JFramework/releases), instead if you want to build the jar files by yourself, you need to download:
 
 -   java
 -   maven

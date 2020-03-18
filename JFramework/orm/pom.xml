@@ -6,12 +6,11 @@
     <parent>
         <artifactId>JFramework-multimodules</artifactId>
         <groupId>it.richkmeli.jframework</groupId>
-        <version>1.2.0</version>
+        <version>1.2.2</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>orm</artifactId>
-
 
     <build>
         <plugins>
