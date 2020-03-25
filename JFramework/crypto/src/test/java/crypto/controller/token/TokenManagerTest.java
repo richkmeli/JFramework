@@ -2,15 +2,38 @@ package crypto.controller.token;
 
 import crypto.algorithm.algorithmTestUtil;
 import it.richkmeli.jframework.crypto.controller.token.TokenManager;
+import it.richkmeli.jframework.crypto.exception.CryptoException;
 import org.junit.Test;
 
 public class TokenManagerTest {
 
     @Test
-    public void generate_verify() {
+    public void generate_verify_numeric_compact_salted() throws CryptoException {
         for (int i : algorithmTestUtil.plainTextLengths) {
             String value = algorithmTestUtil.genString(i);
-            String token = TokenManager.generate(value);
+
+            for (int length = 3; length < 16; length++) {
+                String token = TokenManager.generateNumericCompact(value, length);
+                assert TokenManager.verifyNumericCompact(token, value);
+            }
+        }
+    }
+
+
+    @Test
+    public void generate_verify() throws CryptoException {
+        generate_verify(false);
+    }
+
+    @Test
+    public void generate_verify_salted() throws CryptoException {
+        generate_verify(true);
+    }
+
+    private void generate_verify(boolean salted) throws CryptoException {
+        for (int i : algorithmTestUtil.plainTextLengths) {
+            String value = algorithmTestUtil.genString(i);
+            String token = TokenManager.generate(value, salted);
 
             //System.out.println("TEST: " + token);
 
@@ -19,11 +42,20 @@ public class TokenManagerTest {
     }
 
     @Test
-    public void generate_verify_temporized() {
+    public void generate_verify_temporized() throws CryptoException {
+        generate_verify_temporized(false);
+    }
+
+    @Test
+    public void generate_verify_temporized_salted() throws CryptoException {
+        generate_verify_temporized(true);
+    }
+
+    public void generate_verify_temporized(boolean salted) throws CryptoException {
         for (int i : algorithmTestUtil.plainTextLengths) {
             String value = algorithmTestUtil.genString(i);
             for (int minOfVal = 0; minOfVal < 5; minOfVal++) {
-                String token = TokenManager.generateTemporized(value, minOfVal);
+                String token = TokenManager.generateTemporized(value, minOfVal, salted);
 
                 //System.out.println("TEST temp: " + token);
 

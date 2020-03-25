@@ -1,6 +1,7 @@
 package it.richkmeli.jframework.auth;
 
 import it.richkmeli.jframework.auth.model.User;
+import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.crypto.Crypto;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.orm.DatabaseManager;
@@ -33,7 +34,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
     }
 
 
-    public User getUser(String email) throws DatabaseException {
+    public User getUser(String email) throws DatabaseException, ModelException {
         return read(new User(email, null));
     }
 
@@ -45,25 +46,25 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
         return create(user);
     }
 
-    public boolean removeUser(String email) throws DatabaseException {
+    public boolean removeUser(String email) throws DatabaseException, ModelException {
         return super.delete(new User(email, ""));
     }
 
 
-    public boolean isUserPresent(String email) throws DatabaseException {
+    public boolean isUserPresent(String email) throws DatabaseException, ModelException {
         return getUser(email) != null;
     }
 
-    public boolean editPassword(String email, String pass) throws DatabaseException {
+    public boolean editPassword(String email, String pass) throws DatabaseException, ModelException {
         String password = Crypto.hashPassword(pass, false);
         return update(new User(email, password, null));
     }
 
-    public boolean editAdmin(String email, Boolean isAdmin) throws DatabaseException {
+    public boolean editAdmin(String email, Boolean isAdmin) throws DatabaseException, ModelException {
         return update(new User(email, null, isAdmin));
     }
 
-    public boolean checkPassword(String email, String pass) throws DatabaseException {
+    public boolean checkPassword(String email, String pass) throws DatabaseException, ModelException {
         User user = getUser(email);
         if (user != null) {
             return Crypto.verifyPassword(user.getPassword(), pass);
@@ -72,7 +73,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
         }
     }
 
-    public boolean isAdmin(String email) throws DatabaseException {
+    public boolean isAdmin(String email) throws DatabaseException, ModelException {
         User user = getUser(email);
         if (user != null) {
             return user.getAdmin();

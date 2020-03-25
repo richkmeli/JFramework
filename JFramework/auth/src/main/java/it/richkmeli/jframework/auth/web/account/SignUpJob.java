@@ -1,6 +1,7 @@
 package it.richkmeli.jframework.auth.web.account;
 
 import it.richkmeli.jframework.auth.model.User;
+import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
 import it.richkmeli.jframework.auth.web.util.AuthSession;
 import it.richkmeli.jframework.auth.web.util.AuthStatusCode;
@@ -35,6 +36,10 @@ public abstract class SignUpJob {
 
                 String email = attribMap.get("email");
                 String pass = attribMap.get("password");
+                // check the model integrity of the data passed
+                User.checkUserIntegrity(email, pass, null);
+
+
                 if (authSession.getAuthDatabaseManager().isUserPresent(email)) {
                     out.println((new KoResponse(AuthStatusCode.ALREADY_REGISTERED)).json());
                 } else {
@@ -53,6 +58,8 @@ public abstract class SignUpJob {
             out.println((new KoResponse(AuthStatusCode.ALREADY_LOGGED)).json());
         } catch (DatabaseException e) {
             out.println((new KoResponse(AuthStatusCode.DB_ERROR)).json());
+        } catch (ModelException e) {
+            out.println((new KoResponse(AuthStatusCode.MODEL_ERROR, e.getMessage())).json());
         } catch (Throwable e) {
             out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR)).json());
         }

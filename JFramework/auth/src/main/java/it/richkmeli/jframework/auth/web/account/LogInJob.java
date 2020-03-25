@@ -1,5 +1,7 @@
 package it.richkmeli.jframework.auth.web.account;
 
+import it.richkmeli.jframework.auth.model.User;
+import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
 import it.richkmeli.jframework.auth.web.util.AuthSession;
 import it.richkmeli.jframework.auth.web.util.AuthStatusCode;
@@ -34,7 +36,9 @@ public abstract class LogInJob {
 
                 String email = attribMap.get("email");// = request.getParameter("email");
                 String pass = attribMap.get("password");
-                // = request.getParameter("password");
+                // check the model integrity of the data passed
+                User.checkUserIntegrity(email,pass,null);
+
 
                 if (authSession.getAuthDatabaseManager().isUserPresent(email)) {
                     boolean isAdmin = authSession.getAuthDatabaseManager().isAdmin(email);
@@ -87,6 +91,8 @@ public abstract class LogInJob {
                 // if the message is Servlet exception is empty, show generic error message
                 out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR)).json());
             }
+        }catch (ModelException e){
+            out.println((new KoResponse(AuthStatusCode.MODEL_ERROR, e.getMessage())).json());
         } catch (Throwable e) {
             if (authSession != null) {
                 authSession.setUserID(null);

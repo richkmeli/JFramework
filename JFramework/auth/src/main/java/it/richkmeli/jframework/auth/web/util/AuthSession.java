@@ -1,6 +1,7 @@
 package it.richkmeli.jframework.auth.web.util;
 
 import it.richkmeli.jframework.auth.AuthDatabaseManager;
+import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.network.tcp.server.http.util.Session;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.Logger;
@@ -70,7 +71,7 @@ public class AuthSession extends Session {
             if (userID != null) {
                 try {
                     isAdmin = authDatabaseManager.isAdmin(userID);
-                } catch (DatabaseException e) {
+                } catch (DatabaseException | ModelException e) {
                     Logger.error("isAdmin", e);
                     return false;
                 }

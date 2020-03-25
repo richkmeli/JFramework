@@ -3,6 +3,7 @@ package it.richkmeli.jframework.auth.web.account;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import it.richkmeli.jframework.auth.model.User;
+import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
 import it.richkmeli.jframework.auth.web.util.AuthSession;
 import it.richkmeli.jframework.auth.web.util.AuthStatusCode;
@@ -111,7 +112,7 @@ public abstract class UserJob {
 
     }
 
-    private String GenerateUserListJSON(AuthSession authSession) {
+    private String GenerateUserListJSON(AuthSession authSession) throws ModelException {
         //DatabaseManager databaseManager = authSession.getDatabaseManager();
         List<User> userList = new ArrayList<>();//databaseManager.refreshUser();
         userList.add(new User(authSession.getUserID(), "hidden", authSession.isAdmin()));
