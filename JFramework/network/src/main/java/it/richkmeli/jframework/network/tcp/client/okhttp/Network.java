@@ -3,7 +3,7 @@ package it.richkmeli.jframework.network.tcp.client.okhttp;
 import it.richkmeli.jframework.crypto.Crypto;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
 import it.richkmeli.jframework.network.tcp.client.okhttp.util.ResponseParser;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 import okhttp3.*;
 import org.json.JSONObject;
 

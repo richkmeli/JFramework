@@ -4,7 +4,7 @@ import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoRespon
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 import it.richkmeli.jframework.network.tcp.server.http.util.ServletManager;
 import it.richkmeli.jframework.orm.DatabaseException;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

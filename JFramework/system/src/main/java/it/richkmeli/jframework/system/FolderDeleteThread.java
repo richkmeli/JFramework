@@ -1,6 +1,6 @@
 package it.richkmeli.jframework.system;
 
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;

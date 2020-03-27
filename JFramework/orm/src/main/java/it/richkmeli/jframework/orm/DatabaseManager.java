@@ -1,7 +1,7 @@
 package it.richkmeli.jframework.orm;
 
 import it.richkmeli.jframework.orm.annotation.Id;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 import org.apache.derby.shared.common.error.DerbySQLIntegrityConstraintViolationException;
 
 import java.lang.annotation.Annotation;

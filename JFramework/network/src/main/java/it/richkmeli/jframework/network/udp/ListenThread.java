@@ -1,7 +1,7 @@
 package it.richkmeli.jframework.network.udp;
 
 import it.richkmeli.jframework.network.util.CommunicationLock;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 
 import java.io.IOException;
 import java.io.PrintStream;

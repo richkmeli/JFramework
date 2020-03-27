@@ -2,7 +2,7 @@ import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.auth.web.util.AuthSession;
 import it.richkmeli.jframework.orm.DatabaseException;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 
 public class AccountTest {
 

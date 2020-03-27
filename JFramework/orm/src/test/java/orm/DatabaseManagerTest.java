@@ -2,7 +2,7 @@ package orm;
 
 import it.richkmeli.jframework.crypto.Crypto;
 import it.richkmeli.jframework.crypto.controller.PasswordManager;
-import it.richkmeli.jframework.crypto.util.RandomStringGenerator;
+import it.richkmeli.jframework.util.RandomStringGenerator;
 import it.richkmeli.jframework.orm.DatabaseException;
 import org.junit.After;
 import org.junit.Before;

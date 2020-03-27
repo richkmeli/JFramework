@@ -7,8 +7,8 @@ import it.richkmeli.jframework.crypto.data.SecureDataManager;
 import it.richkmeli.jframework.crypto.data.SecureDataState;
 import it.richkmeli.jframework.crypto.data.model.ServerSecureData;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
-import it.richkmeli.jframework.crypto.util.JSONHalper;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.crypto.util.JSONHelper;
+import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
@@ -43,7 +43,7 @@ public class CryptoControllerServer extends CryptoController {
 
                     // check if the other part is in a different state (not sync)
                     if (!decodedPayload.equalsIgnoreCase("")) {
-                        DiffieHellmanPayload DiffieHellmanPayload = JSONHalper.dhPayloadFromJSON(new JSONObject(decodedPayload));
+                        DiffieHellmanPayload DiffieHellmanPayload = JSONHelper.dhPayloadFromJSON(new JSONObject(decodedPayload));
 
                         KeyPair keys_B = DiffieHellman.dh1_GenerateKeyPair(DiffieHellmanPayload.getPG());
 
@@ -67,7 +67,7 @@ public class CryptoControllerServer extends CryptoController {
                         Logger.info("init, private key generated");
 
                         stateS = SecureDataState.SECRET_KEY_EXCHANGED;
-                        payload = (JSONHalper.dhPublicKeyToJSON(publicKey_B, DiffieHellmanPayload.getPG())).toString();
+                        payload = (JSONHelper.dhPublicKeyToJSON(publicKey_B, DiffieHellmanPayload.getPG())).toString();
                     } else {
                         Logger.error("init, server secure data has been removed or client is in a wrong state");
 
@@ -89,7 +89,7 @@ public class CryptoControllerServer extends CryptoController {
                 break;
         }
 
-        return JSONHalper.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
+        return JSONHelper.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
     }
 
     // Active, servlet received data from client, not directly from a payload

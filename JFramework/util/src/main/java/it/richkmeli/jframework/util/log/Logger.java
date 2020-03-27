@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.util;
+package it.richkmeli.jframework.util.log;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.crypto.util;
+package it.richkmeli.jframework.util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;

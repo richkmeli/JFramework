@@ -6,7 +6,7 @@
     <parent>
         <artifactId>JFramework-multimodules</artifactId>
         <groupId>it.richkmeli.jframework</groupId>
-        <version>1.2.2</version>
+        <version>1.2.3</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -63,11 +63,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>util</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20160212</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>

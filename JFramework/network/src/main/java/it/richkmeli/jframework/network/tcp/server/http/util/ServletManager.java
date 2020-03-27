@@ -3,9 +3,8 @@ package it.richkmeli.jframework.network.tcp.server.http.util;
 import it.richkmeli.jframework.crypto.algorithm.SHA256;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.BaseStatusCode;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
-import it.richkmeli.jframework.util.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
+import it.richkmeli.jframework.util.DataFormat;
+import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
 
 import javax.servlet.http.Cookie;
@@ -23,6 +22,7 @@ public abstract class ServletManager {
     protected static Session session;
     protected HttpServletRequest request;
     protected HttpServletResponse response;
+    // to get attribMap, use doDefaultProcessRequest()
     protected Map<String, String> attribMap;
     protected String servletPath;
 
@@ -65,7 +65,7 @@ public abstract class ServletManager {
 
     public String doDefaultProcessResponse(String input) throws JServletException {
         // server session
-        ServletManager.setServerSession(session,request);
+        ServletManager.setServerSession(session, request);
 
         // set servletPath for specific process response
         servletPath = request.getServletPath();
@@ -74,7 +74,13 @@ public abstract class ServletManager {
     }
 
 
-    // search parameters into URL (GET, ...) and into body (Data format supported are classic encoding key=att&... and JSON).
+    /**
+     * search parameters into URL (GET, ...) and into body (Data format supported are classic
+     * encoding key=att&... and JSON).
+     *
+     * @param request
+     * @return
+     */
     public static Map<String, String> extractParameters(HttpServletRequest request) {
         Map<String, String> attribMap = new HashMap<>();
         // search parameter into URI and body (classic encoding)
@@ -87,7 +93,7 @@ public abstract class ServletManager {
         try {
             String body = getBody(request);
             if (!"".equalsIgnoreCase(body)) {
-                if (isJSONValid(body)) {
+                if (DataFormat.isJSONValid(body)) {
                     JSONObject bodyJSON = new JSONObject(body);
                     for (String key : bodyJSON.keySet()) {
                         String value = bodyJSON.getString(key);
@@ -218,7 +224,7 @@ public abstract class ServletManager {
     public static void setServerSession(Session session1, HttpServletRequest request) throws JServletException {
         // http session
         HttpSession httpSession = request.getSession();
-        httpSession.setAttribute(HTTP_SESSION_NAME, session);
+        httpSession.setAttribute(HTTP_SESSION_NAME, session1);
     }
 
     public static Session getServerSession(HttpServletRequest request) throws JServletException {
@@ -229,7 +235,7 @@ public abstract class ServletManager {
         if (session1 == null) {
             try {
                 session = new Session();
-                setServerSession(session,request);
+                setServerSession(session, request);
             } catch (/*DatabaseException*/Exception e) {
                 throw new JServletException(e);
             }
@@ -239,11 +245,11 @@ public abstract class ServletManager {
                     try {
                         Logger.info("HTTPSession: Session not null | CryptoServer null");
                         session = new Session();
-                        setServerSession(session,request);
+                        setServerSession(session, request);
                     } catch (/*DatabaseException*/Exception e) {
                         throw new JServletException(e);
                     }
-                }else {
+                } else {
                     session = session1;
                 }
             } catch (/*DatabaseException*/Exception e) {
@@ -252,7 +258,6 @@ public abstract class ServletManager {
         }
         return session;
     }
-
 
    /* public <T extends Session> T getExtendedServerSession(String sessionName, HttpServletRequest request) throws ServletException {
         // http session
@@ -317,18 +322,6 @@ public abstract class ServletManager {
         return buffer.toString();
     }
 
-    public static boolean isJSONValid(String test) {
-        try {
-            new JSONObject(test);
-        } catch (JSONException ex) {
-            try {
-                new JSONArray(test);
-            } catch (JSONException ex1) {
-                return false;
-            }
-        }
-        return true;
-    }
 
 }
 

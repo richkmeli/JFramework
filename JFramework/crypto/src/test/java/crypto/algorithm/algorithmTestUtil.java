@@ -1,6 +1,6 @@
 package crypto.algorithm;
 
-import it.richkmeli.jframework.crypto.util.RandomStringGenerator;
+import it.richkmeli.jframework.util.RandomStringGenerator;
 
 
 public class algorithmTestUtil {

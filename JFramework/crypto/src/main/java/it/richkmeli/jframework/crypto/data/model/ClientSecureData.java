@@ -1,8 +1,8 @@
 package it.richkmeli.jframework.crypto.data.model;
 
 import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
-import it.richkmeli.jframework.crypto.util.JSONHalper;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.crypto.util.JSONHelper;
+import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
@@ -29,10 +29,10 @@ public class ClientSecureData {
     public String getClientSecureDataJSON() {
         JSONObject clientSecureDataJSON = new JSONObject();
 
-        JSONObject keyPair_ClientJSON = (this.keyPairClient != null && this.DiffieHellmanPayload != null) ? JSONHalper.dhKeyPairToJSON(this.keyPairClient, DiffieHellmanPayload.getPG()) : new JSONObject();
-        JSONObject diffieHellmanPayloadJSON = (this.DiffieHellmanPayload != null) ? JSONHalper.dhPayloadToJSON(this.DiffieHellmanPayload) : new JSONObject();
-        JSONObject publicKey_ServerJSON = (this.publicKeyServer != null && this.DiffieHellmanPayload != null) ? JSONHalper.dhPublicKeyToJSON(this.publicKeyServer, DiffieHellmanPayload.getPG()) : new JSONObject();
-        JSONObject secretKeyJSON = (this.secretKey != null) ? JSONHalper.aesSecretKeyToJSON(this.secretKey) : new JSONObject();
+        JSONObject keyPair_ClientJSON = (this.keyPairClient != null && this.DiffieHellmanPayload != null) ? JSONHelper.dhKeyPairToJSON(this.keyPairClient, DiffieHellmanPayload.getPG()) : new JSONObject();
+        JSONObject diffieHellmanPayloadJSON = (this.DiffieHellmanPayload != null) ? JSONHelper.dhPayloadToJSON(this.DiffieHellmanPayload) : new JSONObject();
+        JSONObject publicKey_ServerJSON = (this.publicKeyServer != null && this.DiffieHellmanPayload != null) ? JSONHelper.dhPublicKeyToJSON(this.publicKeyServer, DiffieHellmanPayload.getPG()) : new JSONObject();
+        JSONObject secretKeyJSON = (this.secretKey != null) ? JSONHelper.aesSecretKeyToJSON(this.secretKey) : new JSONObject();
 
 
         clientSecureDataJSON.put("keyPairClient", keyPair_ClientJSON);
@@ -57,10 +57,10 @@ public class ClientSecureData {
                     JSONObject publicKey_ServerJSON = clientSecureDataJSON.has("publicKeyServer") ? clientSecureDataJSON.getJSONObject("publicKeyServer") : new JSONObject();
                     JSONObject secretKeyJSON = clientSecureDataJSON.has("secretKey") ? clientSecureDataJSON.getJSONObject("secretKey") : new JSONObject();
 
-                    this.keyPairClient = (!keyPair_ClientJSON.toString().equalsIgnoreCase("{}")) ? JSONHalper.dhKeyPairFromJSON(keyPair_ClientJSON) : null;
-                    this.DiffieHellmanPayload = (!diffieHellmanPayloadJSON.toString().equalsIgnoreCase("{}")) ? JSONHalper.dhPayloadFromJSON(diffieHellmanPayloadJSON) : null;
-                    this.publicKeyServer = (!publicKey_ServerJSON.toString().equalsIgnoreCase("{}")) ? JSONHalper.dhPublicKeyFromJSON(publicKey_ServerJSON) : null;
-                    this.secretKey = (!secretKeyJSON.toString().equalsIgnoreCase("{}")) ? JSONHalper.aesSecretKeyFromJSON(secretKeyJSON) : null;
+                    this.keyPairClient = (!keyPair_ClientJSON.toString().equalsIgnoreCase("{}")) ? JSONHelper.dhKeyPairFromJSON(keyPair_ClientJSON) : null;
+                    this.DiffieHellmanPayload = (!diffieHellmanPayloadJSON.toString().equalsIgnoreCase("{}")) ? JSONHelper.dhPayloadFromJSON(diffieHellmanPayloadJSON) : null;
+                    this.publicKeyServer = (!publicKey_ServerJSON.toString().equalsIgnoreCase("{}")) ? JSONHelper.dhPublicKeyFromJSON(publicKey_ServerJSON) : null;
+                    this.secretKey = (!secretKeyJSON.toString().equalsIgnoreCase("{}")) ? JSONHelper.aesSecretKeyFromJSON(secretKeyJSON) : null;
 
                 } else {
                     Logger.error("ClientSecureData, JSON file is empty");

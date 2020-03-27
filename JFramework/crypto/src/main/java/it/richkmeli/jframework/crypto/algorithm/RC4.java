@@ -1,6 +1,8 @@
 package it.richkmeli.jframework.crypto.algorithm;
 
 
+import it.richkmeli.jframework.crypto.exception.CryptoException;
+
 import java.util.Base64;
 
 public class RC4 {
@@ -55,28 +57,34 @@ public class RC4 {
     public static String encrypt(String input, String key) {
         // encode input
         String inputEnc = Base64.getEncoder().encodeToString(input.getBytes());
-        //input = DatatypeConverter.printHexBinary(input.getBytes());
 
         it.richkmeli.jframework.crypto.algorithm.RC4 rc4 = new it.richkmeli.jframework.crypto.algorithm.RC4(key.getBytes());
         byte[] ciphertext = rc4.encrypt(inputEnc.getBytes());
 
         // encode encrypted input
-        //return DatatypeConverter.printBase64Binary(ciphertext);
         return Base64.getUrlEncoder().encodeToString(ciphertext);
     }
 
-    public static String decrypt(String input, String key) {
-        // decode encrypted input
-        //byte[] decoded = DatatypeConverter.parseBase64Binary(input);
-        byte[] decoded = Base64.getUrlDecoder().decode(input);
+    public static String decrypt(String input, String key) throws CryptoException {
+        byte[] decoded;
+        try {
+            // decode encrypted input
+            decoded = Base64.getUrlDecoder().decode(input);
+        } catch (Exception e) {
+            throw new CryptoException("Error decoding Base64 string: " + input, e);
+        }
 
         it.richkmeli.jframework.crypto.algorithm.RC4 rc4 = new it.richkmeli.jframework.crypto.algorithm.RC4(key.getBytes());
         byte[] plaintext = rc4.decrypt(decoded);
         String plaintextS = new String(plaintext);
 
         // decode input
-        decoded = Base64.getDecoder().decode(plaintextS);
-        //decoded = DatatypeConverter.parseHexBinary(plaintextS);
+        try {
+            decoded = Base64.getDecoder().decode(plaintextS);
+        } catch (Exception e) {
+            //throw new CryptoException("Error decoding Base64 string: " + plaintextS, e);
+            throw new CryptoException("Error decrypting string: '" + input+"'. Key is not correct.", e);
+        }
         return new String(decoded);
     }
 }

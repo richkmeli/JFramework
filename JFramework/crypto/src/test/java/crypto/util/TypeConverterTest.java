@@ -1,6 +1,6 @@
 package crypto.util;
 
-import it.richkmeli.jframework.crypto.util.TypeConverter;
+import it.richkmeli.jframework.util.TypeConverter;
 import org.junit.Test;
 
 import static crypto.algorithm.algorithmTestUtil.genString;

@@ -8,4 +8,8 @@ public class CryptoException extends Exception {
     public CryptoException(String string) {
         super(new Exception(string));
     }
+
+    public CryptoException(String string, Exception exception) {
+        super(new Exception(string, exception));
+    }
 }

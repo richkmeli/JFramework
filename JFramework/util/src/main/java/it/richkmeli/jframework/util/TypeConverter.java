@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.crypto.util;
+package it.richkmeli.jframework.util;
 
 public class TypeConverter {
 

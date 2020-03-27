@@ -1,7 +1,7 @@
 package it.richkmeli.jframework.network.tcp.client.api;
 
 import com.google.gson.Gson;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;

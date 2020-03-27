@@ -2,7 +2,7 @@ package it.richkmeli.jframework.crypto.controller.token;
 
 import it.richkmeli.jframework.crypto.algorithm.SHA256;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
-import it.richkmeli.jframework.crypto.util.RandomStringGenerator;
+import it.richkmeli.jframework.util.RandomStringGenerator;
 
 import java.util.ArrayList;
 import java.util.Arrays;

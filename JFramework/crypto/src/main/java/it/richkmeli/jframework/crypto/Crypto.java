@@ -117,7 +117,7 @@ public class Crypto {
         return RC4.encrypt(input, key);
     }
 
-    public static String decryptRC4(String input, String key) {
+    public static String decryptRC4(String input, String key) throws CryptoException {
         return RC4.decrypt(input, key);
     }
 

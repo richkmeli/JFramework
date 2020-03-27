@@ -1,6 +1,6 @@
 package util;
 
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 import org.junit.Test;
 
 public class LoggerTest {

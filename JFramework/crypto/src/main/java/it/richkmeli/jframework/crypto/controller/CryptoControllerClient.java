@@ -7,8 +7,8 @@ import it.richkmeli.jframework.crypto.data.SecureDataManager;
 import it.richkmeli.jframework.crypto.data.SecureDataState;
 import it.richkmeli.jframework.crypto.data.model.ClientSecureData;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
-import it.richkmeli.jframework.crypto.util.JSONHalper;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.crypto.util.JSONHelper;
+import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
@@ -41,7 +41,7 @@ public class CryptoControllerClient extends CryptoController {
                     SecureDataManager.setClientSecureData(secureData, secretKey, clientSecureData);
 
                     stateS = SecureDataState.PUBLIC_KEY_GENERATED;
-                    payload = JSONHalper.dhPayloadToJSON(DiffieHellmanPayload).toString();
+                    payload = JSONHelper.dhPayloadToJSON(DiffieHellmanPayload).toString();
                     Logger.info("init, public key generated");
                 } catch (Exception e) {
                     Logger.error("init, error generating public key", e);
@@ -61,7 +61,7 @@ public class CryptoControllerClient extends CryptoController {
                         JSONObject publicKey = decodedPayload.equalsIgnoreCase("") ? new JSONObject() : new JSONObject(decodedPayload);
 
                         ClientSecureData clientSecureData = SecureDataManager.getClientSecureData(secureData, secretKey);
-                        clientSecureData.setPublicKeyServer(JSONHalper.dhPublicKeyFromJSON(publicKey));
+                        clientSecureData.setPublicKeyServer(JSONHelper.dhPublicKeyFromJSON(publicKey));
                         SecureDataManager.setClientSecureData(secureData, secretKey, clientSecureData);
 
                         Logger.info("init, public keys exchanged");
@@ -109,7 +109,7 @@ public class CryptoControllerClient extends CryptoController {
                 break;
         }
 
-        return JSONHalper.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
+        return JSONHelper.formatResponse(stateS, Base64.getUrlEncoder().encodeToString(payload.getBytes()));
     }
 
 

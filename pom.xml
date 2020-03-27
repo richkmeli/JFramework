@@ -6,11 +6,11 @@
 
     <groupId>it.richkmeli.jframework</groupId>
     <artifactId>JFramework-multimodules</artifactId>
-    <version>1.2.2</version>
+    <version>1.2.3</version>
 
     <properties>
         <!-- TODO RELEASE -->
-        <JFRAMEWORK_VERSION>1.2.2</JFRAMEWORK_VERSION>
+        <JFRAMEWORK_VERSION>1.2.3</JFRAMEWORK_VERSION>
 
         <JDK_VERSION>1.8</JDK_VERSION>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

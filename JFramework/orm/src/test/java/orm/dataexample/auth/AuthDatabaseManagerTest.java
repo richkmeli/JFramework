@@ -3,7 +3,7 @@ package orm.dataexample.auth;
 import it.richkmeli.jframework.crypto.Crypto;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.orm.DatabaseManager;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 
 import java.util.List;
 

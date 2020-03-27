@@ -1,6 +1,6 @@
 package it.richkmeli.jframework.network.udp;
 
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;

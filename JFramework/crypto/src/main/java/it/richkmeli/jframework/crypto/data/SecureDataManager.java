@@ -4,7 +4,7 @@ import it.richkmeli.jframework.crypto.algorithm.AES;
 import it.richkmeli.jframework.crypto.data.model.ClientSecureData;
 import it.richkmeli.jframework.crypto.data.model.ServerSecureData;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
 
 import java.io.File;

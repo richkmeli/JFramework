@@ -1,7 +1,7 @@
 package crypto.algorithm;
 
 import it.richkmeli.jframework.crypto.algorithm.SHA256;
-import it.richkmeli.jframework.crypto.util.RandomStringGenerator;
+import it.richkmeli.jframework.util.RandomStringGenerator;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

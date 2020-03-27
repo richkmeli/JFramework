@@ -4,7 +4,7 @@ import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.AsymmetricCi
 import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.generators.DHKeyPairGenerator;
 import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.params.*;
 import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.util.log.Logger;
 
 import javax.crypto.SecretKey;
 import javax.crypto.interfaces.DHPrivateKey;

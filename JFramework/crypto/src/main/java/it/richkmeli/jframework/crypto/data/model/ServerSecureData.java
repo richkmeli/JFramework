@@ -1,8 +1,8 @@
 package it.richkmeli.jframework.crypto.data.model;
 
 import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
-import it.richkmeli.jframework.crypto.util.JSONHalper;
-import it.richkmeli.jframework.util.Logger;
+import it.richkmeli.jframework.crypto.util.JSONHelper;
+import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
@@ -40,14 +40,14 @@ public class ServerSecureData {
     public String getServerSecureDataJSON() {
         JSONObject serverSecureDataJSON = new JSONObject();
 
-        JSONObject pgJSON = (this.pg != null) ? JSONHalper.pgToJSON(this.pg) : new JSONObject();
-        JSONObject keyPair_ServerJSON = (this.keyPairServer != null && this.pg != null) ? JSONHalper.dhKeyPairToJSON(this.keyPairServer, this.pg) : new JSONObject();
+        JSONObject pgJSON = (this.pg != null) ? JSONHelper.pgToJSON(this.pg) : new JSONObject();
+        JSONObject keyPair_ServerJSON = (this.keyPairServer != null && this.pg != null) ? JSONHelper.dhKeyPairToJSON(this.keyPairServer, this.pg) : new JSONObject();
 
         JSONObject diffieHellmanPayloadMapJSON = new JSONObject();
         if (this.diffieHellmanPayloadMap != null) {
             for (String s : this.diffieHellmanPayloadMap.keySet()) {
                 DiffieHellmanPayload DiffieHellmanPayload = this.diffieHellmanPayloadMap.get(s);
-                diffieHellmanPayloadMapJSON.put(s, JSONHalper.dhPayloadToJSON(DiffieHellmanPayload));
+                diffieHellmanPayloadMapJSON.put(s, JSONHelper.dhPayloadToJSON(DiffieHellmanPayload));
             }
         }
 
@@ -55,7 +55,7 @@ public class ServerSecureData {
         if (this.secretKeyClientMap != null) {
             for (String s : this.secretKeyClientMap.keySet()) {
                 SecretKey secretKey = this.secretKeyClientMap.get(s);
-                secretKey_ClientMapJSON.put(s, JSONHalper.aesSecretKeyToJSON(secretKey));
+                secretKey_ClientMapJSON.put(s, JSONHelper.aesSecretKeyToJSON(secretKey));
             }
         }
 
@@ -83,19 +83,19 @@ public class ServerSecureData {
                     JSONObject diffieHellmanPayloadMapJSON = serverSecureDataJSON.has("diffieHellmanPayloadMap") ? serverSecureDataJSON.getJSONObject("diffieHellmanPayloadMap") : new JSONObject();
                     JSONObject secretKey_ClientMapJSON = serverSecureDataJSON.has("secretKeyClientMap") ? serverSecureDataJSON.getJSONObject("secretKeyClientMap") : new JSONObject();
 
-                    this.pg = (!pgJSON.toString().equalsIgnoreCase("{}")) ? JSONHalper.pgFromJSON(pgJSON) : null;
-                    this.keyPairServer = (!keyPair_ServerJSON.toString().equalsIgnoreCase("{}")) ? JSONHalper.dhKeyPairFromJSON(keyPair_ServerJSON) : null;
+                    this.pg = (!pgJSON.toString().equalsIgnoreCase("{}")) ? JSONHelper.pgFromJSON(pgJSON) : null;
+                    this.keyPairServer = (!keyPair_ServerJSON.toString().equalsIgnoreCase("{}")) ? JSONHelper.dhKeyPairFromJSON(keyPair_ServerJSON) : null;
 
                     Map<String, DiffieHellmanPayload> diffieHellmanPayloadMap = new HashMap<>();
                     for (String s : diffieHellmanPayloadMapJSON.keySet()) {
                         JSONObject diffieHellmanPayloadJSON = diffieHellmanPayloadMapJSON.getJSONObject(s);
-                        diffieHellmanPayloadMap.put(s, JSONHalper.dhPayloadFromJSON(diffieHellmanPayloadJSON));
+                        diffieHellmanPayloadMap.put(s, JSONHelper.dhPayloadFromJSON(diffieHellmanPayloadJSON));
                     }
 
                     Map<String, SecretKey> secretKey_ClientMap = new HashMap<>();
                     for (String s : secretKey_ClientMapJSON.keySet()) {
                         JSONObject secretKey_ClientJSON = secretKey_ClientMapJSON.getJSONObject(s);
-                        secretKey_ClientMap.put(s, JSONHalper.aesSecretKeyFromJSON(secretKey_ClientJSON));
+                        secretKey_ClientMap.put(s, JSONHelper.aesSecretKeyFromJSON(secretKey_ClientJSON));
                     }
 
                     this.diffieHellmanPayloadMap = diffieHellmanPayloadMap;

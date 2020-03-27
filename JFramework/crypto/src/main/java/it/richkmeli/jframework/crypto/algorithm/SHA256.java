@@ -1,7 +1,7 @@
 package it.richkmeli.jframework.crypto.algorithm;
 
 import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.digests.SHA256Digest;
-import it.richkmeli.jframework.crypto.util.TypeConverter;
+import it.richkmeli.jframework.util.TypeConverter;
 
 public class SHA256 {
     public static byte[] hash(byte[] input) {
