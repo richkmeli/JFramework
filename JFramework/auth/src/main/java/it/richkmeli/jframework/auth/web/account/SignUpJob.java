@@ -10,29 +10,18 @@ import it.richkmeli.jframework.network.tcp.server.http.payload.response.OkRespon
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 import it.richkmeli.jframework.orm.DatabaseException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Map;
 
 public abstract class SignUpJob {
 
-    protected abstract void doSpecificAction();
+    protected abstract void doSpecificAction(AuthServletManager authServletManager);
 
-    public void doAction(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        HttpSession httpSession = request.getSession();
-        AuthSession authSession = null;
-        PrintWriter out = response.getWriter();
-
+    public void doAction(AuthServletManager authServletManager) {
         try {
-            authSession = AuthServletManager.getAuthServerSession(request);
+            AuthSession authSession = authServletManager.getAuthServerSession();
 
             if (authSession.getUserID() == null) {
-                //Map<String, String> attribMap = ServletManager.doDefaultProcessRequest(request);
-                Map<String, String> attribMap = AuthServletManager.extractParameters(request);
+                Map<String, String> attribMap = authServletManager.doDefaultProcessRequest(false);
 
                 String email = attribMap.get("email");
                 String pass = attribMap.get("password");
@@ -41,27 +30,32 @@ public abstract class SignUpJob {
 
 
                 if (authSession.getAuthDatabaseManager().isUserPresent(email)) {
-                    out.println((new KoResponse(AuthStatusCode.ALREADY_REGISTERED)).json());
+                    authServletManager.print(new KoResponse(AuthStatusCode.ALREADY_REGISTERED));
                 } else {
                     authSession.getAuthDatabaseManager().addUser(new User(email, pass, false));
                     authSession.setUserID(email);
-                    out.println((new OkResponse(AuthStatusCode.SUCCESS, "SignUp succeeded")).json());
+                    authSession.setAdmin(false);
 
-                    AuthServletManager.initSessionCookie(request, response);
+                    authServletManager.initSessionCookie();
 
-                    doSpecificAction();
+                    doSpecificAction(authServletManager);
+
+                    String message = "SignUp succeeded";
+                    String output = authServletManager.doDefaultProcessResponse(message);
+
+                    authServletManager.print(new OkResponse(AuthStatusCode.SUCCESS, output));
                 }
             } else {
-                out.println((new KoResponse(AuthStatusCode.ALREADY_LOGGED)).json());
+                authServletManager.print(new KoResponse(AuthStatusCode.ALREADY_LOGGED));
             }
         } catch (JServletException e) {
-            out.println((new KoResponse(AuthStatusCode.ALREADY_LOGGED)).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.ALREADY_LOGGED));
         } catch (DatabaseException e) {
-            out.println((new KoResponse(AuthStatusCode.DB_ERROR)).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.DB_ERROR));
         } catch (ModelException e) {
-            out.println((new KoResponse(AuthStatusCode.MODEL_ERROR, e.getMessage())).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.MODEL_ERROR, e.getMessage()));
         } catch (Throwable e) {
-            out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR)).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.GENERIC_ERROR));
         }
 
     }

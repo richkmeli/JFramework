@@ -7,41 +7,43 @@ import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoRespon
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.OkResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.Map;
 
 public abstract class LogOutJob {
 
-    protected abstract void doSpecificAction();
+    protected abstract void doSpecificAction(AuthServletManager authServletManager);
 
-    public void doAction(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        PrintWriter out = response.getWriter();
-        HttpSession httpSession = request.getSession();
-        AuthSession authSession = null;
+    public void doAction(AuthServletManager authServletManager) {
+
         try {
-            authSession = AuthServletManager.getAuthServerSession(request);
+            Map<String, String> attribMap = authServletManager.doDefaultProcessRequest();
+            authServletManager.checkLogin();
+
+            // server authSession
+            AuthSession authSession = authServletManager.getAuthServerSession();
 
             if (authSession != null) {
                 // remove user from the session
                 authSession.removeUser();
-                doSpecificAction();
+                doSpecificAction(authServletManager);
             }
-            AuthServletManager.resetSession(request, response);
 
-            out.println((new OkResponse(AuthStatusCode.SUCCESS, "LogOut succeeded")).json());
+            // invalidate HttpSession and set expired cookies in response
+            authServletManager.resetSession();
 
+            // reset ServletManager instance
+            authServletManager.reset();
+
+            String message = "LogOut succeeded";
+            String output = authServletManager.doDefaultProcessResponse(message);
+
+            authServletManager.print(new OkResponse(AuthStatusCode.SUCCESS, output));
         } catch (JServletException e) {
-            out.println(e.getKoResponseJSON());
+            authServletManager.print(e.getResponse());
         } catch (Throwable e) {
             //e.printStackTrace();
-            out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage()));
         }
-
-        out.flush();
-        out.close();
 
     }
 }

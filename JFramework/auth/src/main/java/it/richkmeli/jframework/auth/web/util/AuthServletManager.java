@@ -29,6 +29,16 @@ public abstract class AuthServletManager extends ServletManager {
         }
     }
 
+    public AuthServletManager(AuthServletManager authServletManager) {
+        super(authServletManager.httpServletRequest, authServletManager.httpServletResponse);
+        try {
+            authSession = authServletManager.getAuthServerSession();
+        } catch (JServletException e) {
+            //e.printStackTrace();
+            Logger.error(e);
+        }
+    }
+
 
     public abstract void doSpecificProcessRequestAuth() throws JServletException;
 
@@ -36,14 +46,14 @@ public abstract class AuthServletManager extends ServletManager {
 
     @Override
     public void doSpecificProcessRequest() throws JServletException {
-        authSession = AuthServletManager.getAuthServerSession(request);
+        authSession = AuthServletManager.getAuthServerSession(httpServletRequest);
         doSpecificProcessRequestAuth();
     }
 
     @Override
     public String doSpecificProcessResponse(String input) throws JServletException {
         // server session
-        AuthServletManager.setAuthServerSession(authSession, request);
+        AuthServletManager.setAuthServerSession(authSession, httpServletRequest);
         return doSpecificProcessResponseAuth(input);
     }
 
@@ -55,17 +65,17 @@ public abstract class AuthServletManager extends ServletManager {
 
     public String doDefaultProcessResponse(String input) throws JServletException {
         // server session
-        authSession = AuthServletManager.getAuthServerSession(request);
+        authSession = AuthServletManager.getAuthServerSession(httpServletRequest);
 
         // set servletPath for specific process response
-        servletPath = request.getServletPath();
+        servletPath = httpServletRequest.getServletPath();
 
         return doSpecificProcessResponse(input);
     }
 
 
     public void checkLogin() throws JServletException {
-        checkLogin(request);
+        checkLogin(httpServletRequest);
     }
 
     public static void checkLogin(HttpServletRequest request) throws JServletException {
@@ -81,9 +91,8 @@ public abstract class AuthServletManager extends ServletManager {
 
     }
 
-
-    public void reset(HttpServletRequest request, HttpServletResponse response) {
-        super.reset(request, response);
+    public void reset() {
+        super.reset(this.httpServletRequest, this.httpServletResponse);
         try {
             authSession = new AuthSession();
         } catch (DatabaseException e) {
@@ -91,9 +100,8 @@ public abstract class AuthServletManager extends ServletManager {
         }
     }
 
-
     public AuthSession getAuthServerSession() throws JServletException {
-        return getAuthServerSession(request);
+        return getAuthServerSession(httpServletRequest);
     }
 
     public static AuthSession getAuthServerSession(HttpServletRequest request) throws JServletException {

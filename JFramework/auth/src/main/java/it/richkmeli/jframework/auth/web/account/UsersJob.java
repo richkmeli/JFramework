@@ -15,48 +15,43 @@ import it.richkmeli.jframework.util.log.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 
 public abstract class UsersJob {
 
-    protected abstract void doSpecificAction(HttpServletRequest request) throws JServletException, DatabaseException;
+    protected abstract void doSpecificAction(AuthServletManager authServletManager) throws JServletException, DatabaseException;
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response, AuthServletManager authServletManager) throws IOException {
-        PrintWriter out = response.getWriter();
-
+    public void doGet(AuthServletManager authServletManager){
         try {
-            authServletManager.doDefaultProcessRequest();
-            AuthServletManager.checkLogin(request);
-            AuthSession session = AuthServletManager.getAuthServerSession(request);
+            Map<String, String> attribMap = authServletManager.doDefaultProcessRequest();
+            authServletManager.checkLogin();
+
+            // server authSession
+            AuthSession authSession = authServletManager.getAuthServerSession();
 
             try {
-                doSpecificAction(request);
+                doSpecificAction(authServletManager);
             } catch (JServletException se) {
                 Logger.error(se);
                 throw se;
             }
 
-            if (session.isAdmin()) {
-                String output = authServletManager.doDefaultProcessResponse(GenerateUsersListJSON(session));
-                out.println(new OkResponse(AuthStatusCode.SUCCESS, output).json());
-
-                out.flush();
-                out.close();
+            if (authSession.isAdmin()) {
+                String output = authServletManager.doDefaultProcessResponse(GenerateUsersListJSON(authSession));
+                authServletManager.print(new OkResponse(AuthStatusCode.SUCCESS, output));
             } else {
-                out.println((new KoResponse(AuthStatusCode.NOT_AUTHORIZED, "The current user is not authorized").json()));
+                authServletManager.print(new KoResponse(AuthStatusCode.NOT_AUTHORIZED, "The current user is not authorized"));
             }
 
-
         } catch (JServletException e) {
-            out.println(e.getKoResponseJSON());
+            authServletManager.print(e.getResponse());
         } catch (DatabaseException e) {
-            out.println((new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage())).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage()));
         } catch (Throwable e) {
-            out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage()));
         }
     }
 

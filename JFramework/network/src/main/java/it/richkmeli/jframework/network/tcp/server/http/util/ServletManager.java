@@ -3,6 +3,7 @@ package it.richkmeli.jframework.network.tcp.server.http.util;
 import it.richkmeli.jframework.crypto.algorithm.SHA256;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.BaseStatusCode;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.Response;
 import it.richkmeli.jframework.util.DataFormat;
 import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 public abstract class ServletManager {
@@ -20,15 +22,15 @@ public abstract class ServletManager {
     public static final String JFSESSIONID = "JFRAMEWORKSESSIONID";
     //private static final int JFSESSIONCOOKIE_MAXAGE = 3600; // Number of seconds until the cookie expires
     protected static Session session;
-    protected HttpServletRequest request;
-    protected HttpServletResponse response;
+    protected HttpServletRequest httpServletRequest;
+    protected HttpServletResponse httpServletResponse;
     // to get attribMap, use doDefaultProcessRequest()
     protected Map<String, String> attribMap;
     protected String servletPath;
 
-    public ServletManager(HttpServletRequest request, HttpServletResponse response) {
-        this.request = request;
-        this.response = response;
+    public ServletManager(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        this.httpServletRequest = httpServletRequest;
+        this.httpServletResponse = httpServletResponse;
         try {
             session = getServerSession();
         } catch (JServletException e) {
@@ -48,15 +50,15 @@ public abstract class ServletManager {
     }
 
     public Map<String, String> doDefaultProcessRequest(boolean checkSessionCookie) throws JServletException {
-        attribMap = extractParameters(request);
+        attribMap = extractParameters(httpServletRequest);
         // server session
-        session = ServletManager.getServerSession(request);
+        session = ServletManager.getServerSession(httpServletRequest);
 
         // set servletPath for specific process request
-        servletPath = request.getServletPath();
+        servletPath = httpServletRequest.getServletPath();
 
         if (checkSessionCookie) {
-            checkSessionCookie(request, response);
+            checkSessionCookie(httpServletRequest, httpServletResponse);
         }
 
         doSpecificProcessRequest();
@@ -65,10 +67,10 @@ public abstract class ServletManager {
 
     public String doDefaultProcessResponse(String input) throws JServletException {
         // server session
-        ServletManager.setServerSession(session, request);
+        ServletManager.setServerSession(session, httpServletRequest);
 
         // set servletPath for specific process response
-        servletPath = request.getServletPath();
+        servletPath = httpServletRequest.getServletPath();
 
         return doSpecificProcessResponse(input);
     }
@@ -113,6 +115,9 @@ public abstract class ServletManager {
         return attribMap;
     }
 
+    public void initSessionCookie() {
+        initSessionCookie(httpServletRequest, httpServletResponse);
+    }
 
     public static void initSessionCookie(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie;
@@ -185,19 +190,32 @@ public abstract class ServletManager {
         return cookie;
     }
 
+    /**
+     * delete ServletManager object
+     * @param request
+     * @param response
+     */
+
     public void reset(HttpServletRequest request, HttpServletResponse response) {
         try {
             session = new Session();
         } catch (/*DatabaseException*/Exception e) {
             Logger.error(e);
         }
-        this.request = null;
-        this.response = null;
+        this.httpServletRequest = null;
+        this.httpServletResponse = null;
         attribMap = null;
         servletPath = null;
         resetSession(request, response);
     }
 
+    /**
+     * invalidate HttpSession and set expired cookies in response
+     */
+
+    public void resetSession() {
+        resetSession(httpServletRequest, httpServletResponse);
+    }
 
     public static void resetSession(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = getCookie(request, JFSESSIONID);
@@ -218,7 +236,7 @@ public abstract class ServletManager {
 
 
     public Session getServerSession() throws JServletException {
-        return getServerSession(request);
+        return getServerSession(httpServletRequest);
     }
 
     public static void setServerSession(Session session1, HttpServletRequest request) throws JServletException {
@@ -323,5 +341,30 @@ public abstract class ServletManager {
     }
 
 
+    public void print(Response response) {
+        print(httpServletResponse, response);
+    }
+
+    public static void print(HttpServletResponse httpServletResponse, Response response) {
+        PrintWriter out = null;
+        try {
+            out = httpServletResponse.getWriter();
+            out.println(response.json());
+            // close out
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            //e.printStackTrace();
+            Logger.error(e);
+        }
+    }
+
+    public HttpServletRequest getHttpServletRequest() {
+        return httpServletRequest;
+    }
+
+    public HttpServletResponse getHttpServletResponse() {
+        return httpServletResponse;
+    }
 }
 

@@ -11,7 +11,8 @@ public class RegexManager {
 
     public static final String EMAIL_REGEX = "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
     public static final String PHONE_NUMBER_REGEX = "^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\\s\\./0-9]*$";
-
+    public static final String ALPHANUMERIC_REGEX = "^[a-zA-Z0-9]*$";
+    public static final String NUMERIC_REGEX = "^[0-9]*$";
 
     public static void validate(String text, String regex) throws RegexException {
         if (text.matches(regex)) {
@@ -39,4 +40,13 @@ public class RegexManager {
     public static void checkPhoneNumberIntegrity(String phoneNumber) throws RegexException {
         RegexManager.validate(phoneNumber, PHONE_NUMBER_REGEX);
     }
+
+    public static void checkAlphanumericStringIntegrity(String string) throws RegexException {
+        RegexManager.validate(string, ALPHANUMERIC_REGEX);
+    }
+
+    public static void checkNumericStringIntegrity(String string) throws RegexException {
+        RegexManager.validate(string, NUMERIC_REGEX);
+    }
+
 }

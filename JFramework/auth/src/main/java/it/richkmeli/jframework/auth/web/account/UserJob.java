@@ -16,25 +16,26 @@ import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public abstract class UserJob {
-    protected abstract void doSpecificAction(HttpServletRequest request) throws JServletException, DatabaseException;
+    protected abstract void doSpecificAction(AuthServletManager authServletManager) throws JServletException, DatabaseException;
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response, AuthServletManager servletManager) throws IOException {
-        PrintWriter out = response.getWriter();
+    /**
+     * get user info
+     * @param authServletManager
+     */
 
+    public void doGet(AuthServletManager authServletManager)  {
         try {
-            servletManager.doDefaultProcessRequest();
-            AuthServletManager.checkLogin(request);
+            authServletManager.doDefaultProcessRequest();
+            authServletManager.checkLogin();
 
             // server authSession
-            AuthSession authSession = AuthServletManager.getAuthServerSession(request);
+            AuthSession authSession = authServletManager.getAuthServerSession();
 
             String user = authSession.getUserID();
             boolean isAdmin = authSession.getAuthDatabaseManager().isAdmin(user);
@@ -43,42 +44,42 @@ public abstract class UserJob {
             messageJSON.put("user", user);
             messageJSON.put("admin", isAdmin);
 
-            AuthServletManager.initSessionCookie(request, response);
+            authServletManager.initSessionCookie();
 
             try {
-                doSpecificAction(request);
+                doSpecificAction(authServletManager);
             } catch (JServletException se) {
                 Logger.error(se);
                 throw se;
             }
 
-            String output = servletManager.doDefaultProcessResponse(messageJSON.toString());
-            out.println(new OkResponse(AuthStatusCode.SUCCESS, output).json());
+            String output = authServletManager.doDefaultProcessResponse(messageJSON.toString());
+            authServletManager.print(new OkResponse(AuthStatusCode.SUCCESS, output));
 
-            out.flush();
-            out.close();
         } catch (JServletException e) {
-            out.println(e.getKoResponseJSON());
+            authServletManager.print(e.getResponse());
         } catch (DatabaseException e) {
-            out.println((new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage())).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage()));
         } catch (Throwable e) {
-            out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage()));
         }
-        out.flush();
-        out.close();
+
     }
 
-    public void doDelete(HttpServletRequest request, HttpServletResponse response, AuthServletManager servletManager) throws IOException {
+    /**
+     * remove user
+     * @param authServletManager
+     */
+
+    public void doDelete(AuthServletManager authServletManager)  {
         //if the code below is de-commented, this servlet disables DELETE
         //super.doDelete(req, resp);
-        PrintWriter out = response.getWriter();
-
         try {
-            Map<String, String> attribMap = servletManager.doDefaultProcessRequest();
-            AuthServletManager.checkLogin(request);
+            Map<String, String> attribMap = authServletManager.doDefaultProcessRequest();
+            authServletManager.checkLogin();
 
             // server authSession
-            AuthSession authSession = AuthServletManager.getAuthServerSession(request);
+            AuthSession authSession = authServletManager.getAuthServerSession();
             String user = authSession.getUserID();
 
             if (attribMap.containsKey("email")) {
@@ -87,27 +88,26 @@ public abstract class UserJob {
                 if (authSession.getUserID().equals(payload)) {
                     authSession.getAuthDatabaseManager().removeUser(payload);
                     authSession.removeUser();
-                    out.println((new OkResponse(AuthStatusCode.SUCCESS,"User "+payload+" Removed").json()));
+                    authServletManager.print(new OkResponse(AuthStatusCode.SUCCESS,"User "+payload+" Removed"));
                 } else {
                     if (authSession.isAdmin()) {
                         authSession.getAuthDatabaseManager().removeUser(payload);
-                        out.println((new OkResponse(AuthStatusCode.SUCCESS,"User "+payload+" deleted. Admin right (admin: " + authSession.getUserID()+")").json()));
+                        authServletManager.print(new OkResponse(AuthStatusCode.SUCCESS,"User "+payload+" deleted. Admin right (admin: " + authSession.getUserID()+")"));
                     } else {
-                        out.println((new KoResponse(AuthStatusCode.NOT_AUTHORIZED, "The current user is not authorized").json()));
+                        authServletManager.print(new KoResponse(AuthStatusCode.NOT_AUTHORIZED, "The current user is not authorized"));
                     }
                 }
             } else {
-                out.println((new KoResponse(AuthStatusCode.MISSING_FIELD).json()));
+                authServletManager.print(new KoResponse(AuthStatusCode.MISSING_FIELD));
             }
-            out.flush();
-            out.close();
+
 
         } catch (JServletException e) {
-            out.println(e.getKoResponseJSON());
+            authServletManager.print(e.getResponse());
         } catch (DatabaseException e) {
-            out.println((new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage())).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage()));
         } catch (Exception e) {
-            out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage()));
         }
 
     }

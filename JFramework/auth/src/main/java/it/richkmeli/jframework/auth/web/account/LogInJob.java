@@ -12,33 +12,30 @@ import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Map;
 
 public abstract class LogInJob {
 
-    protected abstract void doSpecificAction(HttpServletRequest request, HttpServletResponse response) throws JServletException, DatabaseException;
+    protected abstract void doSpecificAction(AuthServletManager authServletManager) throws JServletException, DatabaseException;
 
-    public void doAction(HttpServletRequest request, HttpServletResponse response, AuthServletManager authServletManager) throws IOException {
+    /**
+     *
+     * @param authServletManager for session purpose, the object passed should be a derived class of AuthServletManager (e.g. XXXAuthServletManager)
+     */
+    public void doAction(AuthServletManager authServletManager) {
         AuthSession authSession = null;
-        PrintWriter out = response.getWriter();
-
+        
         try {
             authSession = authServletManager.getAuthServerSession();
 
             // check if is not already logged
             if (authSession.getUserID() == null) {
-                Map<String, String> attribMap = authServletManager.doDefaultProcessRequest(false);/*ServletManager.extractParameters(request);
-                /*Map<String, String> attribMap = ServletManager.doDefaultProcessRequest(request);*/
+                Map<String, String> attribMap = authServletManager.doDefaultProcessRequest(false);
 
                 String email = attribMap.get("email");// = request.getParameter("email");
                 String pass = attribMap.get("password");
                 // check the model integrity of the data passed
                 User.checkUserIntegrity(email,pass,null);
-
 
                 if (authSession.getAuthDatabaseManager().isUserPresent(email)) {
                     boolean isAdmin = authSession.getAuthDatabaseManager().isAdmin(email);
@@ -48,10 +45,10 @@ public abstract class LogInJob {
                         authSession.setUserID(email);
                         authSession.setAdmin(isAdmin);
 
-                        AuthServletManager.initSessionCookie(request, response);
+                        authServletManager.initSessionCookie();
 
                         try {
-                            doSpecificAction(request, response);
+                            doSpecificAction(authServletManager);
                         } catch (JServletException se) {
                             Logger.error(se);
                             throw se;
@@ -63,19 +60,19 @@ public abstract class LogInJob {
                         //String output = adminInfo.toString();
                         String output = authServletManager.doDefaultProcessResponse(adminInfo.toString());
 
-                        out.println((new OkResponse(AuthStatusCode.SUCCESS, output)).json());
+                        authServletManager.print(new OkResponse(AuthStatusCode.SUCCESS, output));
                     } else {
                         // pass sbagliata
-                        out.println((new KoResponse(AuthStatusCode.WRONG_PASSWORD)).json());
+                        authServletManager.print(new KoResponse(AuthStatusCode.WRONG_PASSWORD));
                     }
                 } else {
                     Logger.error("User: " + email + " not found in AuthDatabase.");
                     // mail non trovata
-                    out.println((new KoResponse(AuthStatusCode.ACCOUNT_NOT_FOUND /*"user: " + request.getAttribute("email") + "; password: " + request.getAttribute("password")*/)).json());
+                    authServletManager.print(new KoResponse(AuthStatusCode.ACCOUNT_NOT_FOUND /*"user: " + request.getAttribute("email") + "; password: " + request.getAttribute("password")*/));
                 }
             } else {
                 // already logged
-                out.println((new KoResponse(AuthStatusCode.ALREADY_LOGGED)).json());
+                authServletManager.print(new KoResponse(AuthStatusCode.ALREADY_LOGGED));
             }
         } catch (JServletException e) {
             if (authSession != null) {
@@ -83,25 +80,21 @@ public abstract class LogInJob {
             }
             if (e.getMessage() != null) {
                 if (e.getMessage().contains("java.lang.Exception: decrypt, crypto not initialized, current state: 0")) {
-                    out.println((new KoResponse(AuthStatusCode.SECURE_CONNECTION, e.getMessage())).json());
+                    authServletManager.print(new KoResponse(AuthStatusCode.SECURE_CONNECTION, e.getMessage()));
                 } else {
-                    out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
+                    authServletManager.print(new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage()));
                 }
             } else {
                 // if the message is Servlet exception is empty, show generic error message
-                out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR)).json());
+                authServletManager.print(new KoResponse(AuthStatusCode.GENERIC_ERROR));
             }
         }catch (ModelException e){
-            out.println((new KoResponse(AuthStatusCode.MODEL_ERROR, e.getMessage())).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.MODEL_ERROR, e.getMessage()));
         } catch (Throwable e) {
             if (authSession != null) {
                 authSession.setUserID(null);
             }
-            out.println((new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage())).json());
+            authServletManager.print(new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage()));
         }
-
-        out.flush();
-        out.close();
-
     }
 }

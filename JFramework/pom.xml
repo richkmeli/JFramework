@@ -6,7 +6,7 @@
     <parent>
         <artifactId>JFramework-multimodules</artifactId>
         <groupId>it.richkmeli.jframework</groupId>
-        <version>1.2.3</version>
+        <version>1.2.4</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
