@@ -2,7 +2,7 @@ package it.richkmeli.jframework.auth.web.account;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import it.richkmeli.jframework.auth.AuthDatabaseManager;
+import it.richkmeli.jframework.auth.AuthDatabaseModel;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
 import it.richkmeli.jframework.auth.web.util.AuthSession;
@@ -13,8 +13,6 @@ import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.log.Logger;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -56,8 +54,8 @@ public abstract class UsersJob {
     }
 
     private static String GenerateUsersListJSON(AuthSession session) throws DatabaseException {
-        AuthDatabaseManager authDatabaseManager = session.getAuthDatabaseManager();
-        List<User> userList = authDatabaseManager.getAllUsers();
+        AuthDatabaseModel authDatabaseModel = session.getAuthDatabaseManager();
+        List<User> userList = authDatabaseModel.getAllUsers();
 
         Type type = new TypeToken<List<User>>() {
         }.getType();

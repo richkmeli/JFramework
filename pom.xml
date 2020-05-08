@@ -9,7 +9,7 @@
     <version>1.2.4</version>
 
     <properties>
-        <!-- TODO RELEASE -->
+         <!-- TODO RELEASE -->
         <JFRAMEWORK_VERSION>project.version</JFRAMEWORK_VERSION>
 
         <JDK_VERSION>1.8</JDK_VERSION>

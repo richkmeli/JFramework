@@ -1,5 +1,6 @@
 package it.richkmeli.jframework.auth.web.account;
 
+import it.richkmeli.jframework.auth.AuthDatabaseModel;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
@@ -27,7 +28,6 @@ public abstract class SignUpJob {
                 String pass = attribMap.get("password");
                 // check the model integrity of the data passed
                 User.checkUserIntegrity(email, pass, null);
-
 
                 if (authSession.getAuthDatabaseManager().isUserPresent(email)) {
                     authServletManager.print(new KoResponse(AuthStatusCode.ALREADY_REGISTERED));

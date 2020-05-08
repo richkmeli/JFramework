@@ -10,6 +10,10 @@ public class JServletException extends Exception {
         super(exception);
     }
 
+    public JServletException(String errorMessage) {
+        super(errorMessage);
+    }
+
     public JServletException(KoResponse koResponse) {
         this.koResponse = koResponse;
     }

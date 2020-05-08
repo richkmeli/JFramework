@@ -1,5 +1,6 @@
 package it.richkmeli.jframework.auth.web.util;
 
+import it.richkmeli.jframework.auth.AuthDatabaseModel;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 import it.richkmeli.jframework.network.tcp.server.http.util.ServletManager;
@@ -44,9 +45,11 @@ public abstract class AuthServletManager extends ServletManager {
 
     public abstract String doSpecificProcessResponseAuth(String input) throws JServletException;
 
+    protected abstract AuthDatabaseModel getAuthDatabaseManagerInstance() throws DatabaseException;
+
     @Override
     public void doSpecificProcessRequest() throws JServletException {
-        authSession = AuthServletManager.getAuthServerSession(httpServletRequest);
+        authSession = getAuthServerSession();
         doSpecificProcessRequestAuth();
     }
 
@@ -65,7 +68,7 @@ public abstract class AuthServletManager extends ServletManager {
 
     public String doDefaultProcessResponse(String input) throws JServletException {
         // server session
-        authSession = AuthServletManager.getAuthServerSession(httpServletRequest);
+        authSession = getAuthServerSession();
 
         // set servletPath for specific process response
         servletPath = httpServletRequest.getServletPath();
@@ -75,12 +78,16 @@ public abstract class AuthServletManager extends ServletManager {
 
 
     public void checkLogin() throws JServletException {
-        checkLogin(httpServletRequest);
+        try {
+            checkLogin(httpServletRequest,getAuthDatabaseManagerInstance());
+        } catch (DatabaseException e) {
+            throw new JServletException(e);
+        }
     }
 
-    public static void checkLogin(HttpServletRequest request) throws JServletException {
+    public static void checkLogin(HttpServletRequest request, AuthDatabaseModel authDatabaseModel) throws JServletException {
         // server session
-        AuthSession authSession = getAuthServerSession(request);
+        AuthSession authSession = getAuthServerSession(request, authDatabaseModel);
 
         String user = authSession.getUserID();
         // Authentication
@@ -91,20 +98,26 @@ public abstract class AuthServletManager extends ServletManager {
 
     }
 
+
     public void reset() {
         super.reset(this.httpServletRequest, this.httpServletResponse);
         try {
-            authSession = new AuthSession();
+            authSession = new AuthSession(getAuthDatabaseManagerInstance());
         } catch (DatabaseException e) {
             Logger.error(e);
         }
     }
 
     public AuthSession getAuthServerSession() throws JServletException {
-        return getAuthServerSession(httpServletRequest);
+        try {
+            return getAuthServerSession(httpServletRequest, getAuthDatabaseManagerInstance());
+        } catch (DatabaseException e) {
+            throw new JServletException(e);
+        }
+
     }
 
-    public static AuthSession getAuthServerSession(HttpServletRequest request) throws JServletException {
+    public static AuthSession getAuthServerSession(HttpServletRequest request, AuthDatabaseModel authDatabaseModel) throws JServletException {
         // http session
         HttpSession httpSession = request.getSession();
         // server session
@@ -113,7 +126,7 @@ public abstract class AuthServletManager extends ServletManager {
         if (authSession1 == null) {
             // object not present in HTTP session
             try {
-                authSession = new AuthSession(getServerSession(request));
+                authSession = new AuthSession(authDatabaseModel, getServerSession(request));
                 httpSession.setAttribute(HTTP_AUTH_SESSION_NAME, authSession);
             } catch (DatabaseException e) {
                 throw new JServletException(e);
@@ -123,7 +136,7 @@ public abstract class AuthServletManager extends ServletManager {
             try {
                 if (authSession1.getAuthDatabaseManager() == null) {
                     Logger.error("HTTPSession: jFramework Session not null | AuthDatabaseManager null");
-                    authSession = new AuthSession(getServerSession(request));
+                    authSession = new AuthSession(authDatabaseModel, getServerSession(request));
                     httpSession.setAttribute(HTTP_AUTH_SESSION_NAME, authSession);
                 } else {
                     authSession = authSession1;

@@ -9,10 +9,12 @@ import it.richkmeli.jframework.util.log.Logger;
 
 import java.util.List;
 
+/**
+ * Using Jframework ORM
+ */
+public class AuthDatabaseJframeworkManager extends DatabaseManager implements AuthDatabaseModel {
 
-public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
-
-    public AuthDatabaseManager(String database) throws DatabaseException {
+    public AuthDatabaseJframeworkManager(String database) throws DatabaseException {
         schemaName = "AuthSchema";
         tableName = schemaName + "." + "auth";
         table = "(" +
@@ -25,7 +27,7 @@ public class AuthDatabaseManager extends DatabaseManager implements AuthModel {
         init(database);
     }
 
-    public AuthDatabaseManager() throws DatabaseException {
+    public AuthDatabaseJframeworkManager() throws DatabaseException {
         this(null);
     }
 

@@ -1,10 +1,13 @@
 package it.richkmeli.jframework.auth.web.util;
 
-import it.richkmeli.jframework.auth.AuthDatabaseManager;
+import it.richkmeli.jframework.auth.AuthDatabaseModel;
 import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.network.tcp.server.http.util.Session;
 import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.log.Logger;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Authenticated Servlet Manager
@@ -12,20 +15,20 @@ import it.richkmeli.jframework.util.log.Logger;
  */
 
 public class AuthSession extends Session {
-    private AuthDatabaseManager authDatabaseManager;
+    private AuthDatabaseModel authDatabaseManager;
     private String userID;      //user from AuthSchema
     private Boolean isAdmin;
 
-    public AuthSession() throws DatabaseException {
+    public AuthSession(AuthDatabaseModel authDatabaseManager) throws DatabaseException {
         super();
-        authDatabaseManager = new AuthDatabaseManager();
+        this.authDatabaseManager = authDatabaseManager;//new AuthDatabaseJframeworkManager();
         userID = null;
         isAdmin = null;
     }
 
-    public AuthSession(Session session) throws DatabaseException {
+    public AuthSession(AuthDatabaseModel authDatabaseManager, Session session) throws DatabaseException {
         super(session);
-        authDatabaseManager = new AuthDatabaseManager();
+        this.authDatabaseManager = authDatabaseManager;//new AuthDatabaseJframeworkManager();
         userID = null;
         isAdmin = null;
     }
@@ -44,15 +47,40 @@ public class AuthSession extends Session {
         isAdmin = authSession.isAdmin;
     }
 
-
-    public AuthDatabaseManager getAuthDatabaseManager() throws DatabaseException {
+    public AuthDatabaseModel getAuthDatabaseManager(/*AuthDatabaseModel authDatabaseModel*/) throws DatabaseException {
         //Logger.i("authDatabaseManager" + authDatabaseManager);
         if (authDatabaseManager == null) {
-            Logger.info("init AuthDatabase");
-            authDatabaseManager = new AuthDatabaseManager();
+            Logger.info("authDatabaseManager is null, init AuthDatabase");
+            //authDatabaseManager = authDatabaseModel;
         }
         return authDatabaseManager;
     }
+
+   /* public <T extends AuthDatabaseModel> AuthDatabaseModel getAuthDatabaseManager(Class authDatabaseManagerClass) throws DatabaseException {
+        //Logger.i("authDatabaseManager" + authDatabaseManager);
+        if (authDatabaseManager == null) {
+            Logger.info("init AuthDatabase");
+            // search constructor
+            T obj;
+            try {
+                Constructor<T> constructor = authDatabaseManagerClass.getConstructor();
+                obj = constructor.newInstance();
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                throw new DatabaseException("Auth, constructor in class '" + authDatabaseManagerClass.getCanonicalName()+"' is not present");
+            }
+            authDatabaseManager = obj;
+        }
+        return authDatabaseManager;
+    }*/
+
+    /*public AuthDatabaseJframeworkManager getAuthDatabaseManager() throws DatabaseException {
+        //Logger.i("authDatabaseManager" + authDatabaseManager);
+        if (authDatabaseManager == null) {
+            Logger.info("init AuthDatabase");
+            authDatabaseManager = new AuthDatabaseJframeworkManager();
+        }
+        return authDatabaseManager;
+    }*/
 
     public String getUserID() {
         return userID;

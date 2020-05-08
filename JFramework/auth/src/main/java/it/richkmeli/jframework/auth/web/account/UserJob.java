@@ -2,6 +2,7 @@ package it.richkmeli.jframework.auth.web.account;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import it.richkmeli.jframework.auth.AuthDatabaseModel;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;

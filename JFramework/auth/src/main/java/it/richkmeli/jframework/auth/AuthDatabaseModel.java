@@ -6,7 +6,7 @@ import it.richkmeli.jframework.orm.DatabaseException;
 
 import java.util.List;
 
-public interface AuthModel {
+public interface AuthDatabaseModel {
 
     List<User> getAllUsers() throws DatabaseException;
 
