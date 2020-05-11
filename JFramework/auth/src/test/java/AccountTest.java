@@ -1,3 +1,4 @@
+import it.richkmeli.jframework.auth.data.exception.AuthDatabaseException;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.auth.web.util.AuthSession;
@@ -13,7 +14,7 @@ public class AccountTest {
             authSession.getAuthDatabaseManager().addUser(new User("er@fv.it", "00000000", false));
             authSession.getAuthDatabaseManager().addUser(new User("", "00000000", false));
             authSession.getAuthDatabaseManager().addUser(new User("richk@i.it", "00000000", true));
-        } catch (DatabaseException | ModelException e) {
+        } catch (AuthDatabaseException | ModelException e) {
             e.printStackTrace();
             Logger.error("Session TEST USERS", e);
         }

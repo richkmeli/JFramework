@@ -1,5 +1,6 @@
 package it.richkmeli.jframework.auth.web.account;
 
+import it.richkmeli.jframework.auth.data.exception.AuthDatabaseException;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
@@ -8,7 +9,6 @@ import it.richkmeli.jframework.auth.web.util.AuthStatusCode;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.OkResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
-import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
 
@@ -16,7 +16,7 @@ import java.util.Map;
 
 public abstract class LogInJob {
 
-    protected abstract void doSpecificAction(AuthServletManager authServletManager) throws JServletException, DatabaseException;
+    protected abstract void doSpecificAction(AuthServletManager authServletManager) throws JServletException, AuthDatabaseException;
 
     /**
      *

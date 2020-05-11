@@ -6,7 +6,7 @@
     <parent>
         <artifactId>JFramework-multimodules</artifactId>
         <groupId>it.richkmeli.jframework</groupId>
-        <version>1.2.4</version>
+        <version>1.2.5</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>network</artifactId>
+            <artifactId>auth-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

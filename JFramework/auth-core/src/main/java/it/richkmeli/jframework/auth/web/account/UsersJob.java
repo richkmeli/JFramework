@@ -2,7 +2,8 @@ package it.richkmeli.jframework.auth.web.account;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import it.richkmeli.jframework.auth.AuthDatabaseModel;
+import it.richkmeli.jframework.auth.data.AuthDatabaseModel;
+import it.richkmeli.jframework.auth.data.exception.AuthDatabaseException;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
 import it.richkmeli.jframework.auth.web.util.AuthSession;
@@ -10,7 +11,6 @@ import it.richkmeli.jframework.auth.web.util.AuthStatusCode;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.OkResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
-import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.log.Logger;
 
 import java.lang.reflect.Type;
@@ -20,7 +20,7 @@ import java.util.Map;
 
 public abstract class UsersJob {
 
-    protected abstract void doSpecificAction(AuthServletManager authServletManager) throws JServletException, DatabaseException;
+    protected abstract void doSpecificAction(AuthServletManager authServletManager) throws JServletException, AuthDatabaseException;
 
     public void doGet(AuthServletManager authServletManager){
         try {
@@ -46,14 +46,14 @@ public abstract class UsersJob {
 
         } catch (JServletException e) {
             authServletManager.print(e.getResponse());
-        } catch (DatabaseException e) {
+        } catch (AuthDatabaseException e) {
             authServletManager.print(new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage()));
         } catch (Throwable e) {
             authServletManager.print(new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage()));
         }
     }
 
-    private static String GenerateUsersListJSON(AuthSession session) throws DatabaseException {
+    private static String GenerateUsersListJSON(AuthSession session) throws AuthDatabaseException {
         AuthDatabaseModel authDatabaseModel = session.getAuthDatabaseManager();
         List<User> userList = authDatabaseModel.getAllUsers();
 

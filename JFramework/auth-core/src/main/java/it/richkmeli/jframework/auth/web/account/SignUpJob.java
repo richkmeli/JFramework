@@ -1,6 +1,6 @@
 package it.richkmeli.jframework.auth.web.account;
 
-import it.richkmeli.jframework.auth.AuthDatabaseModel;
+import it.richkmeli.jframework.auth.data.exception.AuthDatabaseException;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
@@ -9,7 +9,6 @@ import it.richkmeli.jframework.auth.web.util.AuthStatusCode;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.OkResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
-import it.richkmeli.jframework.orm.DatabaseException;
 
 import java.util.Map;
 
@@ -50,7 +49,7 @@ public abstract class SignUpJob {
             }
         } catch (JServletException e) {
             authServletManager.print(new KoResponse(AuthStatusCode.ALREADY_LOGGED));
-        } catch (DatabaseException e) {
+        } catch (AuthDatabaseException e) {
             authServletManager.print(new KoResponse(AuthStatusCode.DB_ERROR));
         } catch (ModelException e) {
             authServletManager.print(new KoResponse(AuthStatusCode.MODEL_ERROR, e.getMessage()));

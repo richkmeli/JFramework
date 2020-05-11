@@ -1,7 +1,8 @@
 package it.richkmeli.jframework.auth.web.util;
 
 import it.richkmeli.jframework.auth.AuthDatabaseJframeworkManager;
-import it.richkmeli.jframework.auth.AuthDatabaseModel;
+import it.richkmeli.jframework.auth.data.AuthDatabaseModel;
+import it.richkmeli.jframework.auth.data.exception.AuthDatabaseException;
 import it.richkmeli.jframework.orm.DatabaseException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +20,11 @@ public abstract class AuthServletJframeworkManager extends AuthServletManager {
     }
 
     @Override
-    protected AuthDatabaseModel getAuthDatabaseManagerInstance() throws DatabaseException {
-        return new AuthDatabaseJframeworkManager();
+    protected AuthDatabaseModel getAuthDatabaseManagerInstance() throws AuthDatabaseException {
+        try {
+            return new AuthDatabaseJframeworkManager();
+        } catch (DatabaseException e) {
+            throw new AuthDatabaseException(e);
+        }
     }
 }

@@ -1,10 +1,10 @@
 package it.richkmeli.jframework.auth.web.util;
 
-import it.richkmeli.jframework.auth.AuthDatabaseModel;
+import it.richkmeli.jframework.auth.data.AuthDatabaseModel;
+import it.richkmeli.jframework.auth.data.exception.AuthDatabaseException;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
 import it.richkmeli.jframework.network.tcp.server.http.util.ServletManager;
-import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.log.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +45,7 @@ public abstract class AuthServletManager extends ServletManager {
 
     public abstract String doSpecificProcessResponseAuth(String input) throws JServletException;
 
-    protected abstract AuthDatabaseModel getAuthDatabaseManagerInstance() throws DatabaseException;
+    protected abstract AuthDatabaseModel getAuthDatabaseManagerInstance() throws AuthDatabaseException;
 
     @Override
     public void doSpecificProcessRequest() throws JServletException {
@@ -80,7 +80,7 @@ public abstract class AuthServletManager extends ServletManager {
     public void checkLogin() throws JServletException {
         try {
             checkLogin(httpServletRequest,getAuthDatabaseManagerInstance());
-        } catch (DatabaseException e) {
+        } catch (AuthDatabaseException e) {
             throw new JServletException(e);
         }
     }
@@ -103,7 +103,7 @@ public abstract class AuthServletManager extends ServletManager {
         super.reset(this.httpServletRequest, this.httpServletResponse);
         try {
             authSession = new AuthSession(getAuthDatabaseManagerInstance());
-        } catch (DatabaseException e) {
+        } catch (AuthDatabaseException e) {
             Logger.error(e);
         }
     }
@@ -111,7 +111,7 @@ public abstract class AuthServletManager extends ServletManager {
     public AuthSession getAuthServerSession() throws JServletException {
         try {
             return getAuthServerSession(httpServletRequest, getAuthDatabaseManagerInstance());
-        } catch (DatabaseException e) {
+        } catch (AuthDatabaseException e) {
             throw new JServletException(e);
         }
 
@@ -128,7 +128,7 @@ public abstract class AuthServletManager extends ServletManager {
             try {
                 authSession = new AuthSession(authDatabaseModel, getServerSession(request));
                 httpSession.setAttribute(HTTP_AUTH_SESSION_NAME, authSession);
-            } catch (DatabaseException e) {
+            } catch (AuthDatabaseException e) {
                 throw new JServletException(e);
             }
         } else {
@@ -141,7 +141,7 @@ public abstract class AuthServletManager extends ServletManager {
                 } else {
                     authSession = authSession1;
                 }
-            } catch (DatabaseException e) {
+            } catch (AuthDatabaseException e) {
                 throw new JServletException(e);
             }
         }

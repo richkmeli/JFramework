@@ -2,12 +2,10 @@ package it.richkmeli.jframework.auth.model;
 
 
 import it.richkmeli.jframework.auth.model.exception.ModelException;
-import it.richkmeli.jframework.orm.annotation.Id;
 import it.richkmeli.jframework.util.regex.RegexManager;
 import it.richkmeli.jframework.util.regex.exception.RegexException;
 
 public class User {
-    @Id
     private String email;
     private String password;
     private Boolean admin;

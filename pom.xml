@@ -6,7 +6,7 @@
 
     <groupId>it.richkmeli.jframework</groupId>
     <artifactId>JFramework-multimodules</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
 
     <properties>
          <!-- TODO RELEASE -->
@@ -21,6 +21,7 @@
         <module>JFramework/orm</module>
         <module>JFramework/crypto</module>
         <module>JFramework/network</module>
+        <module>JFramework/auth-core</module>
         <module>JFramework/auth</module>
         <module>JFramework/system</module>
         <module>JFramework</module>

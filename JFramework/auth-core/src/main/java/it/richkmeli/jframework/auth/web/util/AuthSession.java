@@ -1,13 +1,10 @@
 package it.richkmeli.jframework.auth.web.util;
 
-import it.richkmeli.jframework.auth.AuthDatabaseModel;
+import it.richkmeli.jframework.auth.data.AuthDatabaseModel;
+import it.richkmeli.jframework.auth.data.exception.AuthDatabaseException;
 import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.network.tcp.server.http.util.Session;
-import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.log.Logger;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Authenticated Servlet Manager
@@ -19,14 +16,14 @@ public class AuthSession extends Session {
     private String userID;      //user from AuthSchema
     private Boolean isAdmin;
 
-    public AuthSession(AuthDatabaseModel authDatabaseManager) throws DatabaseException {
+    public AuthSession(AuthDatabaseModel authDatabaseManager) throws AuthDatabaseException {
         super();
         this.authDatabaseManager = authDatabaseManager;//new AuthDatabaseJframeworkManager();
         userID = null;
         isAdmin = null;
     }
 
-    public AuthSession(AuthDatabaseModel authDatabaseManager, Session session) throws DatabaseException {
+    public AuthSession(AuthDatabaseModel authDatabaseManager, Session session) throws AuthDatabaseException {
         super(session);
         this.authDatabaseManager = authDatabaseManager;//new AuthDatabaseJframeworkManager();
         userID = null;
@@ -47,7 +44,7 @@ public class AuthSession extends Session {
         isAdmin = authSession.isAdmin;
     }
 
-    public AuthDatabaseModel getAuthDatabaseManager(/*AuthDatabaseModel authDatabaseModel*/) throws DatabaseException {
+    public AuthDatabaseModel getAuthDatabaseManager(/*AuthDatabaseModel authDatabaseModel*/) throws AuthDatabaseException {
         //Logger.i("authDatabaseManager" + authDatabaseManager);
         if (authDatabaseManager == null) {
             Logger.info("authDatabaseManager is null, init AuthDatabase");
@@ -56,7 +53,7 @@ public class AuthSession extends Session {
         return authDatabaseManager;
     }
 
-   /* public <T extends AuthDatabaseModel> AuthDatabaseModel getAuthDatabaseManager(Class authDatabaseManagerClass) throws DatabaseException {
+   /* public <T extends AuthDatabaseModel> AuthDatabaseModel getAuthDatabaseManager(Class authDatabaseManagerClass) throws AuthDatabaseException {
         //Logger.i("authDatabaseManager" + authDatabaseManager);
         if (authDatabaseManager == null) {
             Logger.info("init AuthDatabase");
@@ -66,14 +63,14 @@ public class AuthSession extends Session {
                 Constructor<T> constructor = authDatabaseManagerClass.getConstructor();
                 obj = constructor.newInstance();
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new DatabaseException("Auth, constructor in class '" + authDatabaseManagerClass.getCanonicalName()+"' is not present");
+                throw new AuthDatabaseException("Auth, constructor in class '" + authDatabaseManagerClass.getCanonicalName()+"' is not present");
             }
             authDatabaseManager = obj;
         }
         return authDatabaseManager;
     }*/
 
-    /*public AuthDatabaseJframeworkManager getAuthDatabaseManager() throws DatabaseException {
+    /*public AuthDatabaseJframeworkManager getAuthDatabaseManager() throws AuthDatabaseException {
         //Logger.i("authDatabaseManager" + authDatabaseManager);
         if (authDatabaseManager == null) {
             Logger.info("init AuthDatabase");
@@ -99,7 +96,7 @@ public class AuthSession extends Session {
             if (userID != null) {
                 try {
                     isAdmin = authDatabaseManager.isAdmin(userID);
-                } catch (DatabaseException | ModelException e) {
+                } catch (AuthDatabaseException | ModelException e) {
                     Logger.error("isAdmin", e);
                     return false;
                 }

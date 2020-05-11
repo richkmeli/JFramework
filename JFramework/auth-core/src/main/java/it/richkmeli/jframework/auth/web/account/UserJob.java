@@ -2,7 +2,7 @@ package it.richkmeli.jframework.auth.web.account;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import it.richkmeli.jframework.auth.AuthDatabaseModel;
+import it.richkmeli.jframework.auth.data.exception.AuthDatabaseException;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.auth.web.util.AuthServletManager;
@@ -11,19 +11,16 @@ import it.richkmeli.jframework.auth.web.util.AuthStatusCode;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.OkResponse;
 import it.richkmeli.jframework.network.tcp.server.http.util.JServletException;
-import it.richkmeli.jframework.orm.DatabaseException;
 import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public abstract class UserJob {
-    protected abstract void doSpecificAction(AuthServletManager authServletManager) throws JServletException, DatabaseException;
+    protected abstract void doSpecificAction(AuthServletManager authServletManager) throws JServletException, AuthDatabaseException;
 
     /**
      * get user info
@@ -59,7 +56,7 @@ public abstract class UserJob {
 
         } catch (JServletException e) {
             authServletManager.print(e.getResponse());
-        } catch (DatabaseException e) {
+        } catch (AuthDatabaseException e) {
             authServletManager.print(new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage()));
         } catch (Throwable e) {
             authServletManager.print(new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage()));
@@ -105,7 +102,7 @@ public abstract class UserJob {
 
         } catch (JServletException e) {
             authServletManager.print(e.getResponse());
-        } catch (DatabaseException e) {
+        } catch (AuthDatabaseException e) {
             authServletManager.print(new KoResponse(AuthStatusCode.DB_ERROR, e.getMessage()));
         } catch (Exception e) {
             authServletManager.print(new KoResponse(AuthStatusCode.GENERIC_ERROR, e.getMessage()));

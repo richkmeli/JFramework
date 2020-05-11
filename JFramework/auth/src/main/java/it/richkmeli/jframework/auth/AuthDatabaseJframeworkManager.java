@@ -1,5 +1,7 @@
 package it.richkmeli.jframework.auth;
 
+import it.richkmeli.jframework.auth.data.AuthDatabaseModel;
+import it.richkmeli.jframework.auth.data.exception.AuthDatabaseException;
 import it.richkmeli.jframework.auth.model.User;
 import it.richkmeli.jframework.auth.model.exception.ModelException;
 import it.richkmeli.jframework.crypto.Crypto;
@@ -31,42 +33,73 @@ public class AuthDatabaseJframeworkManager extends DatabaseManager implements Au
         this(null);
     }
 
-    public List<User> getAllUsers() throws DatabaseException {
-        return readAll(User.class);
+    @Override
+    public List<User> getAllUsers() throws AuthDatabaseException {
+        try {
+            return readAll(User.class);
+        } catch (DatabaseException e) {
+            throw new AuthDatabaseException(e);
+        }
     }
 
-
-    public User getUser(String email) throws DatabaseException, ModelException {
-        return read(new User(email, null));
+    public User getUser(String email) throws AuthDatabaseException, ModelException {
+        try {
+            return read(new User(email, null));
+        } catch (DatabaseException e) {
+            throw new AuthDatabaseException(e);
+        }
     }
 
-    public boolean addUser(User user) throws DatabaseException {
+    @Override
+    public boolean addUser(User user) throws AuthDatabaseException {
         //Logger.info("AuthDatabaseManager, addUser. User: " + user.email);
         //String hash = Crypto.hash(user.getPassword());
         String password = Crypto.hashPassword(user.getPassword(), false);
         user.setPassword(password);
-        return create(user);
+        try {
+            return create(user);
+        } catch (DatabaseException e) {
+            throw new AuthDatabaseException(e);
+        }
     }
 
-    public boolean removeUser(String email) throws DatabaseException, ModelException {
-        return super.delete(new User(email, ""));
+
+    @Override
+    public boolean removeUser(String email) throws AuthDatabaseException, ModelException {
+        try {
+            return super.delete(new User(email, ""));
+        } catch (DatabaseException e) {
+            throw new AuthDatabaseException(e);
+        }
     }
 
 
-    public boolean isUserPresent(String email) throws DatabaseException, ModelException {
+    @Override
+    public boolean isUserPresent(String email) throws AuthDatabaseException, ModelException {
         return getUser(email) != null;
     }
 
-    public boolean editPassword(String email, String pass) throws DatabaseException, ModelException {
+    @Override
+    public boolean editPassword(String email, String pass) throws AuthDatabaseException, ModelException {
         String password = Crypto.hashPassword(pass, false);
-        return update(new User(email, password, null));
+        try {
+            return update(new User(email, password, null));
+        } catch (DatabaseException e) {
+            throw new AuthDatabaseException(e);
+        }
     }
 
-    public boolean editAdmin(String email, Boolean isAdmin) throws DatabaseException, ModelException {
-        return update(new User(email, null, isAdmin));
+    @Override
+    public boolean editAdmin(String email, Boolean isAdmin) throws AuthDatabaseException, ModelException {
+        try {
+            return update(new User(email, null, isAdmin));
+        } catch (DatabaseException e) {
+            throw new AuthDatabaseException(e);
+        }
     }
 
-    public boolean checkPassword(String email, String pass) throws DatabaseException, ModelException {
+    @Override
+    public boolean checkPassword(String email, String pass) throws AuthDatabaseException, ModelException {
         User user = getUser(email);
         if (user != null) {
             return Crypto.verifyPassword(user.getPassword(), pass);
@@ -75,7 +108,8 @@ public class AuthDatabaseJframeworkManager extends DatabaseManager implements Au
         }
     }
 
-    public boolean isAdmin(String email) throws DatabaseException, ModelException {
+    @Override
+    public boolean isAdmin(String email) throws AuthDatabaseException, ModelException {
         User user = getUser(email);
         if (user != null) {
             return user.getAdmin();
@@ -88,7 +122,7 @@ public class AuthDatabaseJframeworkManager extends DatabaseManager implements Au
 }
 /*
 
- public boolean editPassword(String email, String pass) throws DatabaseException {
+ @Override public boolean editPassword(String email, String pass) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
@@ -107,7 +141,7 @@ public class AuthDatabaseJframeworkManager extends DatabaseManager implements Au
         return true;
     }
 
-    public boolean editAdmin(String email, Boolean isAdmin) throws DatabaseException {
+    @Override public boolean editAdmin(String email, Boolean isAdmin) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
@@ -126,7 +160,7 @@ public class AuthDatabaseJframeworkManager extends DatabaseManager implements Au
         return true;
     }
 
-    public boolean checkPassword(String email, String pass) throws DatabaseException {
+    @Override public boolean checkPassword(String email, String pass) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -160,7 +194,7 @@ public class AuthDatabaseJframeworkManager extends DatabaseManager implements Au
         return isPass;
     }
 
-    public boolean isAdmin(String email) throws DatabaseException {
+    @Override public boolean isAdmin(String email) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -187,7 +221,7 @@ public class AuthDatabaseJframeworkManager extends DatabaseManager implements Au
 
 }
 
-public boolean addUser(User user) throws DatabaseException {
+@Override public boolean addUser(User user) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
@@ -215,7 +249,7 @@ public boolean addUser(User user) throws DatabaseException {
         return true;
     }
 
-        public boolean removeUser(String email) throws DatabaseException {
+        @Override public boolean removeUser(String email) throws DatabaseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
@@ -233,7 +267,7 @@ public boolean addUser(User user) throws DatabaseException {
         return true;
     }
 
-     public List<User> getAllUsers() throws DatabaseException {
+     @Override public List<User> getAllUsers() throws DatabaseException {
         List<User> userList = new ArrayList<User>();
 
         Connection connection = null;
