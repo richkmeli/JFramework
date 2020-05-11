@@ -9,10 +9,10 @@
     <version>1.2.5</version>
 
     <properties>
-         <!-- TODO RELEASE -->
-        <JFRAMEWORK_VERSION>project.version</JFRAMEWORK_VERSION>
-
-        <JDK_VERSION>1.8</JDK_VERSION>
+        <!-- TODO RELEASE -->
+        <jframework.version>project.version</jframework.version>
+        <!-- Generic properties -->
+        <jdk.version>1.8</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -48,8 +48,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>${JDK_VERSION}</source>
-                    <target>${JDK_VERSION}</target>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
                 </configuration>
             </plugin>
 
