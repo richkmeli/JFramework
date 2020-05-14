@@ -5,6 +5,7 @@ import it.richkmeli.jframework.crypto.exception.CryptoException;
 import it.richkmeli.jframework.network.tcp.client.okhttp.util.ResponseParser;
 import it.richkmeli.jframework.util.log.Logger;
 import okhttp3.*;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -38,30 +39,28 @@ public class Network {
         cookieList = new ArrayList<>();
     }
 
+    /**
+     * @param servlet
+     * @param jsonParametersString if crypto is not null, these parameters are encrypted
+     * @param additionalParameters these parameters are always not encrypted
+     * @param cryptoClient
+     * @param callback
+     */
 
     public void getRequest(String servlet, String jsonParametersString, String additionalParameters, Crypto.Client cryptoClient, NetworkCallback callback) {
-        StringBuilder parameters = new StringBuilder("?");
-        if (jsonParametersString != null && !jsonParametersString.isEmpty()) {
-            JSONObject jsonParameters = new JSONObject(jsonParametersString);
-            for (String key : jsonParameters.keySet()) {
-                parameters.append("&").append(key).append("=").append(jsonParameters.get(key));
-            }
-        }
+        String parameters = "";
+        boolean jsonParamCondition = jsonParametersString != null && !jsonParametersString.isEmpty();
+        boolean additionalParamCondition = additionalParameters != null && !additionalParameters.isEmpty();
 
-        URL url = null;
+        Logger.info("GET request: servlet: " + servlet + ", param:" + jsonParametersString + ", additionalParam: " + additionalParameters);
 
         if (cryptoClient != null) {
-            String params = parameters.toString();
-            try {
-                url = new URL(this.urlString + servlet + params);
-            } catch (MalformedURLException e) {
-                callback.onFailure(new NetworkException(e));
-            }
 
+            // if null (no parameters), it is set as empty string for CryptoClient
             jsonParametersString = jsonParametersString == null ? "" : jsonParametersString;
+
             //String encryptedParameters = cryptoClient.encrypt(params);
             // when encryption is enabled they are passed as JSON
-            Logger.info("Get request to: (decrypted) " + url + " :\"" + jsonParametersString + "\"");
             String encryptedParameters = null;
             try {
                 encryptedParameters = cryptoClient.encrypt(jsonParametersString);
@@ -69,22 +68,43 @@ public class Network {
                 callback.onFailure(e);
             }
 
-            Logger.info("Get request to:  (encrypted) " + url + " :\"" + encryptedParameters + "\"");
+            // reformatting param for url
+            if (additionalParamCondition) {
+                parameters = "?" + additionalParameters + "&data=" + encryptedParameters;
+            } else {
+                parameters = "?data=" + encryptedParameters;
+            }
 
-            parameters = new StringBuilder("?" + additionalParameters + "&data=" + encryptedParameters);
+        } else {
+            if (additionalParamCondition || jsonParamCondition) {
+                parameters = "?";
+            }
+
+            if (additionalParamCondition) {
+                parameters += additionalParameters;
+                if (jsonParamCondition) {
+                    parameters += "&";
+                    parameters += JsonParamToUrlParam(jsonParametersString);
+                }
+            } else {
+                if (jsonParamCondition) {
+                    parameters += JsonParamToUrlParam(jsonParametersString);
+                }
+            }
+
         }
 
+        // composing url with serer name, servlet name and parameters
+        URL url = null;
         try {
             url = new URL(this.urlString + servlet + parameters);
         } catch (MalformedURLException e) {
             callback.onFailure(new NetworkException(e));
         }
 
-
-        Logger.info("Get request to: " + url);
+        Logger.info("GET request: " + url);
 
         Request request = buildRequestWithHeader(VERB.GET, url, null);
-
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -99,36 +119,40 @@ public class Network {
                 /*lastHeaders = */
                 saveCookies(response/*, lastHeaders*/);
 
-                if (ResponseParser.parseStatus(jsonResponse).equalsIgnoreCase("ok")) {
+                try {
+                    if (ResponseParser.parseStatus(jsonResponse).equalsIgnoreCase("ok")) {
 
-                    if (cryptoClient != null) {
-                        Logger.info("GET response (encrypted): " + jsonResponse);
+                        if (cryptoClient != null) {
+                            Logger.info("GET response (encrypted): " + jsonResponse);
 
-                        String messageResponse = ResponseParser.parseMessage(jsonResponse);
+                            String messageResponse = ResponseParser.parseMessage(jsonResponse);
 
-                        try {
-                            messageResponse = cryptoClient.decrypt(messageResponse);
-                        } catch (CryptoException e) {
-                            callback.onFailure(e);
+                            try {
+                                messageResponse = cryptoClient.decrypt(messageResponse);
+                            } catch (CryptoException e) {
+                                callback.onFailure(e);
+                            }
+
+                            //CREATE new JSON
+                            JSONObject json = new JSONObject(jsonResponse);
+                            json.remove("message");
+                            json.put("message", messageResponse);
+                            jsonResponse = json.toString();
+
+                            Logger.info("GET response (decrypted): " + jsonResponse);
+
+                            //callback.onSuccess(jsonResponse);
+                        } else {
+                            Logger.info("GET response: " + jsonResponse);
+                            //callback.onSuccess(jsonResponse);
                         }
-
-                        //CREATE new JSON
-                        JSONObject json = new JSONObject(jsonResponse);
-                        json.remove("message");
-                        json.put("message", messageResponse);
-                        jsonResponse = json.toString();
-
-                        Logger.info("GET response (decrypted): " + jsonResponse);
-
-                        //callback.onSuccess(jsonResponse);
+                        callback.onSuccess(jsonResponse);
                     } else {
                         Logger.info("GET response: " + jsonResponse);
-                        //callback.onSuccess(jsonResponse);
+                        callback.onFailure(new Exception(ResponseParser.parseMessage(jsonResponse)));
                     }
-                    callback.onSuccess(jsonResponse);
-                } else {
-                    Logger.info("GET response: " + jsonResponse);
-
+                } catch (JSONException e) {
+                    Logger.error("Error parsing GET response: " + jsonResponse,e);
                     callback.onFailure(new Exception(ResponseParser.parseMessage(jsonResponse)));
                 }
             }
@@ -180,6 +204,20 @@ public class Network {
             e.printStackTrace();
         }
         return request;
+    }
+
+    public static String urlParamToJsonParam(String urlParam) {
+        urlParam = urlParam.replaceAll("=", "\":\"");
+        urlParam = urlParam.replaceAll("&", "\",\"");
+        return "{\"" + urlParam + "\"}";
+    }
+
+    public static String JsonParamToUrlParam(String jsonParam) {
+        jsonParam = jsonParam.replaceAll("\":\"", "=");
+        jsonParam = jsonParam.replaceAll("\",\"", "&");
+        jsonParam = jsonParam.replace("{\"", "");
+        jsonParam = jsonParam.replace("\"}", "");
+        return jsonParam;
     }
 
     private static void saveCookies(Response response) {

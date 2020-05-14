@@ -14,7 +14,6 @@ public abstract class LogOutJob {
     protected abstract void doSpecificAction(AuthServletManager authServletManager);
 
     public void doAction(AuthServletManager authServletManager) {
-
         try {
             Map<String, String> attribMap = authServletManager.doDefaultProcessRequest();
             authServletManager.checkLogin();
@@ -28,16 +27,16 @@ public abstract class LogOutJob {
                 doSpecificAction(authServletManager);
             }
 
-            // invalidate HttpSession and set expired cookies in response
-            authServletManager.resetSession();
-
-            // reset ServletManager instance
-            authServletManager.reset();
-
             String message = "LogOut succeeded";
             String output = authServletManager.doDefaultProcessResponse(message);
 
             authServletManager.print(new OkResponse(AuthStatusCode.SUCCESS, output));
+
+            // reset ServletManager instance, executed after all other calls to avoid null pointer exception on httpRequest and httpResponse
+            // invalidate HttpSession and set expired cookies in response
+            //authServletManager.resetSession();
+            // reset ServletManager instance
+            authServletManager.reset();
         } catch (JServletException e) {
             authServletManager.print(e.getResponse());
         } catch (Throwable e) {

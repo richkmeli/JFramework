@@ -1,5 +1,6 @@
 package it.richkmeli.jframework.network.tcp.server.http.util;
 
+import it.richkmeli.jframework.network.tcp.server.http.payload.response.BaseStatusCode;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.Response;
 
@@ -19,11 +20,15 @@ public class JServletException extends Exception {
     }
 
     public String getKoResponseJSON() {
-        return koResponse.json();
+        return getResponse().json();
     }
 
     public Response getResponse() {
-        return koResponse;
+        if(koResponse != null) {
+            return koResponse;
+        }else {
+            return new KoResponse(BaseStatusCode.GENERIC_ERROR, super.getMessage());
+        }
     }
 
 }

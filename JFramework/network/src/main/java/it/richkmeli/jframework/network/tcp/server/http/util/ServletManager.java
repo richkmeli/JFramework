@@ -192,6 +192,7 @@ public abstract class ServletManager {
 
     /**
      * delete ServletManager object
+     *
      * @param request
      * @param response
      */
@@ -346,16 +347,20 @@ public abstract class ServletManager {
     }
 
     public static void print(HttpServletResponse httpServletResponse, Response response) {
-        PrintWriter out = null;
-        try {
-            out = httpServletResponse.getWriter();
-            out.println(response.json());
-            // close out
-            out.flush();
-            out.close();
-        } catch (IOException e) {
-            //e.printStackTrace();
-            Logger.error(e);
+        if (httpServletResponse != null) {
+            PrintWriter out = null;
+            try {
+                out = httpServletResponse.getWriter();
+                out.println(response.json());
+                // close out
+                out.flush();
+                out.close();
+            } catch (IOException e) {
+                //e.printStackTrace();
+                Logger.error(e);
+            }
+        } else {
+            Logger.info("Servlet Manager Print error, response: " + response.getMessage());
         }
     }
 

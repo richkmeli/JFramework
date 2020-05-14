@@ -47,7 +47,6 @@ public abstract class Response {
      */
     public String getMessage() {
         if (VERBOSE) {
-            String message;
             if (this.additionalMessage == null) {
                 // no additionalMessage, so return only "message"
                 return this.statusCode.getMessage();
