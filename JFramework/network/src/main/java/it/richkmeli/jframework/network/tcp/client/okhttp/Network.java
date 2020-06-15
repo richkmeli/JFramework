@@ -27,6 +27,23 @@ public class Network {
         cookieList = new ArrayList<>();
     }
 
+    public void setCredentials(String username, String password){
+        client.newBuilder().authenticator(new Authenticator() {
+            @Override public Request authenticate(Route route, Response response) throws IOException {
+                if (response.request().header("Authorization") != null) {
+                    return null; // Give up, we've already attempted to authenticate.
+                }
+
+                Logger.info("Authenticating for response: " + response);
+                Logger.info("Challenges: " + response.challenges());
+                String credential = Credentials.basic(username, password);
+                return response.request().newBuilder()
+                        .header("Authorization", credential)
+                        .build();
+            }
+        });
+    }
+
     public void setURL(String protocol, String server, String port, String service) throws NetworkException {
         try {
             this.urlString = String.valueOf(new URL(protocol + "://" + server + ":" + port + "/" + service + "/"));
@@ -44,10 +61,11 @@ public class Network {
      * @param jsonParametersString if crypto is not null, these parameters are encrypted
      * @param additionalParameters these parameters are always not encrypted
      * @param cryptoClient
+     * @param isJsonResponse
      * @param callback
      */
 
-    public void getRequest(String servlet, String jsonParametersString, String additionalParameters, Crypto.Client cryptoClient, NetworkCallback callback) {
+    public void getRequest(String servlet, String jsonParametersString, String additionalParameters, Crypto.Client cryptoClient, boolean isJsonResponse, NetworkCallback callback) {
         String parameters = "";
         boolean jsonParamCondition = jsonParametersString != null && !jsonParametersString.isEmpty();
         boolean additionalParamCondition = additionalParameters != null && !additionalParameters.isEmpty();
@@ -119,41 +137,45 @@ public class Network {
                 /*lastHeaders = */
                 saveCookies(response/*, lastHeaders*/);
 
-                try {
-                    if (ResponseParser.parseStatus(jsonResponse).equalsIgnoreCase("ok")) {
+                if (isJsonResponse) {
+                    try {
+                        if (ResponseParser.parseStatus(jsonResponse).equalsIgnoreCase("ok")) {
 
-                        if (cryptoClient != null) {
-                            Logger.info("GET response (encrypted): " + jsonResponse);
+                            if (cryptoClient != null) {
+                                Logger.info("GET response (encrypted): " + jsonResponse);
 
-                            String messageResponse = ResponseParser.parseMessage(jsonResponse);
+                                String messageResponse = ResponseParser.parseMessage(jsonResponse);
 
-                            try {
-                                messageResponse = cryptoClient.decrypt(messageResponse);
-                            } catch (CryptoException e) {
-                                callback.onFailure(e);
+                                try {
+                                    messageResponse = cryptoClient.decrypt(messageResponse);
+                                } catch (CryptoException e) {
+                                    callback.onFailure(e);
+                                }
+
+                                //CREATE new JSON
+                                JSONObject json = new JSONObject(jsonResponse);
+                                json.remove("message");
+                                json.put("message", messageResponse);
+                                jsonResponse = json.toString();
+
+                                Logger.info("GET response (decrypted): " + jsonResponse);
+
+                                //callback.onSuccess(jsonResponse);
+                            } else {
+                                Logger.info("GET response: " + jsonResponse);
+                                //callback.onSuccess(jsonResponse);
                             }
-
-                            //CREATE new JSON
-                            JSONObject json = new JSONObject(jsonResponse);
-                            json.remove("message");
-                            json.put("message", messageResponse);
-                            jsonResponse = json.toString();
-
-                            Logger.info("GET response (decrypted): " + jsonResponse);
-
-                            //callback.onSuccess(jsonResponse);
+                            callback.onSuccess(jsonResponse);
                         } else {
                             Logger.info("GET response: " + jsonResponse);
-                            //callback.onSuccess(jsonResponse);
+                            callback.onFailure(new Exception(ResponseParser.parseMessage(jsonResponse)));
                         }
-                        callback.onSuccess(jsonResponse);
-                    } else {
-                        Logger.info("GET response: " + jsonResponse);
+                    } catch (JSONException e) {
+                        Logger.error("Error parsing GET response: " + jsonResponse, e);
                         callback.onFailure(new Exception(ResponseParser.parseMessage(jsonResponse)));
                     }
-                } catch (JSONException e) {
-                    Logger.error("Error parsing GET response: " + jsonResponse,e);
-                    callback.onFailure(new Exception(ResponseParser.parseMessage(jsonResponse)));
+                } else {
+                    callback.onSuccess(jsonResponse);
                 }
             }
 
@@ -162,6 +184,10 @@ public class Network {
                 callback.onFailure(new NetworkException(e));
             }
         });
+    }
+
+    public void getRequest(String servlet, String jsonParametersString, String additionalParameters, Crypto.Client cryptoClient, NetworkCallback callback) {
+        getRequest(servlet, jsonParametersString, additionalParameters, cryptoClient, true, callback);
     }
 
     enum VERB {

@@ -1,30 +1,23 @@
 package it.richkmeli.jframework.crypto.data;
 
-import it.richkmeli.jframework.crypto.algorithm.AES;
 import it.richkmeli.jframework.crypto.data.model.ClientSecureData;
 import it.richkmeli.jframework.crypto.data.model.ServerSecureData;
-import it.richkmeli.jframework.crypto.exception.CryptoException;
+import it.richkmeli.jframework.crypto.system.SecureFileManager;
 import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Scanner;
 
 public class SecureDataManager {
 
 
     public static ClientSecureData getClientSecureData(File secureDataFile, String secretKey) {
-        String decrypted = getSecureData(secureDataFile, secretKey);
+        String decrypted = SecureFileManager.loadEncryptedDataFromFile(secureDataFile, secretKey);
         return new ClientSecureData(decrypted);
     }
 
     public static ServerSecureData getServerSecureData(File secureDataFile, String secretKey) {
-        String decrypted = getSecureData(secureDataFile, secretKey);
+        String decrypted = SecureFileManager.loadEncryptedDataFromFile(secureDataFile, secretKey);
         return new ServerSecureData(decrypted);
     }
 
@@ -34,7 +27,7 @@ public class SecureDataManager {
             //Logger.info("setClientSecureData, no changes, skipping");
             return true;
         } else {
-            return setSecureData(secureDataFile, clientSecureDataJSON, key);
+            return SecureFileManager.saveEncryptedDataToFile(secureDataFile, clientSecureDataJSON, key);
         }
     }
 
@@ -46,7 +39,7 @@ public class SecureDataManager {
             //Logger.info("setServerSecureData, no changes, skipping");
             return true;
         } else {
-            return setSecureData(secureDataFile, serverSecureDataJSON, key);
+            return SecureFileManager.saveEncryptedDataToFile(secureDataFile, serverSecureDataJSON, key);
         }
     }
 
@@ -61,7 +54,7 @@ public class SecureDataManager {
     }
 
     public static void putData(File file, String secretKey, String key, String value) {
-        String data = SecureDataManager.getSecureData(file, secretKey);
+        String data = SecureFileManager.loadEncryptedDataFromFile(file, secretKey);
         JSONObject jsonObject;
         if (data != null) {
             jsonObject = new JSONObject(data);
@@ -69,11 +62,11 @@ public class SecureDataManager {
             jsonObject = new JSONObject();
         }
         jsonObject.put(key, value);
-        SecureDataManager.setSecureData(file, jsonObject.toString(), secretKey);
+        SecureFileManager.saveEncryptedDataToFile(file, jsonObject.toString(), secretKey);
     }
 
     public static String getData(File file, String secretKey, String key) {
-        String data = SecureDataManager.getSecureData(file, secretKey);
+        String data = SecureFileManager.loadEncryptedDataFromFile(file, secretKey);
         JSONObject jsonObject;
         String value = "";
         if (data != null) {
@@ -89,97 +82,97 @@ public class SecureDataManager {
         return value;
     }
 
-    private static String getSecureData(File secureDataFile, String secretKey) {
-        String secureData = null;
-        if (secureDataFile != null) {
-            if (secureDataFile.exists()) {
-                // reading content
+//    private static String SecureFileManager.LoadToFile(File secureDataFile, String secretKey) {
+//        String secureData = null;
+//        if (secureDataFile != null) {
+//            if (secureDataFile.exists()) {
+//                // reading content
+//
+//                Scanner sc = null;
+//                try {
+//                    sc = new Scanner(secureDataFile);
+//                } catch (FileNotFoundException e) {
+//                    Logger.error("SecureData not found", e);
+//                    return null;
+//                }
+//
+//                StringBuilder sb = new StringBuilder();
+//                while (sc.hasNextLine()) {
+//                    sb.append(sc.nextLine());
+//                }
+//                String encryptedSecureData = sb.toString();
+//
+//                //Logger.info("SecureData read");
+//
+//                if (encryptedSecureData.equalsIgnoreCase("")) {
+//                    Logger.error("Secure data is empty");
+//                } else {
+//
+//                    String decrypted = "";
+//                    try {
+//                        decrypted = AES.decrypt(encryptedSecureData, secretKey);
+//                    } catch (CryptoException ce) {
+//                        Logger.error("Error decrypting SecureData", ce);
+//                        ce.printStackTrace();
+//                        return null;
+//                    }
+//
+//                    secureData = decrypted;
+//                }
+//            } else {
+//                try {
+//                    if (secureDataFile.createNewFile()) {
+//                        Logger.info("SecureData created");
+//                    }
+//                } catch (IOException e) {
+//                    Logger.error("secureData creation", e);
+//                    return null;
+//                }
+//            }
+//        } else {
+//            Logger.error("secureDataFile is null");
+//            return null;
+//        }
+//        return secureData;
+//    }
 
-                Scanner sc = null;
-                try {
-                    sc = new Scanner(secureDataFile);
-                } catch (FileNotFoundException e) {
-                    Logger.error("SecureData not found", e);
-                    return null;
-                }
 
-                StringBuilder sb = new StringBuilder();
-                while (sc.hasNextLine()) {
-                    sb.append(sc.nextLine());
-                }
-                String encryptedSecureData = sb.toString();
-
-                //Logger.info("SecureData read");
-
-                if (encryptedSecureData.equalsIgnoreCase("")) {
-                    Logger.error("Secure data is empty");
-                } else {
-
-                    String decrypted = "";
-                    try {
-                        decrypted = AES.decrypt(encryptedSecureData, secretKey);
-                    } catch (CryptoException ce) {
-                        Logger.error("Error decrypting SecureData", ce);
-                        ce.printStackTrace();
-                        return null;
-                    }
-
-                    secureData = decrypted;
-                }
-            } else {
-                try {
-                    if (secureDataFile.createNewFile()) {
-                        Logger.info("SecureData created");
-                    }
-                } catch (IOException e) {
-                    Logger.error("secureData creation", e);
-                    return null;
-                }
-            }
-        } else {
-            Logger.error("secureDataFile is null");
-            return null;
-        }
-        return secureData;
-    }
-
-
-    private static boolean setSecureData(File secureDataFile, String secureDataJSON, String key) {
-        //Logger.info("secureDataJSON: " + secureDataJSON);
-
-        String encrypted;
-        try {
-            encrypted = AES.encrypt(secureDataJSON, key);
-        } catch (CryptoException ce) {
-            Logger.error("Error encrypting SecureData", ce);
-            return false;
-        }
-
-        if (secureDataFile.exists()) {
-            Path path = Paths.get(secureDataFile.getPath());
-            byte[] strToBytes = encrypted.getBytes();
-
-            try {
-                Files.write(path, strToBytes);
-            } catch (IOException e) {
-                Logger.error("Error writing SecureData to file", e);
-                return false;
-            }
-            //Logger.info("SecureData set");
-            return true;
-        } else {
-            try {
-                if (secureDataFile.createNewFile()) {
-                    Logger.info("SecureData created");
-                }
-            } catch (IOException e) {
-                Logger.error("secureData creation", e);
-                return false;
-            }
-        }
-
-        return false;
-    }
+//    private static boolean SecureFileManager.saveToFile((File secureDataFile, String secureDataJSON, String key) {
+//        //Logger.info("secureDataJSON: " + secureDataJSON);
+//
+//        String encrypted;
+//        try {
+//            encrypted = AES.encrypt(secureDataJSON, key);
+//        } catch (CryptoException ce) {
+//            Logger.error("Error encrypting SecureData", ce);
+//            return false;
+//        }
+//
+//        if (secureDataFile.exists()) {
+//            Path path = Paths.get(secureDataFile.getPath());
+//            byte[] strToBytes = encrypted.getBytes();
+//
+//            try {
+//                Files.write(path, strToBytes);
+//            } catch (IOException e) {
+//                Logger.error("Error writing SecureData to file", e);
+//                return false;
+//            }
+//            //Logger.info("SecureData set");
+//            return true;
+//        } else {
+//            try {
+//                if (secureDataFile.createNewFile()) {
+//                    Logger.info("SecureData created");
+//                }
+//            } catch (IOException e) {
+//                Logger.error("secureData creation", e);
+//                return false;
+//            }
+//        }
+//
+//        return false;
+//    }
 
 
 }
