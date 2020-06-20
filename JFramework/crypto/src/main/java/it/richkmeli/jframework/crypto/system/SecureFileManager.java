@@ -30,7 +30,7 @@ public class SecureFileManager extends FileManager {
                 //ce.printStackTrace();
                 return null;
             }
-            Logger.info("Decrypted: " + decrypted);
+            //Logger.info("Decrypted: " + decrypted);
             return decrypted;
         }
     }

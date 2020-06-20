@@ -12,23 +12,37 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Network {
 
     private String urlString;
-    private OkHttpClient client;
+    private final OkHttpClient client;
     private static List<String> cookieList;
+    private static Map<String, String> headerList;
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     public Network() {
         client = new OkHttpClient();
         //lastHeaders = null;
         cookieList = new ArrayList<>();
+        headerList = new HashMap<>();
+    }
+
+    public OkHttpClient getClient() {
+        return client;
+    }
+
+    public static Map<String, String> getHeaderList() {
+        return headerList;
     }
 
     public void setCredentials(String username, String password){
-        client.newBuilder().authenticator(new Authenticator() {
+        String credential = Credentials.basic(username, password);
+        headerList.put("Authorization", credential); //Authorization: Basic
+        /*client.newBuilder().authenticator(new Authenticator() {
             @Override public Request authenticate(Route route, Response response) throws IOException {
                 if (response.request().header("Authorization") != null) {
                     return null; // Give up, we've already attempted to authenticate.
@@ -41,7 +55,11 @@ public class Network {
                         .header("Authorization", credential)
                         .build();
             }
-        });
+        });*/
+    }
+
+    public void setUserAgent(String userAgent){
+        headerList.put("User-Agent", "Richk RichkClient/X-1.0.0 info@richk.com");
     }
 
     public void setURL(String protocol, String server, String port, String service) throws NetworkException {
@@ -219,7 +237,13 @@ public class Network {
                 for (String key : cookieList) {
                     stringBuilder.append(key).append(";");
                 }
-                builder.addHeader("Cookie", stringBuilder.toString());
+                //builder.addHeader("Cookie", stringBuilder.toString());
+                headerList.put("Cookie", stringBuilder.toString());
+
+                for(String headerName : headerList.keySet()){
+                    //Logger.info(headerName + " - " + headerList.get(headerName));
+                    builder.addHeader(headerName, headerList.get(headerName));
+                }
 
             } else {
                 Logger.error("url is null");
