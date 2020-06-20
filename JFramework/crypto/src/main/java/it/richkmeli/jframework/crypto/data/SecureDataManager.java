@@ -56,7 +56,7 @@ public class SecureDataManager {
     public static void putData(File file, String secretKey, String key, String value) {
         String data = SecureFileManager.loadEncryptedDataFromFile(file, secretKey);
         JSONObject jsonObject;
-        if (data != null) {
+        if (data != null && !"".equalsIgnoreCase(data)) {
             jsonObject = new JSONObject(data);
         } else {
             jsonObject = new JSONObject();

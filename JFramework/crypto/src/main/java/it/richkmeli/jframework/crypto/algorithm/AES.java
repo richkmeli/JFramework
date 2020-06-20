@@ -62,6 +62,9 @@ public class AES {
 
     // entry point, key as string, with IV
     public static String decrypt(String ciphertext, String key, byte[] iv) throws CryptoException {
+        if(key == null){
+            throw new CryptoException("key is null");
+        }
         byte[] decodedKey = (checkKey(key)).getBytes();
         // rebuild key using SecretKeySpec
         SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, ALGORITHM);

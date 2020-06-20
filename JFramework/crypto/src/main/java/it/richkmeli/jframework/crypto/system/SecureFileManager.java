@@ -15,8 +15,10 @@ public class SecureFileManager extends FileManager {
 
     public static String loadEncryptedDataFromFile(File file, String secretKey) {
         String encryptedData = loadDataFromFile(file);
-
-        if ("".equalsIgnoreCase(encryptedData)) {
+        if (encryptedData == null) {
+            Logger.error("encryptedData is null");
+            return encryptedData;
+        } else if ("".equalsIgnoreCase(encryptedData)) {
             Logger.error("file '" + file.getName() + "' is empty");
             return encryptedData;
         } else {
