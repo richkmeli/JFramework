@@ -48,7 +48,7 @@ public abstract class SecureConnectionJob {
 
         PrintWriter out = response.getWriter();
         try {
-            File secureDataServer = new File("TESTsecureDataServer.txt");
+            File secureDataServer = new File("secureDataServer.txt");
             String serverKey = "testkeyServer";
             // TODO rendere unico il client ID, che sarebbe il codice del RMC, vedi se passarlo come parametro o generato o altro fattore
 

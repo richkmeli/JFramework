@@ -69,7 +69,7 @@ public class SecureDataManager {
         String data = SecureFileManager.loadEncryptedDataFromFile(file, secretKey);
         JSONObject jsonObject;
         String value = "";
-        if (data != null) {
+        if (data != null && !"".equalsIgnoreCase(data)) {
             jsonObject = new JSONObject(data);
             if (jsonObject.has(key)) {
                 value = jsonObject.getString(key);
