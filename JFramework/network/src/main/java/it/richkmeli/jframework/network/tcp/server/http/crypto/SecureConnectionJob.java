@@ -27,7 +27,8 @@ public abstract class SecureConnectionJob {
 
     /**
      * an implementation of this abstract method should contains all activities to be done BEFORE performing encryption process.
-     * @param request HTTP servlet request
+     *
+     * @param request  HTTP servlet request
      * @param response HTTP servlet response
      * @param clientID client identifier
      * @throws Exception
@@ -36,6 +37,7 @@ public abstract class SecureConnectionJob {
 
     /**
      * an implementation of this abstract method should contains all activities to be done AFTER performing encryption process.
+     *
      * @throws Exception
      */
     protected abstract void doFinalCryptoAction() throws Exception;

@@ -24,9 +24,9 @@ public class JServletException extends Exception {
     }
 
     public Response getResponse() {
-        if(koResponse != null) {
+        if (koResponse != null) {
             return koResponse;
-        }else {
+        } else {
             return new KoResponse(BaseStatusCode.GENERIC_ERROR, super.getMessage());
         }
     }

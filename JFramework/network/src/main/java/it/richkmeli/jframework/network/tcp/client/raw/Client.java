@@ -4,7 +4,7 @@ import it.richkmeli.jframework.network.util.CommunicationLock;
 import it.richkmeli.jframework.util.log.Logger;
 
 import java.io.*;
-import java.net.*;
+import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
@@ -29,6 +29,7 @@ public class Client {
 
     /**
      * use Client.send() passing clientSocket to send packet anc communicationLock.getMessage() to get the response
+     *
      * @param serverAddress
      * @param port
      * @param task
