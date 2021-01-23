@@ -7,7 +7,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Client {
+public class ClientTcp {
     private static final CommunicationLock communicationLock = new CommunicationLock();
     private static Socket clientSocket;
 
@@ -23,6 +23,14 @@ public class Client {
             clientSocket.close();
         } catch (IOException e) {
             Logger.error(e);
+        }finally {
+            if (!clientSocket.isClosed()) {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    Logger.error(e);
+                }
+            }
         }
         return response;
     }
@@ -43,9 +51,16 @@ public class Client {
             //response = communicationLock.getMessage();
             task.doStuff(clientSocket, communicationLock);
 
-            clientSocket.close();
         } catch (IOException e) {
             Logger.error(e);
+        } finally {
+            if (!clientSocket.isClosed()) {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    Logger.error(e);
+                }
+            }
         }
     }
 

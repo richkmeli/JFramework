@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.network.udp;
+package it.richkmeli.jframework.network.udp.chat;
 
 import java.io.IOException;
 import java.io.InputStream;

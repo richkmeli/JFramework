@@ -1,4 +1,4 @@
-package it.richkmeli.jframework.network.udp;
+package it.richkmeli.jframework.network.udp.chat;
 
 import it.richkmeli.jframework.network.util.CommunicationLock;
 import it.richkmeli.jframework.util.log.Logger;

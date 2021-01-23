@@ -1,5 +1,6 @@
 package it.richkmeli.jframework.network.udp;
 
+import it.richkmeli.jframework.network.udp.chat.P2pChatARQ;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

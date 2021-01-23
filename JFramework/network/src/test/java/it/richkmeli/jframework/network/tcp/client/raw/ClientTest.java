@@ -10,7 +10,7 @@ public class ClientTest {
 
     @Test
     public void sendPacket() {
-        String response = Client.sendPacket("www.google.com", 80, "TEST");
+        String response = ClientTcp.sendPacket("www.google.com", 80, "TEST");
 
         System.out.println("response length: "+response.length());
         assert !"".equalsIgnoreCase(response);
@@ -18,10 +18,10 @@ public class ClientTest {
 
     @Test
     public void doTask() {
-        Client.doTask("www.google.com", 80, new ClientTask() {
+        ClientTcp.doTask("www.google.com", 80, new ClientTask() {
             @Override
             public void doStuff(Socket clientSocket, CommunicationLock communicationLock) throws IOException {
-                Client.send(clientSocket,"TEST");
+                ClientTcp.send(clientSocket,"TEST");
                 String response = communicationLock.getMessage();
                 System.out.println("response length: "+response.length());
                 assert !"".equalsIgnoreCase(response);
