@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>it.richkmeli.jframework</groupId>
-    <artifactId>JFramework-multimodules</artifactId>
-    <version>1.2.6</version>
+    <artifactId>jframework-multimodules</artifactId>
+    <version>1.2.7</version>
 
     <properties>
         <!-- TODO RELEASE -->
