@@ -6,7 +6,7 @@
     <parent>
         <artifactId>jframework-multimodules</artifactId>
         <groupId>it.richkmeli.jframework</groupId>
-        <version>1.2.8</version>
+        <version>1.2.10</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -52,7 +52,7 @@
                         <!--<option>-allowaccessmodification</option>--> <!-- DON'T use this option when processing code that is to be used as a library, since classes and class members that weren't designed to be public in the API may become public.-->
                         <!--<option>-android</option>--> <!-- Specifies that the processed class files are targeted at the Android platform -->
 
-                        <option>-dontobfuscate</option>
+                        <!--<option>-dontobfuscate</option>-->
                         <!--<option>-dontoptimize</option>--> <!-- It inlines and merges classes and class members, and it optimizes all methods at a bytecode level-->
                         <!--<option>-dontshrink</option>--> <!--it removes all unused classes and class members-->
                         <option>-dontnote

@@ -1,6 +1,6 @@
--keep class it.richkmeli.jframework.** { *; }
+-keep class it.richkmeli.jframework.crypto.** { *; }
 
--keep class org.json.** { *; }
+#-keep class org.json.** { *; }
 
 -keepclassmembernames class * {
     java.lang.Class class$(java.lang.String);
