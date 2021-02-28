@@ -6,7 +6,7 @@
 
     <groupId>it.richkmeli.jframework</groupId>
     <artifactId>jframework-multimodules</artifactId>
-    <version>1.2.7</version>
+    <version>1.2.8</version>
 
     <properties>
         <!-- TODO RELEASE -->
@@ -25,6 +25,7 @@
         <bcprov-jdk15on.version>1.63</bcprov-jdk15on.version>
         <junit.version>4.13.1</junit.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
+        <proguard-base.version>6.2.2</proguard-base.version>
     </properties>
 
     <modules>
@@ -235,6 +236,11 @@
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
                 <version>${json.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.proguard</groupId>
+                <artifactId>proguard-base</artifactId>
+                <version>${proguard-base.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

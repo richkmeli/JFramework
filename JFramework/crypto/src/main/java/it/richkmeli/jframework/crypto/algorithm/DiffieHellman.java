@@ -1,8 +1,8 @@
 package it.richkmeli.jframework.crypto.algorithm;
 
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.generators.DHKeyPairGenerator;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.params.*;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.generators.DHKeyPairGenerator;
+import org.bouncycastle.crypto.params.*;
 import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
 import it.richkmeli.jframework.util.log.Logger;
 

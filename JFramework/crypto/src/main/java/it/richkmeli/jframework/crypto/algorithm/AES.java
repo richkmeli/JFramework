@@ -1,13 +1,13 @@
 package it.richkmeli.jframework.crypto.algorithm;
 
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.CipherParameters;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.InvalidCipherTextException;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.engines.AESEngine;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.modes.GCMBlockCipher;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.paddings.ZeroBytePadding;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.params.AEADParameters;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.params.KeyParameter;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.util.Arrays;
+import org.bouncycastle.crypto.CipherParameters;
+import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.bouncycastle.crypto.engines.AESEngine;
+import org.bouncycastle.crypto.modes.GCMBlockCipher;
+import org.bouncycastle.crypto.paddings.ZeroBytePadding;
+import org.bouncycastle.crypto.params.AEADParameters;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.util.Arrays;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
 
 import javax.crypto.SecretKey;

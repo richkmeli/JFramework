@@ -4,23 +4,115 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>JFramework-multimodules</artifactId>
+        <artifactId>jframework-multimodules</artifactId>
         <groupId>it.richkmeli.jframework</groupId>
-        <version>1.2.7</version>
+        <version>1.2.8</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>crypto</artifactId>
 
+    <properties>
+        <proguard.rules>src\main\resources\proguard\proguard-rules.pro</proguard.rules>
+        <proguard.dictionary>src\main\resources\proguard\dictionary\default.dictionary</proguard.dictionary>
+    </properties>
+
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.compiler.source}</source>
+                    <target>${java.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>2.3.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <obfuscate>true</obfuscate>
+                    <proguardInclude>${proguard.rules}</proguardInclude>
+                    <options>
+                        <option>-obfuscationdictionary ${proguard.dictionary}</option>
+                        <option>-packageobfuscationdictionary ${proguard.dictionary}</option>
+                        <option>-classobfuscationdictionary ${proguard.dictionary}</option>
+
+                        <!--<option>-optimizationpasses 3</option>-->
+                        <!--<option>-overloadaggressively</option>--> <!-- Multiple fields and methods can then get the same names, as long as their arguments and return types are different, as required by Java bytecode -->
+                        <!--<option>-allowaccessmodification</option>--> <!-- DON'T use this option when processing code that is to be used as a library, since classes and class members that weren't designed to be public in the API may become public.-->
+                        <!--<option>-android</option>--> <!-- Specifies that the processed class files are targeted at the Android platform -->
+
+                        <option>-dontobfuscate</option>
+                        <!--<option>-dontoptimize</option>--> <!-- It inlines and merges classes and class members, and it optimizes all methods at a bytecode level-->
+                        <!--<option>-dontshrink</option>--> <!--it removes all unused classes and class members-->
+                        <option>-dontnote
+                        </option> <!-- Specifies not to print notes about potential mistakes or omissions in the configuration, such as typos in class names or missing options that might be useful -->
+                        <option>-dontwarn
+                        </option> <!-- Specifies not to warn about unresolved references and other important problems at all -->
+                        <option>-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,
+                            *Annotation*,EnclosingMethod
+                        </option>
+                        <option>-keepparameternames</option>
+                        <option>-renamesourcefileattribute SourceFile</option>
+                    </options>
+
+                    <inLibsFilter>!META-INF/**,!**.MF,!META-INF/maven/**</inLibsFilter>
+                    <outFilter>
+                        !**.ObjectCodec,!**.JsonFactory,!**.LIST,!*NOTICE*,!*LICENSE*,!**.tooling,!**.schemas,
+                        !**.handlers,!**.pro,!**.gif,!**.properties,!**.html,!**.wsdd,!**.txt,!**.dtd,!**.xsd,
+                        !**.jocl,!**.xml,!**.types,!**.g,!**.vm,!**.so,!**.jnilib,!**.dll,!**.Driver
+                    </outFilter>
+
+                    <includeDependencyInjar>true</includeDependencyInjar>
+                    <includeDependency>true</includeDependency>
+
+                    <injar>${project.name}-${project.version}.jar</injar>
+                    <outjar>${project.name}-${project.version}.jar</outjar>
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                        <lib>${java.home}/lib/jsse.jar</lib>
+                    </libs>
+
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
+                <configuration>
+                    <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>${project.artifactId}</artifactId>
+                    <version>${project.version}</version>
+                    <packaging>jar</packaging>
+                    <generatePom>false</generatePom>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.2</version>
                 <configuration>
                     <excludes>
-                        <exclude>it/richkmeli/jframework/crypto/algorithm/bouncycastle/**/*.*</exclude>
+                        <exclude>org/bouncycastle/**/*.*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -39,22 +131,47 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>copy-installed</id>
+                        <phase>install</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>copy</goal>
                         </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>${project.packaging}</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${basedir}/../../release/</outputDirectory>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <outputDirectory>${basedir}/../../release/</outputDirectory>
-                </configuration>
             </plugin>
+<!--            <plugin>-->
+<!--                <artifactId>maven-assembly-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>single</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <descriptorRefs>-->
+<!--                        <descriptorRef>jar-with-dependencies</descriptorRef>-->
+<!--                    </descriptorRefs>-->
+<!--                    <outputDirectory>${basedir}/../../release/</outputDirectory>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
@@ -81,6 +198,11 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.proguard</groupId>
+            <artifactId>proguard-base</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

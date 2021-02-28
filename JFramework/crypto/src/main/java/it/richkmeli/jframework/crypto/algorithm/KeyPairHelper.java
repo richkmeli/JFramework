@@ -1,9 +1,9 @@
 package it.richkmeli.jframework.crypto.algorithm;
 
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.params.AsymmetricKeyParameter;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.util.PrivateKeyInfoFactory;
-import it.richkmeli.jframework.crypto.algorithm.bouncycastle.crypto.util.SubjectPublicKeyInfoFactory;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
+import org.bouncycastle.crypto.util.SubjectPublicKeyInfoFactory;
 
 import java.io.IOException;
 import java.security.*;
