@@ -13,8 +13,8 @@
     <artifactId>crypto</artifactId>
 
     <properties>
-        <proguard.rules>src\main\resources\proguard\proguard-rules.pro</proguard.rules>
-        <proguard.dictionary>src\main\resources\proguard\dictionary\default.dictionary</proguard.dictionary>
+        <proguard.rules>${basedir}/src/main/resources/proguard/proguard-rules.pro</proguard.rules>
+        <proguard.dictionary>${basedir}/src/main/resources/proguard/dictionary/default.dictionary</proguard.dictionary>
     </properties>
 
     <build>
