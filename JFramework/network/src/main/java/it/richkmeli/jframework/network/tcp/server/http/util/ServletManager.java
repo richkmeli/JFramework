@@ -5,6 +5,7 @@ import it.richkmeli.jframework.network.tcp.server.http.payload.response.BaseStat
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.KoResponse;
 import it.richkmeli.jframework.network.tcp.server.http.payload.response.Response;
 import it.richkmeli.jframework.util.DataFormat;
+import it.richkmeli.jframework.util.TypeConverter;
 import it.richkmeli.jframework.util.log.Logger;
 import org.json.JSONObject;
 
@@ -62,6 +63,7 @@ public abstract class ServletManager {
         }
 
         doSpecificProcessRequest();
+        Logger.debug(TypeConverter.mapToJson(attribMap));
         return attribMap;
     }
 

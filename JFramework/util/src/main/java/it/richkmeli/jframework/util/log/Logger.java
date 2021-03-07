@@ -8,47 +8,68 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class Logger {
-    private static File logFile;
+    private static final String LOGGER_ENABLED_RESOURCE_KEY = "logger.enabled";
+    private static final String LOGGER_DEBUG_RESOURCE_KEY = "logger.debug";
+    private static final String LOGGER_FILENAME_RESOURCE_KEY = "logger.filename";
+    private static final String PROPERTIES_FILENAME = "configuration";
     private static final String DEFAULT_LOG_FILENAME = "log.txt";
+    private static final String INFO_TAG = "INFO";
+    private static final String ERROR_TAG = "ERROR";
+    private static final String WARNING_TAG = "WARNING";
+    private static final String DEBUG_TAG = "DEBUG";
     // set as false for release, in which is not need to log information.
-    public static Boolean debug = true;
-    public static final String INFO_TAG = "INFO";
-    public static final String ERROR_TAG = "ERROR";
-    public static final String WARNING_TAG = "WARNING";
+    public static Boolean enabled = null;
+    public static Boolean debug = null;
+    private static File logFile = null;
 
     // Logger.info(this.getClass(), "...");
     public static void info(String message) {
-        if (debug) {
+        getLoggerConfig();
+        if (enabled) {
             System.out.println(formatLogEvent(INFO_TAG, message));
             printOnLogFile(INFO_TAG, message);
         }
     }
 
     public static void warning(String message) {
-        if (debug) {
+        getLoggerConfig();
+        if (enabled) {
             System.out.println(formatLogEvent(WARNING_TAG, message));
             printOnLogFile(WARNING_TAG, message);
         }
     }
 
     public static void error(String message) {
-        if (debug) {
+        getLoggerConfig();
+        if (enabled) {
             System.err.println(formatLogEvent(ERROR_TAG, message));
             printOnLogFile(ERROR_TAG, message);
         }
     }
 
     public static void error(String message, Throwable throwable) {
-        if (debug) {
+        getLoggerConfig();
+        if (enabled) {
             System.err.println(formatLogEvent(ERROR_TAG, message + " || " + throwable.getMessage()));
             printOnLogFile(ERROR_TAG, message + " || " + throwable.getMessage());
         }
     }
 
     public static void error(Throwable throwable) {
-        if (debug) {
+        getLoggerConfig();
+        if (enabled) {
             System.err.println(formatLogEvent(ERROR_TAG, throwable.getMessage()));
             printOnLogFile(ERROR_TAG, throwable.getMessage());
+        }
+    }
+
+    public static void debug(String message) {
+        getLoggerConfig();
+        if (enabled) {
+            if(debug) {
+                System.out.println(formatLogEvent(DEBUG_TAG, message));
+                printOnLogFile(DEBUG_TAG, message);
+            }
         }
     }
 
@@ -74,13 +95,13 @@ public class Logger {
 
             String logFilename = null;
             // get filename from resource
-            ResourceBundle resource = ResourceBundle.getBundle("configuration");
+            ResourceBundle resource = ResourceBundle.getBundle(PROPERTIES_FILENAME);
             try {
-                logFilename = resource.getString("logger.filename");
+                logFilename = resource.getString(LOGGER_FILENAME_RESOURCE_KEY);
             } catch (MissingResourceException missingResourceException) {
                 // if the exception is threw, it is kept the default file name.
                 missingResourceException.printStackTrace();
-                System.err.println(formatLogEvent(ERROR_TAG, "filename in resource not found"));
+                System.err.println(formatLogEvent(ERROR_TAG, LOGGER_FILENAME_RESOURCE_KEY +" in resource not found"));
             }
             if (logFilename != null) {
                 logFile = createAndVerifyPermissions(logFilename);
@@ -93,6 +114,34 @@ public class Logger {
 
         }
         return logFile;
+    }
+
+    private static void getLoggerConfig() {
+        ResourceBundle resource = ResourceBundle.getBundle(PROPERTIES_FILENAME);
+        if (enabled == null) {
+            try {
+                enabled = Boolean.parseBoolean(resource.getString(LOGGER_ENABLED_RESOURCE_KEY));
+            } catch (MissingResourceException missingResourceException) {
+                // if the exception is threw, it is kept the default file name.
+                missingResourceException.printStackTrace();
+                System.err.println(formatLogEvent(ERROR_TAG, LOGGER_ENABLED_RESOURCE_KEY+" in resource not found"));
+            }
+            if (enabled == null) {
+                enabled = false;
+            }
+        }
+        if (debug == null) {
+            try {
+                debug = Boolean.parseBoolean(resource.getString(LOGGER_DEBUG_RESOURCE_KEY));
+            } catch (MissingResourceException missingResourceException) {
+                // if the exception is threw, it is kept the default file name.
+                missingResourceException.printStackTrace();
+                System.err.println(formatLogEvent(ERROR_TAG, LOGGER_DEBUG_RESOURCE_KEY+" in resource not found"));
+            }
+            if (debug == null) {
+                debug = false;
+            }
+        }
     }
 
     private static File createAndVerifyPermissions(String logFilename) {
@@ -152,4 +201,5 @@ public class Logger {
     private static double getFileSizeKBytes(File file) {
         return (double) file.length() / (1024);
     }
+
 }

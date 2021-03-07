@@ -1,6 +1,15 @@
 package it.richkmeli.jframework.util;
 
+import it.richkmeli.jframework.util.log.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class TypeConverter {
+
+    JSONObject json = new JSONObject();
 
     public static String bytesToHex(byte[] bytes) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -35,5 +44,11 @@ public class TypeConverter {
         }
         return digit;
     }
+
+    public static String mapToJson(Map<?, ?> map) {
+        JSONObject json = new JSONObject(map);
+        return json.toString();
+    }
+
 }
 
