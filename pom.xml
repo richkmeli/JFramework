@@ -16,7 +16,7 @@
         <java.compiler.source>1.8</java.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dependency-check-maven.version>5.3.2</dependency-check-maven.version>
-        <json.version>20160212</json.version>
+        <json.version>20180130</json.version>
         <mysql-connector-java.version>8.0.28</mysql-connector-java.version>
         <derby.version>10.15.2.0</derby.version>
         <gson.version>2.9.0</gson.version>
