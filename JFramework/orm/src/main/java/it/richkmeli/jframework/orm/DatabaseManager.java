@@ -2,7 +2,6 @@ package it.richkmeli.jframework.orm;
 
 import it.richkmeli.jframework.orm.annotation.Id;
 import it.richkmeli.jframework.util.log.Logger;
-import org.apache.derby.shared.common.error.DerbySQLIntegrityConstraintViolationException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -215,8 +214,7 @@ public class DatabaseManager {
                 //throw new DatabaseException("No " + type.getClass().getName() + " found with this (PrimaryKey)");
             }
 
-        } catch (
-                SQLException e) {
+        } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
             throw new DatabaseException(e);
             //return false;
@@ -226,8 +224,7 @@ public class DatabaseManager {
         return elem;
     }
 
-    private <T> PreparedStatement createPreparedStatementWithPrimaryKey(Connection connection,
-                                                                        StringBuilder sql, T type) throws SQLException, DatabaseException {
+    private <T> PreparedStatement createPreparedStatementWithPrimaryKey(Connection connection, StringBuilder sql, T type) throws SQLException, DatabaseException {
         PreparedStatement preparedStatement = null;
 
         List<Field> valorizedFields = new ArrayList<>();
@@ -278,14 +275,12 @@ public class DatabaseManager {
             i = 1;
             if (update) {
                 for (Field field : valorizedFields) {
-                    preparedStatement = addAttributeToPreparedStatement(preparedStatement,
-                            i++, type, field);
+                    preparedStatement = addAttributeToPreparedStatement(preparedStatement, i++, type, field);
                 }
             }
 
             for (Field field : primaryKey) {
-                preparedStatement = addAttributeToPreparedStatement(preparedStatement,
-                        i++, type, field);
+                preparedStatement = addAttributeToPreparedStatement(preparedStatement, i++, type, field);
             }
         } else {
             disconnect(connection, null, null);
@@ -314,8 +309,7 @@ public class DatabaseManager {
         return list;
     }
 
-    private <T> List<T> getListFromResultSet(Class clazz, ResultSet resultSet) throws
-            DatabaseException, SQLException {
+    private <T> List<T> getListFromResultSet(Class clazz, ResultSet resultSet) throws DatabaseException, SQLException {
         List<T> list = new ArrayList<T>();
         try {
             // search class types
@@ -402,12 +396,8 @@ public class DatabaseManager {
             // search primary key
             preparedStatement = createPreparedStatementWithPrimaryKey(connection, sql, type);
 
-            try {
-                preparedStatement.executeUpdate();
-                // for Derby DB
-            } catch (DerbySQLIntegrityConstraintViolationException e) {
-                //Logger.info(e.getMessage());
-            }
+            preparedStatement.executeUpdate();
+
         } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
             throw new DatabaseException(e);
@@ -439,12 +429,8 @@ public class DatabaseManager {
             // search primary key
             preparedStatement = createPreparedStatementWithPrimaryKey(connection, sql, type);
 
-            try {
-                preparedStatement.executeUpdate();
-                // for Derby DB
-            } catch (DerbySQLIntegrityConstraintViolationException e) {
-                //Logger.info(e.getMessage());
-            }
+            preparedStatement.executeUpdate();
+
 
         } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
@@ -513,21 +499,14 @@ public class DatabaseManager {
                 // handle add of transient field by coverage tools
                 if (!Modifier.isTransient(field.getModifiers())) {
 
-                    preparedStatement = addAttributeToPreparedStatement(preparedStatement,
-                            parameterIndex, type, field);
+                    preparedStatement = addAttributeToPreparedStatement(preparedStatement, parameterIndex, type, field);
 
                     parameterIndex++;
                 }
             }
             //Logger.info(preparedStatement.toString());
 
-            try {
-                preparedStatement.executeUpdate();
-
-                // for Derby DB
-            } catch (DerbySQLIntegrityConstraintViolationException e) {
-                //Logger.info(e.getMessage());
-            }
+            preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
             disconnect(connection, preparedStatement, null);
@@ -538,10 +517,7 @@ public class DatabaseManager {
         return true;
     }
 
-    private <T> PreparedStatement addAttributeToPreparedStatement(PreparedStatement preparedStatement,
-                                                                  int parameterIndex,
-                                                                  T type,
-                                                                  Field field) throws SQLException, DatabaseException {
+    private <T> PreparedStatement addAttributeToPreparedStatement(PreparedStatement preparedStatement, int parameterIndex, T type, Field field) throws SQLException, DatabaseException {
         PreparedStatement ps = preparedStatement;
         Type fieldType = field.getGenericType();
         Method getter = searchFieldGetter(type, field);
@@ -573,8 +549,7 @@ public class DatabaseManager {
         //search getter
         Method getter = null;
         for (Method method : type.getClass().getMethods()) {
-            if (method.getName().startsWith("get") &&
-                    method.getName().equalsIgnoreCase("get" + field.getName())) {
+            if (method.getName().startsWith("get") && method.getName().equalsIgnoreCase("get" + field.getName())) {
                 getter = method;
             }
         }
@@ -588,8 +563,7 @@ public class DatabaseManager {
         //search getter
         Method setter = null;
         for (Method method : type.getClass().getMethods()) {
-            if (method.getName().startsWith("set") &&
-                    method.getName().equalsIgnoreCase("set" + field.getName())) {
+            if (method.getName().startsWith("set") && method.getName().equalsIgnoreCase("set" + field.getName())) {
                 setter = method;
             }
         }
