@@ -6,7 +6,7 @@
 
     <groupId>it.richkmeli.jframework</groupId>
     <artifactId>jframework-multimodules</artifactId>
-    <version>1.2.13</version>
+    <version>1.2.14</version>
 
     <properties>
         <!-- TODO RELEASE -->
