@@ -13,6 +13,8 @@ public class RegexManager {
     public static final String PHONE_NUMBER_REGEX = "^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\\s\\./0-9]*$";
     public static final String ALPHANUMERIC_REGEX = "^[a-zA-Z0-9]*$";
     public static final String NUMERIC_REGEX = "^[0-9]*$";
+    public static final String IPV4_REGEX =  "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.(?!$)|$)){4}$";
+    public static final String MAC_ADDRESS_REGEX = "^(?:[0-9A-Fa-f]{2}[:-]){5}(?:[0-9A-Fa-f]{2})$";
 
     public static void validate(String text, String regex) throws RegexException {
         if (text.matches(regex)) {
@@ -48,5 +50,14 @@ public class RegexManager {
     public static void checkNumericStringIntegrity(String string) throws RegexException {
         RegexManager.validate(string, NUMERIC_REGEX);
     }
+
+    public static void checkIpv4AddressIntegrity(String ipv4Address) throws RegexException {
+        RegexManager.validate(ipv4Address, IPV4_REGEX);
+    }
+
+    public static void checkMacAddressIntegrity(String macAddress) throws RegexException {
+        validate(macAddress, MAC_ADDRESS_REGEX);
+    }
+
 
 }
