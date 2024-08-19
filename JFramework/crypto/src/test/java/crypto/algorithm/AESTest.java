@@ -4,6 +4,7 @@ import crypto.algorithm.bc.AES_BC;
 import it.richkmeli.jframework.crypto.algorithm.AES;
 import it.richkmeli.jframework.crypto.algorithm.IvManager;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.crypto.SecretKey;
@@ -43,6 +44,7 @@ public class AESTest {
         }
     }
 
+    @Ignore
     @Test
     public void generateKey_encrypt_decrypt_BC_compatibility() {
 

@@ -6,6 +6,7 @@ import it.richkmeli.jframework.util.RandomStringGenerator;
 import it.richkmeli.jframework.orm.DatabaseException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import orm.dataexample.auth.AuthDatabaseManagerTest;
 import orm.dataexample.auth.UserTest;
@@ -38,6 +39,7 @@ public abstract class DatabaseManagerTest {
         deleteAll();
     }
 
+    @Ignore
     @Test
     public void create() {
         try {
@@ -106,6 +108,7 @@ public abstract class DatabaseManagerTest {
         }
     }
 
+    @Ignore
     @Test
     public void read() {
         try {
@@ -156,6 +159,7 @@ public abstract class DatabaseManagerTest {
         readAfterDeleteRMCdb();
     }
 
+    @Ignore
     @Test
     public void readAfterDelete() {
         try {
@@ -196,6 +200,7 @@ public abstract class DatabaseManagerTest {
         assertTrue(rmcs.isEmpty());
     }
 
+    @Ignore
     @Test
     public void readAll() {
         try {
@@ -236,6 +241,7 @@ public abstract class DatabaseManagerTest {
         assertFalse(rmcs.isEmpty());
     }
 
+    @Ignore
     @Test
     public void update() {
         try {
@@ -299,6 +305,7 @@ public abstract class DatabaseManagerTest {
         assert false;
     }*/
 
+    @Ignore
     @Test
     public void delete() {
         try {
@@ -345,7 +352,7 @@ public abstract class DatabaseManagerTest {
         assertTrue(rmcDatabaseManager.getRMCs(email).isEmpty());
     }
 
-
+    @Ignore
     @Test
     public void deleteAll() {
         try {

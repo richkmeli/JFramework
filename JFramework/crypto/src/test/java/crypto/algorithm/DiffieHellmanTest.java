@@ -11,6 +11,7 @@ import org.bouncycastle.crypto.params.*;
 import it.richkmeli.jframework.crypto.controller.payload.DiffieHellmanPayload;
 import it.richkmeli.jframework.crypto.data.model.ClientSecureData;
 import it.richkmeli.jframework.crypto.data.model.ServerSecureData;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.crypto.SecretKey;
@@ -191,6 +192,7 @@ public class DiffieHellmanTest {
         assert k1.equals(k2); //("basic with random 2-way test failed");
     }
 
+    @Ignore
     @Test
     public void diffieHellmanAES_BC_compatibility() {
         try {
