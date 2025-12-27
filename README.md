@@ -1,9 +1,8 @@
 # JFramework
 
-[![Build Status](https://travis-ci.org/richkmeli/JFramework.svg?branch=master)](https://travis-ci.org/richkmeli/JFramework)
+[![Build Status](https://github.com/richkmeli/JFramework/workflows/Build%20and%20Test/badge.svg)](https://github.com/richkmeli/JFramework/actions)
 [![](https://jitpack.io/v/richkmeli/JFramework.svg)](https://jitpack.io/#richkmeli/JFramework)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f721d8e5c7ba4a9da809808c6892333b)](https://app.codacy.com/app/richkmeli/JFramework?utm_source=github.com&utm_medium=referral&utm_content=richkmeli/JFramework&utm_campaign=Badge_Grade_Dashboard)
-[![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/richkmeli/JFramework.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/richkmeli/JFramework/context:java)
 [![codecov](https://codecov.io/gh/richkmeli/JFramework/branch/master/graph/badge.svg)](https://codecov.io/gh/richkmeli/JFramework)
 
 **JFramework** is a modular Java library designed to simplify application development by providing a set of ready-to-use components.
@@ -22,6 +21,11 @@
 The project is a **multi-module Maven project**. It generates:
 1. A **single comprehensive JAR** containing all modules (`jframework`).
 2. **Individual JARs** for each module (`auth`, `crypto`, `network`, etc.), allowing you to import only what you need.
+
+## Requirements
+
+- **Java 17** or higher
+- **Maven 3.6+**
 
 ## Getting Started
 

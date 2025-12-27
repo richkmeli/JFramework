@@ -1,17 +1,13 @@
 language: java
-
-#env:
-#  DOCKER_COMPOSE_VERSION: 1.8.0
+jdk:
+  - openjdk17
 
 sudo: required
 
 services:
   - docker
 
-dist: trusty
-
 before_install:
-  # Docker Compose Install
   - sudo apt-get update
   - docker-compose --version
   - sudo service mysql stop
@@ -19,14 +15,13 @@ before_install:
   - docker-compose up -d
 
 install:
-  - mvn install
-  #- mvn clean install
-  #- mvn package
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+script:
+  - mvn test -B
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 after_script:
   - docker-compose stop
-
-
