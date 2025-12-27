@@ -119,18 +119,74 @@ public class Crypto {
 
     }
 
+    /**
+     * Encrypts a string using RC4 algorithm.
+     * 
+     * @deprecated RC4 is considered insecure. Use
+     *             {@link #encryptAES(String, String)} instead.
+     *             This method will be removed in a future release.
+     * @param input the plaintext to encrypt
+     * @param key   the encryption key
+     * @return the encrypted ciphertext (Base64Url encoded)
+     * @see #encryptAES(String, String)
+     */
+    @Deprecated
     public static String encryptRC4(String input, String key) {
         return RC4.encrypt(input, key);
     }
 
+    /**
+     * Decrypts a string using RC4 algorithm.
+     * 
+     * @deprecated RC4 is considered insecure. Use
+     *             {@link #decryptAES(String, String)} instead.
+     *             This method will be removed in a future release.
+     * @param input the ciphertext to decrypt (Base64Url encoded)
+     * @param key   the decryption key
+     * @return the decrypted plaintext
+     * @throws CryptoException if decryption fails
+     * @see #decryptAES(String, String)
+     */
+    @Deprecated
     public static String decryptRC4(String input, String key) throws CryptoException {
         return RC4.decrypt(input, key);
     }
 
+    /**
+     * Encrypts a string using AES-256-CBC algorithm (recommended).
+     * 
+     * <p>
+     * This is the recommended encryption method for secure communication.
+     * Uses AES-256-CBC with PKCS5 padding and SHA-256 key derivation.
+     * A random 16-byte IV is generated for each encryption and prepended to the
+     * ciphertext.
+     * 
+     * @param input the plaintext to encrypt
+     * @param key   the encryption key (will be hashed with SHA-256 to derive
+     *              256-bit key)
+     * @return the encrypted ciphertext with IV (Base64Url encoded)
+     * @throws CryptoException if encryption fails
+     * @since 1.2.15
+     */
     public static String encryptAES(String input, String key) throws CryptoException {
         return AES.encrypt(input, key);
     }
 
+    /**
+     * Decrypts a string using AES-256-CBC algorithm (recommended).
+     * 
+     * <p>
+     * This is the recommended decryption method for secure communication.
+     * Expects ciphertext encrypted with {@link #encryptAES(String, String)}.
+     * The IV is automatically extracted from the beginning of the ciphertext.
+     * 
+     * @param input the ciphertext to decrypt (Base64Url encoded, with IV prepended)
+     * @param key   the decryption key (will be hashed with SHA-256 to derive
+     *              256-bit key)
+     * @return the decrypted plaintext
+     * @throws CryptoException if decryption fails (wrong key, tampered data, etc.)
+     * @since 1.2.15
+     */
     public static String decryptAES(String input, String key) throws CryptoException {
         return AES.decrypt(input, key);
     }
