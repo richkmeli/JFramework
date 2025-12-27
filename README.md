@@ -6,109 +6,86 @@
 [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/richkmeli/JFramework.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/richkmeli/JFramework/context:java)
 [![codecov](https://codecov.io/gh/richkmeli/JFramework/branch/master/graph/badge.svg)](https://codecov.io/gh/richkmeli/JFramework)
 
-Framework for Java 
+**JFramework** is a modular Java library designed to simplify application development by providing a set of ready-to-use components.
 
-## Description
+## Features
 
-JFramework is a Java framework containing several features, with the aim of simplifying application development. 
-It provides the following functionalities:
+- **Authentication**: Secure authentication mechanisms.
+- **Cryptography**: Encrypts and decrypts data using a client-server protocol.
+- **Network**: Utilities for network communication.
+- **ORM**: Object-Relational Mapping supporting MySQL and Derby.
+- **System**: System info and utilities.
+- **Utility**: General purpose helper functions.
 
--   **Authentication**
--   **Cryptography**: the entry point class is Crypto. Its protocol is based on server-client model.
--   **Network**
--   **ORM**: supported database: MySQL (Network Server) and Derby (Embedded Server)
--   **System**
--   **Utility**
+## Architecture
 
-For every parts it is generated an independent jar (with all its dependencies included) in case of it is necessary doing 
-a partial usage of JFramework. The compiled components are placed into **release** folder. 
+The project is a **multi-module Maven project**. It generates:
+1. A **single comprehensive JAR** containing all modules (`jframework`).
+2. **Individual JARs** for each module (`auth`, `crypto`, `network`, etc.), allowing you to import only what you need.
 
-## Get Started
+## Getting Started
 
-### Import in your project
+### Installation via Maven
 
-To get **JFramework** into your project, you can use: 
--   
--   JFramework Github
+You can import **JFramework** using JitPack or GitHub Packages.
 
-|  Repository  | Visibility | Version | 
-|--------------|:----:|:---:|
-| JitPack  | Public | stable |
-| JFramework Github | Github Users | all |
+#### Option 1: JitPack (Stable Releases)
 
-#### Add the JitPack repository to your maven build file
-On JitPack repo are published only stable versions and the release scope is public.
+**Repository Configuration**:
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
 
-	<repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-		...
-	</repositories>
-	
-##### Add the dependency
+**Dependency**:
+```xml
+<dependency>
+    <groupId>com.github.richkmeli</groupId>
+    <artifactId>JFramework</artifactId>
+    <version>TAG</version>
+</dependency>
+```
 
-For all the framework:
+#### Option 2: GitHub Packages (Development/Snapshots)
 
-    <dependency>
-        <groupId>com.github.richkmeli</groupId>
-        <artifactId>JFramework</artifactId>
-        <version>TAG</version>
-    </dependency>
-   
-For a specific module (auth, crypto, ...) of the framework:
-  
-    <dependency>
-        <groupId>com.github.richkmeli.JFramework</groupId>
-        <artifactId>MODULE_NAME</artifactId>
-        <version>TAG</version>
-    </dependency> 
-	
-#### Add the JFramework Github repository to your build file
-On JFramework Github repo are published all versions and the release scope is Github user only.
-(Configuring [Apache Maven](https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-apache-maven-for-use-with-github-packages) or [Gradle](https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-gradle-for-use-with-github-packages) for use with GitHub Packages)
+**Repository Configuration**:
+```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/richkmeli/JFramework</url>
+    </repository>
+</repositories>
+```
 
-	 <repositories>
-            <repository>
-                <id>github</id>
-                <url>https://maven.pkg.github.com/richkmeli/JFramework</url>
-            </repository>
-            ...
-        </repositories>
+**Dependency**:
+```xml
+<dependency>
+    <groupId>it.richkmeli.jframework</groupId>
+    <artifactId>jframework</artifactId>
+    <version>TAG</version>
+</dependency>
+```
+*(Note: Using GitHub Packages requires authentication in your `settings.xml`)*
 
-##### Add the dependency
+### Compiling from Source
 
-For all the framework:
+To build the project locally:
 
-	<dependency>
-	    <groupId>it.richkmeli.jframework</groupId>
-	    <artifactId>JFramework</artifactId>
-	    <version>TAG</version>
-	</dependency>
-   
-For a specific module (auth, crypto, ...) of the framework:
-  
-    <dependency>
-        <groupId>it.richkmeli.jframework</groupId>
-        <artifactId>MODULE_NAME</artifactId>
-        <version>TAG</version>
-    </dependency> 
-    
-### Compile
+1. **Prerequisites**:
+   - Java 11+
+   - Maven
 
-JFramework uses maven as build automation tool, the root (parent) project is a maven multimodules project,
-namely **JFramework-multimodules**, in which are contained JFramework and all its sub projects as modules.
+2. **Build**:
+   ```bash
+   mvn package
+   ```
 
+3. **Output**:
+   Artifacts will be generated in the `release/` folder.
 
-To get the jar files, you can download it from the [JFramework Releases](https://github.com/richkmeli/JFramework/releases), instead if you want to build the jar files by yourself, you need to download:
-
--   java
--   maven
-
-To compile the project and generate the jar file, you have to run:
-
-    mvn package
-    
-The jar files are located into the folder "release".
 
