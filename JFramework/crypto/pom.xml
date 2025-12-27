@@ -26,63 +26,63 @@
                     <target>${java.compiler.target}</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.github.wvengen</groupId>
-                <artifactId>proguard-maven-plugin</artifactId>
-                <version>2.3.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>proguard</goal>
-                        </goals>
-                    </execution>
-                </executions>
+<!--            <plugin>-->
+<!--                <groupId>com.github.wvengen</groupId>-->
+<!--                <artifactId>proguard-maven-plugin</artifactId>-->
+<!--                <version>2.6.1</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>proguard</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
 
-                <configuration>
-                    <obfuscate>true</obfuscate>
-                    <proguardInclude>${proguard.rules}</proguardInclude>
-                    <options>
-                        <option>-obfuscationdictionary ${proguard.dictionary}</option>
-                        <option>-packageobfuscationdictionary ${proguard.dictionary}</option>
-                        <option>-classobfuscationdictionary ${proguard.dictionary}</option>
+<!--                <configuration>-->
+<!--                    <obfuscate>false</obfuscate>-->
+<!--                    <proguardInclude>${proguard.rules}</proguardInclude>-->
+<!--                    <options>-->
+<!--                        <option>-obfuscationdictionary ${proguard.dictionary}</option>-->
+<!--                        <option>-packageobfuscationdictionary ${proguard.dictionary}</option>-->
+<!--                        <option>-classobfuscationdictionary ${proguard.dictionary}</option>-->
 
-                        <!--<option>-optimizationpasses 3</option>-->
-                        <!--<option>-overloadaggressively</option>--> <!-- Multiple fields and methods can then get the same names, as long as their arguments and return types are different, as required by Java bytecode -->
-                        <!--<option>-allowaccessmodification</option>--> <!-- DON'T use this option when processing code that is to be used as a library, since classes and class members that weren't designed to be public in the API may become public.-->
-                        <!--<option>-android</option>--> <!-- Specifies that the processed class files are targeted at the Android platform -->
+<!--                        &lt;!&ndash;<option>-optimizationpasses 3</option>&ndash;&gt;-->
+<!--                        &lt;!&ndash;<option>-overloadaggressively</option>&ndash;&gt; &lt;!&ndash; Multiple fields and methods can then get the same names, as long as their arguments and return types are different, as required by Java bytecode &ndash;&gt;-->
+<!--                        &lt;!&ndash;<option>-allowaccessmodification</option>&ndash;&gt; &lt;!&ndash; DON'T use this option when processing code that is to be used as a library, since classes and class members that weren't designed to be public in the API may become public.&ndash;&gt;-->
+<!--                        &lt;!&ndash;<option>-android</option>&ndash;&gt; &lt;!&ndash; Specifies that the processed class files are targeted at the Android platform &ndash;&gt;-->
 
-                        <!--<option>-dontobfuscate</option>-->
-                        <!--<option>-dontoptimize</option>--> <!-- It inlines and merges classes and class members, and it optimizes all methods at a bytecode level-->
-                        <!--<option>-dontshrink</option>--> <!--it removes all unused classes and class members-->
-                        <!--<option>-dontnote</option>--> <!-- Specifies not to print notes about potential mistakes or omissions in the configuration, such as typos in class names or missing options that might be useful -->
-                        <!--<option>-dontwarn</option>--> <!-- Specifies not to warn about unresolved references and other important problems at all -->
-                        <option>-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,
-                            *Annotation*,EnclosingMethod
-                        </option>
-                        <option>-keepparameternames</option>
-                        <option>-renamesourcefileattribute SourceFile</option>
-                    </options>
+<!--                        &lt;!&ndash;<option>-dontobfuscate</option>&ndash;&gt;-->
+<!--                        &lt;!&ndash;<option>-dontoptimize</option>&ndash;&gt; &lt;!&ndash; It inlines and merges classes and class members, and it optimizes all methods at a bytecode level&ndash;&gt;-->
+<!--                        &lt;!&ndash;<option>-dontshrink</option>&ndash;&gt; &lt;!&ndash;it removes all unused classes and class members&ndash;&gt;-->
+<!--                        &lt;!&ndash;<option>-dontnote</option>&ndash;&gt; &lt;!&ndash; Specifies not to print notes about potential mistakes or omissions in the configuration, such as typos in class names or missing options that might be useful &ndash;&gt;-->
+<!--                        &lt;!&ndash;<option>-dontwarn</option>&ndash;&gt; &lt;!&ndash; Specifies not to warn about unresolved references and other important problems at all &ndash;&gt;-->
+<!--                        <option>-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,-->
+<!--                            *Annotation*,EnclosingMethod-->
+<!--                        </option>-->
+<!--                        <option>-keepparameternames</option>-->
+<!--                        <option>-renamesourcefileattribute SourceFile</option>-->
+<!--                    </options>-->
 
-                    <inLibsFilter>!META-INF/**,!**.MF,!META-INF/maven/**</inLibsFilter>
-                    <outFilter>
-                        !**.ObjectCodec,!**.JsonFactory,!**.LIST,!*NOTICE*,!*LICENSE*,!**.tooling,!**.schemas,
-                        !**.handlers,!**.pro,!**.gif,!**.properties,!**.html,!**.wsdd,!**.txt,!**.dtd,!**.xsd,
-                        !**.jocl,!**.xml,!**.types,!**.g,!**.vm,!**.so,!**.jnilib,!**.dll,!**.Driver
-                    </outFilter>
+<!--                    <inLibsFilter>!META-INF/**,!**.MF,!META-INF/maven/**</inLibsFilter>-->
+<!--                    <outFilter>-->
+<!--                        !**.ObjectCodec,!**.JsonFactory,!**.LIST,!*NOTICE*,!*LICENSE*,!**.tooling,!**.schemas,-->
+<!--                        !**.handlers,!**.pro,!**.gif,!**.properties,!**.html,!**.wsdd,!**.txt,!**.dtd,!**.xsd,-->
+<!--                        !**.jocl,!**.xml,!**.types,!**.g,!**.vm,!**.so,!**.jnilib,!**.dll,!**.Driver-->
+<!--                    </outFilter>-->
 
-                    <includeDependencyInjar>true</includeDependencyInjar>
-                    <includeDependency>true</includeDependency>
+<!--                    <includeDependencyInjar>true</includeDependencyInjar>-->
+<!--                    <includeDependency>true</includeDependency>-->
 
-                    <injar>${project.name}-${project.version}.jar</injar>
-                    <outjar>${project.name}-${project.version}.jar</outjar>
-                    <libs>
-                        <lib>${java.home}/lib/rt.jar</lib>
-                        <lib>${java.home}/lib/jsse.jar</lib>
-                        <lib>${java.home}/lib/jce.jar</lib>
-                    </libs>
-                </configuration>
-            </plugin>
+<!--                    <injar>${project.name}-${project.version}.jar</injar>-->
+<!--                    <outjar>${project.name}-${project.version}.jar</outjar>-->
+<!--                    <libs>-->
+<!--                        <lib>${java.home}/lib/rt.jar</lib>-->
+<!--                        <lib>${java.home}/lib/jsse.jar</lib>-->
+<!--                        <lib>${java.home}/lib/jce.jar</lib>-->
+<!--                    </libs>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
