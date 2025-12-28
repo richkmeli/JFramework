@@ -31,32 +31,24 @@ The project is a **multi-module Maven project**. It generates:
 
 ### Installation via Maven
 
-You can import **JFramework** using JitPack or GitHub Packages.
+You can import **JFramework** using GitHub Packages.
 
-#### Option 1: JitPack (Stable Releases)
+#### GitHub Packages
 
-**Repository Configuration**:
+**Repository Configuration** (`~/.m2/settings.xml`):
 ```xml
-<repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
+<settings>
+  <servers>
+    <server>
+      <id>github</id>
+      <username>YOUR_GITHUB_USERNAME</username>
+      <password>YOUR_GITHUB_TOKEN</password>
+    </server>
+  </servers>
+</settings>
 ```
 
-**Dependency**:
-```xml
-<dependency>
-    <groupId>com.github.richkmeli</groupId>
-    <artifactId>JFramework</artifactId>
-    <version>TAG</version>
-</dependency>
-```
-
-#### Option 2: GitHub Packages (Development/Snapshots)
-
-**Repository Configuration**:
+**Repository in pom.xml**:
 ```xml
 <repositories>
     <repository>
@@ -71,10 +63,11 @@ You can import **JFramework** using JitPack or GitHub Packages.
 <dependency>
     <groupId>it.richkmeli.jframework</groupId>
     <artifactId>jframework</artifactId>
-    <version>TAG</version>
+    <version>1.2.15</version>
 </dependency>
 ```
-*(Note: Using GitHub Packages requires authentication in your `settings.xml`)*
+
+**Note**: GitHub Packages requires authentication. Create a Personal Access Token with `read:packages` scope.
 
 ### Compiling from Source
 

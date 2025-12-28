@@ -36,6 +36,12 @@ jobs:
     - name: Run tests
       run: mvn test -B
     
+    - name: Publish to GitHub Packages
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      run: mvn deploy -DskipTests
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
