@@ -26,7 +26,7 @@ public class Network {
 
     public Network() {
         client = new OkHttpClient();
-        //lastHeaders = null;
+        // lastHeaders = null;
         cookieList = new ArrayList<>();
         headerList = new HashMap<>();
     }
@@ -39,26 +39,30 @@ public class Network {
         return headerList;
     }
 
-    public void setCredentials(String username, String password){
+    public void setCredentials(String username, String password) {
         String credential = Credentials.basic(username, password);
-        headerList.put("Authorization", credential); //Authorization: Basic
-        /*client.newBuilder().authenticator(new Authenticator() {
-            @Override public Request authenticate(Route route, Response response) throws IOException {
-                if (response.request().header("Authorization") != null) {
-                    return null; // Give up, we've already attempted to authenticate.
-                }
-
-                Logger.info("Authenticating for response: " + response);
-                Logger.info("Challenges: " + response.challenges());
-                String credential = Credentials.basic(username, password);
-                return response.request().newBuilder()
-                        .header("Authorization", credential)
-                        .build();
-            }
-        });*/
+        headerList.put("Authorization", credential); // Authorization: Basic
+        /*
+         * client.newBuilder().authenticator(new Authenticator() {
+         * 
+         * @Override public Request authenticate(Route route, Response response) throws
+         * IOException {
+         * if (response.request().header("Authorization") != null) {
+         * return null; // Give up, we've already attempted to authenticate.
+         * }
+         * 
+         * Logger.info("Authenticating for response: " + response);
+         * Logger.info("Challenges: " + response.challenges());
+         * String credential = Credentials.basic(username, password);
+         * return response.request().newBuilder()
+         * .header("Authorization", credential)
+         * .build();
+         * }
+         * });
+         */
     }
 
-    public void setUserAgent(String userAgent){
+    public void setUserAgent(String userAgent) {
         headerList.put("User-Agent", "Richk RichkClient/X-1.0.0 info@richk.com");
     }
 
@@ -76,26 +80,29 @@ public class Network {
 
     /**
      * @param servlet
-     * @param jsonParametersString if crypto is not null, these parameters are encrypted
+     * @param jsonParametersString if crypto is not null, these parameters are
+     *                             encrypted
      * @param additionalParameters these parameters are always not encrypted
      * @param cryptoClient
      * @param isJsonResponse
      * @param callback
      */
 
-    public void getRequest(String servlet, String jsonParametersString, String additionalParameters, Crypto.Client cryptoClient, boolean isJsonResponse, NetworkCallback callback) {
+    public void getRequest(String servlet, String jsonParametersString, String additionalParameters,
+            Crypto.Client cryptoClient, boolean isJsonResponse, NetworkCallback callback) {
         String parameters = "";
         boolean jsonParamCondition = jsonParametersString != null && !jsonParametersString.isEmpty();
         boolean additionalParamCondition = additionalParameters != null && !additionalParameters.isEmpty();
 
-        Logger.info("GET request: servlet: " + servlet + ", param:" + jsonParametersString + ", additionalParam: " + additionalParameters);
+        Logger.info("GET request: servlet: " + servlet + ", param:" + jsonParametersString + ", additionalParam: "
+                + additionalParameters);
 
         if (cryptoClient != null) {
 
             // if null (no parameters), it is set as empty string for CryptoClient
             jsonParametersString = jsonParametersString == null ? "" : jsonParametersString;
 
-            //String encryptedParameters = cryptoClient.encrypt(params);
+            // String encryptedParameters = cryptoClient.encrypt(params);
             // when encryption is enabled they are passed as JSON
             String encryptedParameters = null;
             try {
@@ -152,8 +159,8 @@ public class Network {
                     Logger.error("response.body() == null");
                 }
 
-                /*lastHeaders = */
-                saveCookies(response/*, lastHeaders*/);
+                /* lastHeaders = */
+                saveCookies(response/* , lastHeaders */);
 
                 if (isJsonResponse) {
                     try {
@@ -166,11 +173,13 @@ public class Network {
 
                                 try {
                                     messageResponse = cryptoClient.decrypt(messageResponse);
+                                    Logger.info("GET response (message decrypted): " + messageResponse);
                                 } catch (CryptoException e) {
                                     callback.onFailure(e);
+                                    return;
                                 }
 
-                                //CREATE new JSON
+                                // CREATE new JSON
                                 JSONObject json = new JSONObject(jsonResponse);
                                 json.remove("message");
                                 json.put("message", messageResponse);
@@ -178,10 +187,10 @@ public class Network {
 
                                 Logger.info("GET response (decrypted): " + jsonResponse);
 
-                                //callback.onSuccess(jsonResponse);
+                                // callback.onSuccess(jsonResponse);
                             } else {
                                 Logger.info("GET response: " + jsonResponse);
-                                //callback.onSuccess(jsonResponse);
+                                // callback.onSuccess(jsonResponse);
                             }
                             callback.onSuccess(jsonResponse);
                         } else {
@@ -204,7 +213,8 @@ public class Network {
         });
     }
 
-    public void getRequest(String servlet, String jsonParametersString, String additionalParameters, Crypto.Client cryptoClient, NetworkCallback callback) {
+    public void getRequest(String servlet, String jsonParametersString, String additionalParameters,
+            Crypto.Client cryptoClient, NetworkCallback callback) {
         getRequest(servlet, jsonParametersString, additionalParameters, cryptoClient, true, callback);
     }
 
@@ -237,11 +247,11 @@ public class Network {
                 for (String key : cookieList) {
                     stringBuilder.append(key).append(";");
                 }
-                //builder.addHeader("Cookie", stringBuilder.toString());
+                // builder.addHeader("Cookie", stringBuilder.toString());
                 headerList.put("Cookie", stringBuilder.toString());
 
-                for(String headerName : headerList.keySet()){
-                    //Logger.info(headerName + " - " + headerList.get(headerName));
+                for (String headerName : headerList.keySet()) {
+                    // Logger.info(headerName + " - " + headerList.get(headerName));
                     builder.addHeader(headerName, headerList.get(headerName));
                 }
 
@@ -277,7 +287,7 @@ public class Network {
                 cookieList.add(s);
             }
         }
-        //Logger.info("CookieMap: " + cookieList);
+        // Logger.info("CookieMap: " + cookieList);
 
     }
 
@@ -328,12 +338,13 @@ public class Network {
         });
     }
 
-    public void putRequest(String servlet, String jsonParamentesString, Crypto.Client cryptoClient, NetworkCallback callback) {
+    public void putRequest(String servlet, String jsonParamentesString, Crypto.Client cryptoClient,
+            NetworkCallback callback) {
 
         JSONObject jsonParameters = new JSONObject(jsonParamentesString);
 
         if (cryptoClient != null) {
-            //TODO ENCRYPT
+            // TODO ENCRYPT
         }
 
         URL url = null;
@@ -350,7 +361,6 @@ public class Network {
 
         RequestBody body = RequestBody.create(JSON, jsonParameters.toString());
 
-
         request = buildRequestWithHeader(VERB.PUT, url, body);
 
         client.newCall(request).enqueue(new Callback() {
@@ -363,19 +373,32 @@ public class Network {
                 } else {
                     Logger.error("ResponseBody is null");
                 }
-                /*lastHeaders = */
-                saveCookies(response/*, lastHeaders*/);
+                /* lastHeaders = */
+                saveCookies(response/* , lastHeaders */);
 
                 if (cryptoClient != null) {
                     Logger.info("PUT response (encrypted): " + jsonResponse);
 
-                    //TODO DECRYPT
+                    String messageResponse = ResponseParser.parseMessage(jsonResponse);
+
+                    try {
+                        messageResponse = cryptoClient.decrypt(messageResponse);
+                        Logger.info("PUT response (message decrypted): " + messageResponse);
+                    } catch (CryptoException e) {
+                        callback.onFailure(e);
+                        return;
+                    }
+
+                    // CREATE new JSON
+                    JSONObject json = new JSONObject(jsonResponse);
+                    json.remove("message");
+                    json.put("message", messageResponse);
+                    jsonResponse = json.toString();
 
                     Logger.info("PUT response (decrypted): " + jsonResponse);
-                    //callback.onSuccess(jsonResponse);
                 } else {
                     Logger.info("PUT response: " + jsonResponse);
-                    //callback.onSuccess(jsonResponse);
+                    // callback.onSuccess(jsonResponse);
                 }
                 callback.onSuccess(jsonResponse);
             }
@@ -396,7 +419,6 @@ public class Network {
         }
 
         Response response;
-
 
         Logger.info("Request to: " + url);
 
@@ -428,4 +450,3 @@ public class Network {
     }
 
 }
-

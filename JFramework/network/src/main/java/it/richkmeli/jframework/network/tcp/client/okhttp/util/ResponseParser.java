@@ -21,6 +21,6 @@ public class ResponseParser {
 
     public static String parseMessage(String jsonResponse) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonResponse);
-        return jsonObject.getString("message");
+        return jsonObject.get("message").toString();
     }
 }
