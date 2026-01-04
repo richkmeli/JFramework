@@ -63,8 +63,11 @@ You can import **JFramework** using GitHub Packages.
 <dependency>
     <groupId>it.richkmeli.jframework</groupId>
     <artifactId>jframework</artifactId>
-    <version>1.2.15</version>
+    <version>1.2.18</version>
 </dependency>
+
+> [!NOTE]
+> JFramework follows Semantic Versioning. Git tags for releases use the direct version number (e.g., `1.2.18`) without any prefix like `v`.
 ```
 
 **Note**: GitHub Packages requires authentication. Create a Personal Access Token with `read:packages` scope.

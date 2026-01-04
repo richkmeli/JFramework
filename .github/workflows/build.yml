@@ -3,7 +3,7 @@ name: Build and Test
 on:
   push:
     branches: [ master, main, develop ]
-    tags: [ 'v*' ]
+    tags: [ '[0-9]+.[0-9]+.[0-9]+*' ]
   pull_request:
     branches: [ master, main ]
 
@@ -39,9 +39,9 @@ jobs:
     - name: Build and Test with Maven
       run: mvn clean install -B -V
     
-    # NOTE: Deployment to GitHub Packages and formal GitHub Releases are only triggered by pushing a tag (e.g. v1.2.16)
+    # NOTE: Deployment to GitHub Packages and formal GitHub Releases are only triggered by pushing a numeric tag (e.g. 1.2.18)
     - name: Publish to GitHub Packages
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: startsWith(github.ref, 'refs/tags/') && !startsWith(github.ref, 'refs/tags/v')
       run: mvn deploy -DskipTests -B
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -53,11 +53,12 @@ jobs:
         fail_ci_if_error: false
 
     - name: List Release Artifacts
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: startsWith(github.ref, 'refs/tags/') && !startsWith(github.ref, 'refs/tags/v')
       run: ls -R release/
 
     - name: Upload Release Artifacts
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: startsWith(github.ref, 'refs/tags/') && !startsWith(github.ref, 'refs/tags/v')
+      run: ls -R release/
       uses: actions/upload-artifact@v4
       with:
         name: release-jars
@@ -65,7 +66,7 @@ jobs:
 
   release:
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/') && !startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
       contents: write
