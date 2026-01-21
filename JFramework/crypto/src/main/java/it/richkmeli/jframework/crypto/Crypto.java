@@ -131,8 +131,9 @@ public class Crypto {
      * @see #encryptAES(String, String)
      */
     @Deprecated
-    public static String encryptRC4(String input, String key) {
-        return RC4.encrypt(input, key);
+    public static String encryptRC4(String input, String key) throws CryptoException {
+        //return RC4.encrypt(input, key);
+        throw new CryptoException("RC4 is insecure and should not be used. Use AES instead.");
     }
 
     /**
@@ -149,7 +150,8 @@ public class Crypto {
      */
     @Deprecated
     public static String decryptRC4(String input, String key) throws CryptoException {
-        return RC4.decrypt(input, key);
+        //return RC4.decrypt(input, key);
+        throw new CryptoException("RC4 is insecure and should not be used. Use AES instead.");
     }
 
     /**

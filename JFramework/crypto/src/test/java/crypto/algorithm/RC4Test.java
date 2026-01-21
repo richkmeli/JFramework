@@ -9,43 +9,20 @@ import static org.junit.Assert.assertEquals;
 
 public class RC4Test {
 
-    @Test
-    public void encrypt_decrypt() {
+    @Test(expected = CryptoException.class)
+    public void encryptRC4ShouldFail() throws CryptoException {
+        String plain = genString(10);
+        String key = genString(10);
 
-        for (int i : plainTextLengths) {
-            for (int i2 : keyLengths) {
-
-                String plain = genString(i);
-                String key = genString(i2);
-
-                String encrypted = Crypto.encryptRC4(plain, key);
-                String decrypted = null;
-                try {
-                    decrypted = Crypto.decryptRC4(encrypted, key);
-                } catch (CryptoException e) {
-                    e.printStackTrace();
-                    assert false;
-                }
-
-                assertEquals(plain, decrypted);
-            }
-        }
+        // this should fail, as RC4 is insecure
+        Crypto.encryptRC4(plain, key);
     }
 
-    @Test
-    public void decryptWrongString() {
+    @Test(expected = CryptoException.class)
+    public void decryptRC4ShouldFail() throws CryptoException {
         String encrypted = "NJ12_eEyaN8cf348RQf9_w=";
-        try {
-            Crypto.decryptRC4(encrypted, "richktest");
-            assert false;
-        } catch (CryptoException e) {
-            //e.printStackTrace();
-            assert true;
-        }
-    }
-
-        @Test
-    public void encrypt_decrypt__BcCompability() {
+        // this should fail, as RC4 is insecure
+        Crypto.decryptRC4(encrypted, "richktest");
     }
 
 
