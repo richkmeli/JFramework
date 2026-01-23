@@ -236,14 +236,12 @@ public class CryptoTest {
 
     @Test
     public void passwordTest() {
-        for (String s : cryptoStrings) {
-            // password for DB
-            String dbPW = Crypto.hashPassword(s, false);
+        for (String password : cryptoStrings) {
+            // Hash the password (which now always includes a salt)
+            String hashedPassword = Crypto.hashPassword(password);
 
-            // password for login
-            String loginPW = Crypto.hashPassword(s, true);
-
-            assertTrue(Crypto.verifyPassword(dbPW, loginPW));
+            // Verify the original password against the new hash
+            assertTrue(Crypto.verifyPassword(password, hashedPassword));
         }
     }
 

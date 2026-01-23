@@ -8,38 +8,38 @@ import java.util.Base64;
 
 public class PasswordManager {
 
-    // salt is enabled only during login process, instead set it as false for saving passwords into DB
-    public static String hashPassword(String password, boolean saltEnabled) {
-        // salt generation
-        /*Random r = new SecureRandom();
-        byte[] salt = new byte[9];
-        r.nextBytes(salt);*/
-        String saltS = "";
-        String hashedPassword = "";
-        if (saltEnabled) {
-            saltS = RandomStringGenerator.generateAlphanumericString(9);//new String(salt);
-            hashedPassword = SHA256.hash(SHA256.hash(password) + saltS);
-        } else {
-            saltS = "000000000";
-            hashedPassword = SHA256.hash(password);
-        }
-
-        //System.out.println("hashPassword, saltS: " + saltS + " " + saltS.length() + " | hashedPassword: " + hashedPassword + " " + hashedPassword.length());
-        String out = saltS + hashedPassword;
+    /**
+     * Hashes a password using a randomly generated salt.
+     * The salt is prepended to the hash and the result is Base64 encoded.
+     *
+     * @param password the password to hash
+     * @return the hashed password with the salt, Base64 encoded
+     */
+    public static String hashPassword(String password) {
+        String salt = RandomStringGenerator.generateAlphanumericString(16);
+        String hashedPassword = SHA256.hash(password + salt);
+        String out = salt + hashedPassword;
         return Base64.getUrlEncoder().encodeToString(out.getBytes(Charset.defaultCharset()));
     }
 
-    // hashedPassword = db password, hashedSaltPassword = login password
-    public static boolean verifyPassword(String hashedPassword, String hashedSaltPassword) {
-        String decodedHashedPassword = new String(Base64.getUrlDecoder().decode(hashedPassword));
-        String decodedHashedSaltPassword = new String(Base64.getUrlDecoder().decode(hashedSaltPassword));
-        String salt = decodedHashedSaltPassword.substring(0, 9);
-        String hashSP = decodedHashedSaltPassword.substring(9);
-        String hashP = decodedHashedPassword.substring(9);
-
-        //System.out.println("verifyPassword, saltS: " + salt + " " + salt.length() + " | hashedSaltPassword: " + hashSP + " " + hashSP.length());
-        String hp = SHA256.hash(hashP + salt);
-
-        return hashSP.equalsIgnoreCase(hp);
+    /**
+     * Verifies a plaintext password against a stored hashed password.
+     *
+     * @param plaintextPassword the password to verify
+     * @param hashedPassword the stored hashed password (must contain the salt)
+     * @return true if the password is correct, false otherwise
+     */
+    public static boolean verifyPassword(String plaintextPassword, String hashedPassword) {
+        try {
+            String decodedHashedPassword = new String(Base64.getUrlDecoder().decode(hashedPassword));
+            // The salt is the first 16 characters of the decoded hash
+            String salt = decodedHashedPassword.substring(0, 16);
+            String storedHash = decodedHashedPassword.substring(16);
+            String computedHash = SHA256.hash(plaintextPassword + salt);
+            return storedHash.equals(computedHash);
+        } catch (Exception e) {
+            // If any error occurs (e.g., decoding, substring), verification fails
+            return false;
+        }
     }
 }
