@@ -195,15 +195,27 @@ public class Crypto {
         return SHA256.hash(input);
     }
 
-    // salt is enabled only during login process, instead set it as false for saving
-    // passwords into DB
-    public static String hashPassword(String password, boolean saltEnabled) {
-        return PasswordManager.hashPassword(password, saltEnabled);
+    /**
+     * Hashes a password using a randomly generated salt.
+     * This method is a wrapper for {@link PasswordManager#hashPassword(String)}.
+     *
+     * @param password the password to hash
+     * @return the hashed password with the salt, Base64 encoded
+     */
+    public static String hashPassword(String password) {
+        return PasswordManager.hashPassword(password);
     }
 
-    // hashedPassword = db password, hashedSaltPassword = login password
-    public static boolean verifyPassword(String hashedPassword, String hashedSaltPassword) {
-        return PasswordManager.verifyPassword(hashedPassword, hashedSaltPassword);
+    /**
+     * Verifies a plaintext password against a stored hashed password.
+     * This method is a wrapper for {@link PasswordManager#verifyPassword(String, String)}.
+     *
+     * @param plaintextPassword the password to verify
+     * @param hashedPassword the stored hashed password (must contain the salt)
+     * @return true if the password is correct, false otherwise
+     */
+    public static boolean verifyPassword(String plaintextPassword, String hashedPassword) {
+        return PasswordManager.verifyPassword(plaintextPassword, hashedPassword);
     }
 
     public static void putData(File file, String secretKey, String key, String value) {
