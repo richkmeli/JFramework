@@ -169,23 +169,15 @@ public class CryptoControllerClient extends CryptoController {
 */
 
     protected static int checkState(File secureDataFile, String secretKey) {
-        int state = SecureDataState.NOT_INITIALIZED;
         ClientSecureData clientSecureData = SecureDataManager.getClientSecureData(secureDataFile, secretKey);
 
-        // check if it is present keypair, so public key
-        if (/*clientSecureData.getPublicKeyServer() != null &&*/ clientSecureData.getKeyPairClient() != null) {
-            state = SecureDataState.PUBLIC_KEY_GENERATED;//PUBLIC_KEYS_EXCHANGED;
-        } else {
-            Logger.error("checkState, getKeyPairClient null");
-        }
-
         if (clientSecureData.getSecretKey() != null) {
-            state = SecureDataState.SECRET_KEY_EXCHANGED;
+            return SecureDataState.SECRET_KEY_EXCHANGED;
+        } else if (clientSecureData.getKeyPairClient() != null) {
+            return SecureDataState.PUBLIC_KEY_GENERATED;
         } else {
-            Logger.error("checkState, getSecretKey null");
+            return SecureDataState.NOT_INITIALIZED;
         }
-
-        return state;
     }
 
     public static String send(String message, int timeout, File secureDataFile, String secretKey) throws CryptoException {

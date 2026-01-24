@@ -146,32 +146,19 @@ public class CryptoControllerServer extends CryptoController {
 
 
     private static int checkState(File secureDataFile, String secretKey, String clientID) {
-        int state = SecureDataState.NOT_INITIALIZED;
         ServerSecureData serverSecureData = SecureDataManager.getServerSecureData(secureDataFile, secretKey);
 
-        Map<String, DiffieHellmanPayload> map = serverSecureData.getDiffieHellmanPayloadMap();
-        if (map != null) {
-            if (map.containsKey(clientID)) {
-                state = SecureDataState.PUBLIC_KEYS_EXCHANGED;
-            } else {
-                Logger.error("checkState, DiffieHellmanPayloadMap is not containing " + clientID);
-            }
-        } else {
-            Logger.error("checkState, DiffieHellmanPayloadMap null");
+        Map<String, SecretKey> secretKeyMap = serverSecureData.getSecretKeyClientMap();
+        if (secretKeyMap != null && secretKeyMap.containsKey(clientID)) {
+            return SecureDataState.SECRET_KEY_EXCHANGED;
         }
 
-        Map<String, SecretKey> map2 = serverSecureData.getSecretKeyClientMap();
-        if (map2 != null) {
-            if (map2.containsKey(clientID)) {
-                state = SecureDataState.SECRET_KEY_EXCHANGED;
-            } else {
-                Logger.error("checkState, SecretKey_ClientMap is not containing " + clientID);
-            }
-        } else {
-            Logger.error("checkState, SecretKey_ClientMap null");
+        Map<String, DiffieHellmanPayload> payloadMap = serverSecureData.getDiffieHellmanPayloadMap();
+        if (payloadMap != null && payloadMap.containsKey(clientID)) {
+            return SecureDataState.PUBLIC_KEYS_EXCHANGED;
         }
 
-        return state;
+        return SecureDataState.NOT_INITIALIZED;
     }
 
 

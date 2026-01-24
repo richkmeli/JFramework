@@ -237,13 +237,8 @@ public class CryptoTest {
     @Test
     public void passwordTest() {
         for (String s : cryptoStrings) {
-            // password for DB
-            String dbPW = Crypto.hashPassword(s, false);
-
-            // password for login
-            String loginPW = Crypto.hashPassword(s, true);
-
-            assertTrue(Crypto.verifyPassword(dbPW, loginPW));
+            String storedHash = Crypto.hashPassword(s);
+            assertTrue(Crypto.verifyPassword(s, storedHash));
         }
     }
 
