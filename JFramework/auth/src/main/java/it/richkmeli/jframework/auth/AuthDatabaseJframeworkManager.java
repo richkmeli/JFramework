@@ -102,10 +102,23 @@ public class AuthDatabaseJframeworkManager extends DatabaseManager implements Au
     public boolean checkPassword(String email, String pass) throws AuthDatabaseException, ModelException {
         User user = getUser(email);
         if (user != null) {
-            return Crypto.verifyPassword(user.getPassword(), pass);
-        } else {
-            return false;
+            String storedPassword = user.getPassword();
+            if (Crypto.verifyPassword(pass, storedPassword)) {
+                // **Security Enhancement: Lazy Migration of Passwords**
+                // If the stored password is in the old, insecure format (detected by the absence of our delimiter),
+                // re-hash it with the new secure method and update it in the database.
+                if (!storedPassword.contains(":")) { // Simple check for old format
+                    try {
+                        editPassword(email, pass);
+                    } catch (AuthDatabaseException e) {
+                        // Log the error, but don't block login. The password can be updated next time.
+                        Logger.error("Failed to re-hash and update password for user: " + email, e);
+                    }
+                }
+                return true;
+            }
         }
+        return false;
     }
 
     @Override
