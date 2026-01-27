@@ -5,11 +5,15 @@ import it.richkmeli.jframework.crypto.Crypto;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
 import org.json.JSONObject;
 import org.junit.Test;
-
+import java.nio.charset.StandardCharsets;
+import it.richkmeli.jframework.crypto.algorithm.SHA256;
 import java.io.File;
-
+import java.util.Base64;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
 
 public class CryptoTest {
     private File secureDataClient;
@@ -237,13 +241,29 @@ public class CryptoTest {
     @Test
     public void passwordTest() {
         for (String s : cryptoStrings) {
-            // password for DB
-            String dbPW = Crypto.hashPassword(s, false);
+            // Test the new, secure hashing
+            String newHashedPassword = Crypto.hashPassword(s);
+            assertTrue("Failed to verify a correctly hashed password.", Crypto.verifyPassword(s, newHashedPassword));
+            assertFalse("Verified an incorrect password.", Crypto.verifyPassword("wrong_password", newHashedPassword));
+        }
+    }
 
-            // password for login
-            String loginPW = Crypto.hashPassword(s, true);
+    @Test
+    public void testPasswordMigration() {
+        String password = "old_password_format";
+        try {
+            // 1. Simulate the old, insecure hash format
+            String oldInsecureHash = Base64.getUrlEncoder().encodeToString(("000000000" + SHA256.hash(password)).getBytes(StandardCharsets.UTF_8));
 
-            assertTrue(Crypto.verifyPassword(dbPW, loginPW));
+            // 2. Verify that the new verifyPassword method can still validate the old hash
+            assertTrue("The new verifyPassword method should be able to validate old hashes.", Crypto.verifyPassword(password, oldInsecureHash));
+
+            // 3. Verify that a wrong password fails against the old hash
+            assertFalse("A wrong password should not validate against an old hash.", Crypto.verifyPassword("wrong_password", oldInsecureHash));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown during password migration test: " + e.getMessage());
         }
     }
 
