@@ -38,7 +38,7 @@ public class AuthDatabaseManagerTest extends DatabaseManager implements AuthMode
     public boolean addUser(UserTest user) throws DatabaseException {
         //Logger.info("AuthDatabaseManager, addUser. User: " + user.email);
         //String hash = Crypto.hash(user.getPassword());
-        String password = Crypto.hashPassword(user.getPassword(), false);
+        String password = Crypto.hashPassword(user.getPassword());
         user.setPassword(password);
         return create(user);
     }
@@ -53,7 +53,7 @@ public class AuthDatabaseManagerTest extends DatabaseManager implements AuthMode
     }
 
     public boolean editPassword(String email, String pass) throws DatabaseException {
-        String password = Crypto.hashPassword(pass, false);
+        String password = Crypto.hashPassword(pass);
         return update(new UserTest(email, password, null));
     }
 

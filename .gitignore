@@ -31,3 +31,5 @@ log.txt
 secureData*.txt
 logfile.txt
 rmc_log.txt
+*secureData*.txt
+logfileConf.txt

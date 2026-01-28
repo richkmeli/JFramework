@@ -195,15 +195,13 @@ public class Crypto {
         return SHA256.hash(input);
     }
 
-    // salt is enabled only during login process, instead set it as false for saving
-    // passwords into DB
-    public static String hashPassword(String password, boolean saltEnabled) {
-        return PasswordManager.hashPassword(password, saltEnabled);
+    public static String hashPassword(String password) {
+        return PasswordManager.hashPassword(password);
     }
 
-    // hashedPassword = db password, hashedSaltPassword = login password
-    public static boolean verifyPassword(String hashedPassword, String hashedSaltPassword) {
-        return PasswordManager.verifyPassword(hashedPassword, hashedSaltPassword);
+    // hashedPassword = db password, password = login password
+    public static boolean verifyPassword(String hashedPassword, String password) {
+        return PasswordManager.verifyPassword(hashedPassword, password);
     }
 
     public static void putData(File file, String secretKey, String key, String value) {
