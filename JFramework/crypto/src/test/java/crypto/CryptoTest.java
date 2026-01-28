@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.io.File;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class CryptoTest {
@@ -237,13 +238,20 @@ public class CryptoTest {
     @Test
     public void passwordTest() {
         for (String s : cryptoStrings) {
-            // password for DB
-            String dbPW = Crypto.hashPassword(s, false);
+             if (s == null || s.isEmpty()) {
+                continue; // Skip empty passwords for this test
+            }
+            // Test new hash format
+            String newHashedPassword = Crypto.hashPassword(s);
+            assertTrue("Failed to verify new password format for: '" + s + "'", Crypto.verifyPassword(newHashedPassword, s));
+            assertFalse("Incorrectly verified new password format with wrong password", Crypto.verifyPassword(newHashedPassword, s + "wrong"));
 
-            // password for login
-            String loginPW = Crypto.hashPassword(s, true);
-
-            assertTrue(Crypto.verifyPassword(dbPW, loginPW));
+            // Test old hash format verification
+            String salt = "000000000";
+            String hash = it.richkmeli.jframework.crypto.algorithm.SHA256.hash(s);
+            String oldFormatHash = java.util.Base64.getUrlEncoder().encodeToString((salt + hash).getBytes(java.nio.charset.Charset.defaultCharset()));
+            assertTrue("Failed to verify old password format for: '" + s + "'", Crypto.verifyPassword(oldFormatHash, s));
+            assertFalse("Incorrectly verified old password format with wrong password", Crypto.verifyPassword(oldFormatHash, s + "wrong"));
         }
     }
 

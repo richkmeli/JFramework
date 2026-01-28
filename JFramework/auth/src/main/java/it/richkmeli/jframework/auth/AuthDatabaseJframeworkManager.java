@@ -54,7 +54,7 @@ public class AuthDatabaseJframeworkManager extends DatabaseManager implements Au
     public boolean addUser(User user) throws AuthDatabaseException {
         //Logger.info("AuthDatabaseManager, addUser. User: " + user.email);
         //String hash = Crypto.hash(user.getPassword());
-        String password = Crypto.hashPassword(user.getPassword(), false);
+        String password = Crypto.hashPassword(user.getPassword());
         user.setPassword(password);
         try {
             return create(user);
@@ -81,7 +81,7 @@ public class AuthDatabaseJframeworkManager extends DatabaseManager implements Au
 
     @Override
     public boolean editPassword(String email, String pass) throws AuthDatabaseException, ModelException {
-        String password = Crypto.hashPassword(pass, false);
+        String password = Crypto.hashPassword(pass);
         try {
             return update(new User(email, password, null));
         } catch (DatabaseException e) {
@@ -102,7 +102,22 @@ public class AuthDatabaseJframeworkManager extends DatabaseManager implements Au
     public boolean checkPassword(String email, String pass) throws AuthDatabaseException, ModelException {
         User user = getUser(email);
         if (user != null) {
-            return Crypto.verifyPassword(user.getPassword(), pass);
+            boolean passwordMatches = Crypto.verifyPassword(user.getPassword(), pass);
+            if (passwordMatches) {
+                // Check if the hash needs to be upgraded
+                String decodedDbHash = new String(java.util.Base64.getUrlDecoder().decode(user.getPassword()));
+                if (decodedDbHash.startsWith("000000000")) {
+                    // Old hash format, upgrade it
+                    try {
+                        editPassword(email, pass);
+                        Logger.info("Password for user " + email + " has been migrated to the new hash format.");
+                    } catch (AuthDatabaseException | ModelException e) {
+                        Logger.error("Failed to migrate password for user " + email, e);
+                        // Don't fail the login, but log the error. The user can still log in.
+                    }
+                }
+            }
+            return passwordMatches;
         } else {
             return false;
         }

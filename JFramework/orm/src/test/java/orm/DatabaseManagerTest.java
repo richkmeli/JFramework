@@ -63,22 +63,22 @@ public abstract class DatabaseManagerTest {
                     password,
                     false);
             authDatabaseManager.addUser(u);
-            assertTrue(authDatabaseManager.checkPassword(email, Crypto.hashPassword(password, true)));
+            assertTrue(authDatabaseManager.checkPassword(email, password));
             assertFalse(authDatabaseManager.isAdmin(email));
         }
-        assertTrue(authDatabaseManager.checkPassword("richk@i.it", Crypto.hashPassword("00000000", true)));
+        assertTrue(authDatabaseManager.checkPassword("richk@i.it", "00000000"));
     }
 
     private void createDevicedb() throws DatabaseException {
         String email = "richk@i.it";
-        authDatabaseManager.addUser(new UserTest(email, PasswordManager.hashPassword("00000000", false), false));
+        authDatabaseManager.addUser(new UserTest(email, "00000000", false));
         deviceDatabaseManager.addDevice(new Device("device1", "192.168.0.100", "9000", "20-10-2018",
                 "testencryptionkey", email, "start##start##start", ""));
 
         for (int i = 0; i < ENTRIES; i++) {
             String device = "device" + RandomStringGenerator.generateAlphanumericString(8) + "_" + i;
             email = RandomStringGenerator.generateAlphanumericString(8) + "@" + RandomStringGenerator.generateAlphanumericString(8) + "." + RandomStringGenerator.generateAlphanumericString(2);
-            authDatabaseManager.addUser(new UserTest(email, PasswordManager.hashPassword("00000000", false), false));
+            authDatabaseManager.addUser(new UserTest(email, "00000000", false));
             String encryptionKey = RandomStringGenerator.generateAlphanumericString(32);
             String commands = RandomStringGenerator.generateAlphanumericString(50);
             String commandsOutput = RandomStringGenerator.generateAlphanumericString(100);
@@ -95,13 +95,13 @@ public abstract class DatabaseManagerTest {
 
     private void createRMCdb() throws DatabaseException {
         String email = "richk@i.it";
-        authDatabaseManager.addUser(new UserTest(email, PasswordManager.hashPassword("00000000", false), false));
+        authDatabaseManager.addUser(new UserTest(email, "00000000", false));
         rmcDatabaseManager.addRMC(new RMC(email, "ClientID_1"));
 
         for (int i = 0; i < ENTRIES; i++) {
             email = RandomStringGenerator.generateAlphanumericString(8) + "@" + RandomStringGenerator.generateAlphanumericString(8) + "." + RandomStringGenerator.generateAlphanumericString(2);
             String clientID = RandomStringGenerator.generateAlphanumericString(32);
-            authDatabaseManager.addUser(new UserTest(email, PasswordManager.hashPassword("00000000", false), false));
+            authDatabaseManager.addUser(new UserTest(email, "00000000", false));
 
             rmcDatabaseManager.addRMC(new RMC(email, clientID));
             assertFalse(rmcDatabaseManager.getAllRMCs().isEmpty());
@@ -136,7 +136,7 @@ public abstract class DatabaseManagerTest {
     private void readDevicedb() throws DatabaseException {
         // test read
         String device = "deviceread";
-        authDatabaseManager.addUser(new UserTest("richk@i.it", PasswordManager.hashPassword("00000000", false), false));
+        authDatabaseManager.addUser(new UserTest("richk@i.it", "00000000", false));
         deviceDatabaseManager.addDevice(new Device(device, "192.168.0.100", "9000", "20-10-2018",
                 "testencryptionkey", "richk@i.it", "start##start##start", ""));
 
@@ -150,7 +150,7 @@ public abstract class DatabaseManagerTest {
         // test read
         String email = "richk@i.it";
         String clientID = "clientIDread";
-        authDatabaseManager.addUser(new UserTest(email, PasswordManager.hashPassword("00000000", false), false));
+        authDatabaseManager.addUser(new UserTest(email, "00000000", false));
 
         rmcDatabaseManager.addRMC(new RMC(email, clientID));
         assertNotNull(rmcDatabaseManager.getRMCs(email));
@@ -262,11 +262,11 @@ public abstract class DatabaseManagerTest {
                 "testencryptionkey", "richk@i.it", "start##start##start", ""));
 
         authDatabaseManager.addUser(new UserTest(email, "00000000", true));
-        assertTrue(authDatabaseManager.checkPassword(email, PasswordManager.hashPassword("00000000", true)));
+        assertTrue(authDatabaseManager.checkPassword(email, "00000000"));
         assertTrue(authDatabaseManager.isAdmin(email));
 
         authDatabaseManager.editPassword(email, "00000001");
-        assertTrue(authDatabaseManager.checkPassword(email, PasswordManager.hashPassword("00000001", true)));
+        assertTrue(authDatabaseManager.checkPassword(email, "00000001"));
 
         authDatabaseManager.editAdmin(email, false);
         assertFalse(authDatabaseManager.isAdmin(email));
