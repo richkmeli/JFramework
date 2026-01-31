@@ -3,6 +3,8 @@ package it.richkmeli.jframework.crypto.algorithm;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import it.richkmeli.jframework.util.TypeConverter;
 
+import java.nio.charset.StandardCharsets;
+
 public class SHA256 {
     public static byte[] hash(byte[] input) {
         SHA256Digest digest = new SHA256Digest();
@@ -15,7 +17,7 @@ public class SHA256 {
 
     // sha256: string to hex
     public static String hash(String input) {
-        return TypeConverter.bytesToHex(hash(input.getBytes()));
+        return TypeConverter.bytesToHex(hash(input.getBytes(StandardCharsets.UTF_8)));
     }
 
     public static String hashToString(byte[] input) {
