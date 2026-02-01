@@ -4,6 +4,8 @@ import it.richkmeli.jframework.crypto.algorithm.SHA256;
 import it.richkmeli.jframework.crypto.exception.CryptoException;
 import it.richkmeli.jframework.util.RandomStringGenerator;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +31,7 @@ public class TokenManager {
          String extendedToken = generate(extractedNumericSalt + value, false);
         // put extractedNumericSalt at first chars of extendedToken
         extendedToken = reduceToNumeric(extractedNumericSalt + extendedToken, numericCompactToken.length());
-        return numericCompactToken.equalsIgnoreCase(extendedToken);
+        return MessageDigest.isEqual(numericCompactToken.getBytes(StandardCharsets.UTF_8), extendedToken.getBytes(StandardCharsets.UTF_8));
     }
 
     public static String generate(String value) {
@@ -109,7 +111,7 @@ public class TokenManager {
             hashed = token;
             calculatedHash = SHA256.hash(value + (currentTimeMinutes * minutesOfValidity));
         }
-        return hashed.equalsIgnoreCase(calculatedHash);
+        return MessageDigest.isEqual(hashed.toLowerCase().getBytes(StandardCharsets.UTF_8), calculatedHash.toLowerCase().getBytes(StandardCharsets.UTF_8));
     }
 
     private static String reduceToNumeric(String extendedToken, int length) {

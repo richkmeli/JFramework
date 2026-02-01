@@ -28,6 +28,7 @@ target
 log.txt
 /AuthSchema/
 .vscode
-secureData*.txt
+*secureData*.txt
 logfile.txt
 rmc_log.txt
+logfileConf.txt
