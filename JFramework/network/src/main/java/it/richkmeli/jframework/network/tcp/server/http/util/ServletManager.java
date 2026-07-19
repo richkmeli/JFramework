@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -128,12 +130,18 @@ public abstract class ServletManager {
             //Logger.info("Cookie JFRAMEWORKSESSIONID: already present");
             cookie = getCookie(request, JFSESSIONID);
         } else {
-            String id = request.getRemoteAddr()
+            String encryptionKey = "default_secret_salt";
+            try {
+                encryptionKey = ResourceBundle.getBundle("configuration").getString("encryptionkey");
+            } catch (Exception e) {
+                // encryptionKey remains "default_secret_salt"
+            }
+            String id = encryptionKey + "##" + request.getRemoteAddr()
                     //+ "##" + request.getRemoteUser()
                     + "##" + getCookie(request, "JSESSIONID").getValue()
                     + "##" + request.getHeader("User-Agent");
             //Logger.info("Cookie JFRAMEWORKSESSIONID: " + id);
-            String hashed = SHA256.hashToString(id.getBytes());
+            String hashed = SHA256.hashToString(id.getBytes(StandardCharsets.UTF_8));
             cookie = new Cookie(JFSESSIONID, hashed);
             //cookie.setMaxAge(JFSESSIONCOOKIE_MAXAGE);
         }
@@ -152,9 +160,16 @@ public abstract class ServletManager {
         }
         String userAgent = request.getHeader("User-Agent");
 
-        String id = remoteAddr + "##" + jsessionid + "##" + userAgent;
+        String encryptionKey = "default_secret_salt";
+        try {
+            encryptionKey = ResourceBundle.getBundle("configuration").getString("encryptionkey");
+        } catch (Exception e) {
+            // encryptionKey remains "default_secret_salt"
+        }
+
+        String id = encryptionKey + "##" + remoteAddr + "##" + jsessionid + "##" + userAgent;
         //Logger.info("Cookie JFRAMEWORKSESSIONID: " + id);
-        String hashed = SHA256.hashToString(id.getBytes());
+        String hashed = SHA256.hashToString(id.getBytes(StandardCharsets.UTF_8));
         return new Cookie(JFSESSIONID, hashed);
     }
 
@@ -168,7 +183,7 @@ public abstract class ServletManager {
             //response.reset();
             throw new JServletException(new KoResponse(BaseStatusCode.JFRAMEWORK_SESSIONID_ERROR));
         }
-        if (!extractedJframeworkSessionID.getValue().equalsIgnoreCase(generateSessionCookie(request).getValue())) {
+        if (!MessageDigest.isEqual(extractedJframeworkSessionID.getValue().getBytes(StandardCharsets.UTF_8), generateSessionCookie(request).getValue().getBytes(StandardCharsets.UTF_8))) {
             String error = "JFRAMEWORKSESSIONID mismatch, possible Session Hijacking Attack";
             Logger.error(error);
             resetSession(request, response);

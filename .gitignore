@@ -30,4 +30,5 @@ log.txt
 .vscode
 secureData*.txt
 logfile.txt
+logfileConf.txt
 rmc_log.txt
